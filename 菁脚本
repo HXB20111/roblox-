@@ -1,0 +1,268 @@
+-- 加载UI库
+local OrionLib = loadstring(game:HttpGet(("https://pastebin.com/raw/FUEx0f3G")))()
+
+-- 基础设置
+local player = game.Players.LocalPlayer
+local Workspace = game:GetService("Workspace")
+local Lighting = game:GetService("Lighting")
+
+-- 创建主窗口
+local Window = OrionLib:MakeWindow({
+    Name = "Roblox 多功能脚本",
+    HidePremium = false,
+    SaveConfig = true,
+    ConfigFolder = "RobloxScript",
+    Theme = "Dark",
+    Icon = "rbxassetid://4483345998"
+})
+
+-- 工具函数：创建圆角效果
+local function makeRound(obj, radius)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = radius or UDim.new(0.05, 0)
+    corner.Parent = obj
+    return corner
+end
+
+-- 欢迎通知
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "脚本加载成功",
+    Text = "UI已就绪，点击图标打开面板",
+    Duration = 5,
+    Icon = "rbxassetid://4483345998"
+})
+
+-- 1. 玩家信息标签页
+local PlayerTab = Window:MakeTab({
+    Name = "玩家信息",
+    Icon = "rbxassetid://6034775432",
+    PremiumOnly = false
+})
+
+-- 玩家信息卡片
+local infoCard = Instance.new("Frame")
+infoCard.Size = UDim2.new(1, -20, 0, 180)
+infoCard.Position = UDim2.new(0, 10, 0, 10)
+infoCard.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+infoCard.BorderSizePixel = 0
+makeRound(infoCard)
+infoCard.Parent = PlayerTab.Frame
+
+-- 头像显示
+local avatar = Instance.new("ImageLabel")
+avatar.Size = UDim2.new(0, 80, 0, 80)
+avatar.Position = UDim2.new(0.5, 0, 0, 15)
+avatar.AnchorPoint = Vector2.new(0.5, 0)
+avatar.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+avatar.Image = "https://www.roblox.com/Thumbs/Avatar.ashx?x=100&y=100&username="..player.Name
+makeRound(avatar, UDim.new(0.5, 0)) -- 圆形头像
+avatar.Parent = infoCard
+
+-- 信息文本
+local function addInfoText(text, yPos)
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 0, 20)
+    label.Position = UDim2.new(0, 0, 0, yPos)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.new(0.9, 0.9, 0.9)
+    label.Text = text
+    label.TextXAlignment = Enum.TextXAlignment.Center
+    label.TextSize = 14
+    label.Parent = infoCard
+    return label
+end
+
+addInfoText("用户名: "..player.Name, 100)
+addInfoText("用户ID: "..player.UserId, 125)
+addInfoText("服务器: "..game.JobId:sub(1, 8).."...", 150)
+
+-- 2. 角色功能标签页
+local CharacterTab = Window:MakeTab({
+    Name = "角色功能",
+    Icon = "rbxassetid://6034775432",
+    PremiumOnly = false
+})
+
+-- 移动设置区域
+local MovementSection = CharacterTab:AddSection({Name = "移动控制"})
+
+-- 滑块控制
+CharacterTab:AddSlider({
+    Name = "移动速度",
+    Min = 16,
+    Max = 200,
+    Default = 16,
+    Increment = 1,
+    Callback = function(Value)
+        if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+            player.Character.Humanoid.WalkSpeed = Value
+        end
+    end
+})
+
+CharacterTab:AddSlider({
+    Name = "跳跃高度",
+    Min = 50,
+    Max = 500,
+    Default = 50,
+    Increment = 10,
+    Callback = function(Value)
+        if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+            player.Character.Humanoid.JumpPower = Value
+        end
+    end
+})
+
+-- 开关功能区
+local ToggleSection = CharacterTab:AddSection({Name = "特殊功能"})
+
+-- 夜视模式
+CharacterTab:AddToggle({
+    Name = "夜视模式",
+    Default = false,
+    Callback = function(Value)
+        Lighting.Ambient = Value and Color3.new(0.5, 0.5, 0.5) or Color3.new(0, 0, 0)
+        Lighting.Brightness = Value and 2 or 1
+    end
+})
+
+-- 穿墙模式
+CharacterTab:AddToggle({
+    Name = "穿墙模式",
+    Default = false,
+    Callback = function(Value)
+        if player.Character then
+            for _, part in pairs(player.Character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = not Value
+                end
+            end
+        end
+    end
+})
+
+-- 3. 世界设置标签页
+local WorldTab = Window:MakeTab({
+    Name = "世界设置",
+    Icon = "rbxassetid://6034775432",
+    PremiumOnly = false
+})
+
+-- 时间控制
+WorldTab:AddSlider({
+    Name = "时间速度",
+    Min = 0.1,
+    Max = 10,
+    Default = 1,
+    Increment = 0.1,
+    Callback = function(Value)
+        game.Lighting.ClockTime = game.Lighting.ClockTime
+        game.Lighting.TimeOfDay = game.Lighting.TimeOfDay
+        game.Lighting.CycleLength = 24 * 60 / Value
+    end
+})
+
+-- 重力设置
+WorldTab:AddSlider({
+    Name = "重力大小",
+    Min = 100,
+    Max = 2000,
+    Default = 196.2,
+    Increment = 50,
+    Callback = function(Value)
+        Workspace.Gravity = Value
+    end
+})
+
+-- 4. 快捷功能标签页
+local QuickTab = Window:MakeTab({
+    Name = "快捷功能",
+    Icon = "rbxassetid://6034775432",
+    PremiumOnly = false
+})
+
+-- 快速按钮
+QuickTab:AddButton({
+    Name = "重生角色",
+    Callback = function()
+        player:LoadCharacter()
+        OrionLib:MakeNotification({
+            Name = "成功",
+            Content = "角色已重生",
+            Time = 2
+        })
+    end
+})
+
+QuickTab:AddButton({
+    Name = "清除障碍物",
+    Callback = function()
+        for _, v in pairs(Workspace:GetDescendants()) do
+            if v:IsA("BasePart") and v.Name ~= "Terrain" and not v:FindFirstAncestor(player.Name) then
+                v:Destroy()
+            end
+        end
+        OrionLib:MakeNotification({
+            Name = "成功",
+            Content = "障碍物已清除",
+            Time = 2
+        })
+    end
+})
+
+-- 5. 配置保存标签页
+local ConfigTab = Window:MakeTab({
+    Name = "配置管理",
+    Icon = "rbxassetid://6034775432",
+    PremiumOnly = false
+})
+
+ConfigTab:AddButton({
+    Name = "保存当前配置",
+    Callback = function()
+        OrionLib:SaveConfig()
+        OrionLib:MakeNotification({
+            Name = "保存成功",
+            Content = "配置已保存",
+            Time = 2
+        })
+    end
+})
+
+ConfigTab:AddButton({
+    Name = "加载配置",
+    Callback = function()
+        OrionLib:LoadConfig()
+        OrionLib:MakeNotification({
+            Name = "加载成功",
+            Content = "配置已加载",
+            Time = 2
+        })
+    end
+})
+
+-- UI美化处理
+task.delay(0.3, function()
+    -- 主窗口圆角
+    local mainFrame = Window.Instance:FindFirstChild("MainFrame")
+    if mainFrame then
+        makeRound(mainFrame, UDim.new(0.05, 0))
+    end
+    
+    -- 按钮美化
+    for _, btn in pairs(Window.Instance:GetDescendants()) do
+        if btn:IsA("TextButton") and btn.Name ~= "Close" then
+            makeRound(btn)
+            local originalColor = btn.BackgroundColor3
+            btn.MouseEnter:Connect(function()
+                btn.BackgroundColor3 = originalColor:Lerp(Color3.new(0.5, 0.5, 0.5), 0.3)
+            end)
+            btn.MouseLeave:Connect(function()
+                btn.BackgroundColor3 = originalColor
+            end)
+        end
+    end
+end)
+
+-- 初始化UI
+OrionLib:Init()
