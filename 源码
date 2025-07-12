@@ -1,0 +1,315 @@
+-- 加载Orion库（增强错误防护）
+local OrionLib
+local success, err = pcall(function()
+    OrionLib = loadstring(game:HttpGet("https://pastebin.com/raw/FUEx0f3G"))()
+end)
+if not success or not OrionLib then
+    warn("Orion库加载失败: " .. (err or "未知错误"))
+    return
+end
+
+-- 服务与变量初始化
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+local Workspace = game:GetService("Workspace")
+local StarterGui = game:GetService("StarterGui")
+local player = Players.LocalPlayer
+
+-- 工具函数：创建圆形边角（增加安全检查）
+local function makeRound(obj, radius)
+    if not obj or not obj:IsA("GuiObject") then return end
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = radius or UDim.new(0.5, 0)
+    corner.Parent = obj
+    return corner
+end
+
+-- 创建主窗口
+local Window = OrionLib:MakeWindow({
+    Name = "新黄脚本",
+    HidePremium = false,
+    SaveConfig = true,
+    IntroText = "新黄脚本 - 强大功能等你体验",
+    ConfigFolder = "新黄脚本",
+    Theme = "FlatBlue",
+    Icon = "rbxassetid://4483345998"
+})
+
+-- 欢迎通知（兼容处理）
+pcall(function()
+    StarterGui:SetCore("SendNotification", {
+        Title = "新黄脚本",
+        Text = "欢迎使用新黄脚本，功能已加载",
+        Duration = 4,
+        Icon = "rbxassetid://4483345998"
+    })
+end)
+
+-- 作者信息标签页
+local AuthorTab = Window:MakeTab({
+    Name = "作者信息",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+AuthorTab:AddParagraph("作者", "小黄")
+AuthorTab:AddParagraph("作者QQ", "1357377308")
+AuthorTab:AddParagraph("QQ群", "543121803")
+
+-- 圆形按钮生成器（修复内存泄漏）
+local function addRoundButton(tab, config)
+    local btn = tab:AddButton(config)
+    if btn.Instance and btn.Instance:IsA("GuiButton") then
+        btn.Instance.Size = UDim2.new(0, 120, 0, 36)
+        makeRound(btn.Instance)
+        
+        -- 悬停效果（增加事件清理）
+        local hover = Instance.new("UIScale")
+        hover.Scale = 1
+        hover.Parent = btn.Instance
+        
+        local enterConn = btn.Instance.MouseEnter:Connect(function()
+            hover.Scale = 1.05
+        end)
+        local leaveConn = btn.Instance.MouseLeave:Connect(function()
+            hover.Scale = 1
+        end)
+        
+        -- 按钮销毁时清理事件
+        btn.Instance.AncestryChanged:Connect(function(_, parent)
+            if not parent then
+                enterConn:Disconnect()
+                leaveConn:Disconnect()
+            end
+        end)
+    end
+    return btn
+end
+
+-- 作者信息页按钮（修复复制功能兼容）
+addRoundButton(AuthorTab, {
+    Name = "复制作者QQ",
+    Callback = function()
+        pcall(function()
+            if setclipboard then
+                setclipboard("1357377308")
+                OrionLib:MakeNotification({Name = "成功", Content = "QQ已复制", Time = 2})
+            else
+                OrionLib:MakeNotification({Name = "错误", Content = "不支持复制功能", Time = 2})
+            end
+        end)
+    end,
+    Color = Color3.fromRGB(70, 130, 255)
+})
+
+addRoundButton(AuthorTab, {
+    Name = "复制QQ群",
+    Callback = function()
+        pcall(function()
+            if setclipboard then
+                setclipboard("543121803")
+                OrionLib:MakeNotification({Name = "成功", Content = "QQ群号已复制", Time = 2})
+            else
+                OrionLib:MakeNotification({Name = "错误", Content = "不支持复制功能", Time = 2})
+            end
+        end)
+    end,
+    Color = Color3.fromRGB(100, 200, 100)
+})
+
+-- 玩家信息标签页（修复注入器信息获取）
+local PlayerTab = Window:MakeTab({
+    Name = "玩家信息",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+-- 安全获取注入器名称
+local executorName = "未知"
+pcall(function()
+    if identifyexecutor then
+        executorName = identifyexecutor() or "未知"
+    end
+end)
+
+PlayerTab:AddParagraph("您的用户名", player.Name)
+PlayerTab:AddParagraph("您的ID", tostring(player.UserId))
+PlayerTab:AddParagraph("注入器", executorName)
+PlayerTab:AddParagraph("服务器ID", tostring(game.GameId))
+
+-- 玩家功能标签页（优化文本框逻辑）
+local FunctionTab = Window:MakeTab({
+    Name = "玩家功能",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+local MovementSection = FunctionTab:AddSection({Name = "移动设置"})
+
+-- 文本框配置函数（修复查找逻辑）
+local function addSettingTextbox(tab, config)
+    local textbox = tab:AddTextbox({
+        Name = config.Name,
+        Default = config.Default or "",
+        TextDisappear = true,
+        Callback = function(Value)
+            local num = tonumber(Value)
+            if not num or num <= 0 then  -- 防止无效数值
+                return OrionLib:MakeNotification({Name = "错误", Content = "请输入正数", Time = 2})
+            end
+            local success, err = pcall(config.Callback, num)
+            if success then
+                OrionLib:MakeNotification({Name = "成功", Content = config.SuccessMsg, Time = 1.5})
+            else
+                OrionLib:MakeNotification({Name = "错误", Content = "设置失败: " .. err, Time = 2})
+            end
+        end
+    })
+    
+    -- 文本框样式处理（深度查找）
+    task.delay(0.2, function()
+        if textbox.Instance then
+            local input = textbox.Instance:FindFirstChildOfClass("TextBox", true)  -- 深度查找嵌套控件
+            if input then
+                makeRound(input, UDim.new(0.2, 0))
+                local border = Instance.new("UIStroke")
+                border.Color = Color3.new(0.7, 0.7, 0.7)
+                border.Transparency = 0.8
+                border.Thickness = 1
+                border.Parent = input
+            end
+        end
+    end)
+    return textbox
+end
+
+-- 添加跳跃高度设置（等待角色加载）
+addSettingTextbox(FunctionTab, {
+    Name = "跳跃高度设置",
+    SuccessMsg = "跳跃高度已更新",
+    Callback = function(num)
+        -- 等待角色加载完成
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:FindFirstChildOfClass("Humanoid") or character:WaitForChild("Humanoid", 5)
+        if humanoid then
+            humanoid.JumpPower = num
+        else
+            error("未找到人形对象")
+        end
+    end
+})
+
+-- 添加移动速度设置（同上）
+addSettingTextbox(FunctionTab, {
+    Name = "移动速度设置",
+    SuccessMsg = "移动速度已更新",
+    Callback = function(num)
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:FindFirstChildOfClass("Humanoid") or character:WaitForChild("Humanoid", 5)
+        if humanoid then
+            humanoid.WalkSpeed = num
+        else
+            error("未找到人形对象")
+        end
+    end
+})
+
+-- 添加重力设置（限制范围）
+addSettingTextbox(FunctionTab, {
+    Name = "重力设置",
+    SuccessMsg = "重力已更新",
+    Callback = function(num)
+        if num < 100 or num > 2000 then
+            error("重力应在100-2000之间")
+        end
+        Workspace.Gravity = num
+    end
+})
+
+-- 其他功能区
+local OtherSection = FunctionTab:AddSection({Name = "其他功能"})
+
+-- 夜视模式开关（修复样式）
+local nightToggle = FunctionTab:AddToggle({
+    Name = "夜视模式",
+    Default = false,
+    Callback = function(enabled)
+        Lighting.Ambient = enabled and Color3.new(0.5, 0.5, 0.5) or Color3.new(0, 0, 0)
+        Lighting.Brightness = enabled and 2 or 1
+        OrionLib:MakeNotification({
+            Name = enabled and "夜视开启" or "夜视关闭",
+            Content = enabled and "环境亮度已提升" or "环境亮度已恢复",
+            Time = 1.5
+        })
+    end,
+    Color = Color3.fromRGB(255, 165, 0)
+})
+
+-- 开关样式修复
+task.delay(0.2, function()
+    if nightToggle.Instance then
+        local switch = nightToggle.Instance:FindFirstChild("Switch", true)
+        local handle = nightToggle.Instance:FindFirstChild("Handle", true)
+        if switch then
+            makeRound(switch, UDim.new(0.3, 0))
+        end
+        if handle then
+            handle.Size = UDim2.new(0, 20, 0, 20)
+            makeRound(handle)
+        end
+    end
+end)
+
+-- 脚本中心标签页（修复加载逻辑）
+local ScriptCenterTab = Window:MakeTab({
+    Name = "脚本中心",
+    Icon = "rbxassetid://4483346000",
+    PremiumOnly = false
+})
+
+local isScriptLoading = false
+addRoundButton(ScriptCenterTab, {
+    Name = "加载皮脚本",
+    Callback = function()
+        if isScriptLoading then
+            return OrionLib:MakeNotification({Name = "提示", Content = "加载中，请稍候...", Time = 2})
+        end
+        isScriptLoading = true
+        OrionLib:MakeNotification({Name = "开始加载", Content = "正在加载皮脚本...", Time = 3})
+        
+        task.spawn(function()
+            local success, err = pcall(function()
+                getgenv().XiaoPi = "皮脚本QQ群1002100032"
+                -- 增加缓存控制
+                local scriptUrl = "https://raw.githubusercontent.com/xiaopi77/xiaopi77/main/QQ1002100032-Roblox-Pi-script.lua"
+                loadstring(game:HttpGet(scriptUrl, true))()  -- 禁用缓存
+            end)
+            isScriptLoading = false  -- 确保状态重置
+            if success then
+                OrionLib:MakeNotification({Name = "加载成功", Content = "皮脚本已加载完成！", Time = 3})
+            else
+                OrionLib:MakeNotification({Name = "加载失败", Content = "错误: " .. err, Time = 3})
+            end
+        end)
+    end,
+    Color = Color3.fromRGB(123, 104, 238)
+})
+
+-- 主窗口样式处理
+OrionLib:Init()
+task.delay(0.3, function()
+    if Window.Instance then
+        local mainFrame = Window.Instance:FindFirstChild("MainFrame", true)
+        if mainFrame then
+            makeRound(mainFrame, UDim.new(0.08, 0))
+        end
+    end
+end)
+
+-- 玩家离开时清理
+player.AncestryChanged:Connect(function(_, parent)
+    if not parent then
+        Window:Destroy()  -- 清理窗口
+    end
+end)
