@@ -1,8 +1,10 @@
 -- 加载Orion库
 local OrionLib = loadstring(game:HttpGet("https://pastebin.com/raw/FUEx0f3G"))()
 local player = game.Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
 
--- FPS和时间显示面板（美化版）
+-- FPS和时间显示面板（优化显示）
 local LBLG = Instance.new("ScreenGui")
 LBLG.Name = "LBLG"
 LBLG.Parent = game.CoreGui
@@ -12,35 +14,44 @@ LBLG.Enabled = true
 local LBL = Instance.new("TextLabel")
 LBL.Name = "LBL"
 LBL.Parent = LBLG
--- 半透明深色背景+圆角
 LBL.BackgroundColor3 = Color3.new(0.1, 0.1, 0.15)
 LBL.BackgroundTransparency = 0.3
 LBL.Position = UDim2.new(0.75, 0, 0.01, 0)
-LBL.Size = UDim2.new(0, 180, 0, 35)
+LBL.Size = UDim2.new(0, 220, 0, 35)
 LBL.Font = Enum.Font.GothamSemibold
 LBL.Text = "加载中..."
 LBL.TextColor3 = Color3.new(1, 1, 1)
 LBL.TextScaled = true
 LBL.TextStrokeTransparency = 0.7
 LBL.TextStrokeColor3 = Color3.new(0, 0, 0)
+LBL.RichText = true
+LBL.ClipsDescendants = true -- 防止文本溢出
 
--- 圆角效果
+-- 美化装饰
 local UICorner = Instance.new("UICorner")
 UICorner.CornerRadius = UDim.new(0, 8)
 UICorner.Parent = LBL
 
--- 阴影效果
 local Shadow = Instance.new("UIStroke")
 Shadow.Color = Color3.new(0, 0, 0)
-Shadow.Transparency = 0.5
+Shadow.Transparency = 0.7
 Shadow.Thickness = 2
 Shadow.Parent = LBL
 
--- FPS更新逻辑
+-- 彩色时间+FPS逻辑（优化切换流畅度）
 local LastIteration, Start
 local FrameUpdateTable = {}
+local rainbowColors = {
+    "<font color='#FF6B6B'>",  -- 浅红
+    "<font color='#FFD166'>",  -- 浅黄
+    "<font color='#06D6A0'>",  -- 浅绿
+    "<font color='#118AB2'>",  -- 浅蓝
+    "<font color='#9B5DE5'>"   -- 浅紫
+}
+local colorIndex = 1
+local colorTimer = 0
 
-local function HeartbeatUpdate()
+local function HeartbeatUpdate(deltaTime)
     LastIteration = tick()
     for Index = #FrameUpdateTable, 1, -1 do
         FrameUpdateTable[Index + 1] = (FrameUpdateTable[Index] >= LastIteration - 1) and FrameUpdateTable[Index] or nil
@@ -48,24 +59,32 @@ local function HeartbeatUpdate()
     FrameUpdateTable[1] = LastIteration
     local CurrentFPS = (tick() - Start >= 1 and #FrameUpdateTable) or (#FrameUpdateTable / (tick() - Start))
     CurrentFPS = math.floor(CurrentFPS)
-    LBL.Text = ("北京时间: "..os.date("%H:%M:%S").." | FPS: "..CurrentFPS)
+    
+    -- 更平滑的颜色切换（每0.3秒切换）
+    colorTimer += deltaTime
+    if colorTimer >= 0.3 then
+        colorIndex = colorIndex % #rainbowColors + 1
+        colorTimer = 0
+    end
+    
+    local timeText = rainbowColors[colorIndex] .. "北京时间: " .. os.date("%H:%M:%S") .. "</font>"
+    LBL.Text = timeText .. " | FPS: " .. CurrentFPS
 end
 Start = tick()
-game:GetService("RunService").Heartbeat:Connect(HeartbeatUpdate)
+RunService.Heartbeat:Connect(HeartbeatUpdate)
 
--- 创建主窗口（美化配置）
+-- 创建主窗口（优化配置）
 local Window = OrionLib:MakeWindow({
     Name = "黄脚本",
     HidePremium = false,
     SaveConfig = true,
     IntroText = "黄脚本 - 功能面板",
     ConfigFolder = "黄脚本",
-    -- 自定义主题色（蓝色系更显专业）
-    Theme = "Dark",  -- 深色主题更舒适
+    Theme = "Dark",
     Icon = "rbxassetid://4483345998"
 })
 
--- 欢迎通知
+-- 欢迎通知（优化图标显示）
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "黄脚本",
     Text = "欢迎使用黄脚本 - 功能已加载",
@@ -80,23 +99,16 @@ local AuthorTab = Window:MakeTab({
     PremiumOnly = false
 })
 
--- 美化段落样式
 AuthorTab:AddParagraph("作者", "小黄")
 AuthorTab:AddParagraph("作者QQ", "1357377308")
 AuthorTab:AddParagraph("QQ群", "待更新")
 
--- 按钮美化（悬停效果）
 AuthorTab:AddButton({
     Name = "复制作者QQ",
     Callback = function()
         setclipboard("1357377308")
-        OrionLib:MakeNotification({
-            Name = "成功",
-            Content = "QQ已复制到剪贴板",
-            Time = 2
-        })
+        OrionLib:MakeNotification({Name = "成功", Content = "QQ已复制到剪贴板", Time = 2})
     end,
-    -- 按钮颜色自定义
     Color = Color3.fromRGB(70, 130, 255)
 })
 
@@ -104,16 +116,12 @@ AuthorTab:AddButton({
     Name = "复制QQ群",
     Callback = function()
         setclipboard("")
-        OrionLib:MakeNotification({
-            Name = "提示",
-            Content = "群号暂未更新",
-            Time = 2
-        })
+        OrionLib:MakeNotification({Name = "提示", Content = "群号暂未更新", Time = 2})
     end,
     Color = Color3.fromRGB(100, 200, 100)
 })
 
--- 玩家信息标签页
+-- 玩家信息标签页（优化信息显示）
 local PlayerTab = Window:MakeTab({
     Name = "玩家信息",
     Icon = "rbxassetid://4483345998",
@@ -125,30 +133,27 @@ PlayerTab:AddParagraph("您的ID", tostring(player.UserId))
 PlayerTab:AddParagraph("注入器", identifyexecutor() or "未知")
 PlayerTab:AddParagraph("服务器ID", tostring(game.GameId))
 
--- 玩家功能标签页（核心功能区）
+-- 玩家功能标签页（优化交互反馈）
 local FunctionTab = Window:MakeTab({
     Name = "玩家功能",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
--- 功能分区
-local MovementSection = FunctionTab:AddSection({
-    Name = "移动控制"
-})
+local MovementSection = FunctionTab:AddSection({Name = "移动控制"})
 
--- 滑块美化（颜色区分功能）
 FunctionTab:AddSlider({
     Name = "移动速度",
     Min = 16,
     Max = 200,
     Default = 16,
-    Color = Color3.fromRGB(70, 130, 255),  -- 蓝色：速度
+    Color = Color3.fromRGB(70, 130, 255),
     Increment = 1,
     ValueName = "单位",
     Callback = function(Value)
         if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
             player.Character.Humanoid.WalkSpeed = Value
+            OrionLib:MakeNotification({Name = "设置成功", Content = "移动速度: "..Value, Time = 1})
         end
     end
 })
@@ -158,73 +163,94 @@ FunctionTab:AddSlider({
     Min = 50,
     Max = 200,
     Default = 50,
-    Color = Color3.fromRGB(100, 200, 100),  -- 绿色：跳跃
+    Color = Color3.fromRGB(100, 200, 100),
     Increment = 1,
     ValueName = "单位",
     Callback = function(Value)
         if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
             player.Character.Humanoid.JumpPower = Value
+            OrionLib:MakeNotification({Name = "设置成功", Content = "跳跃高度: "..Value, Time = 1})
         end
     end
 })
 
--- 文本框分区
-local CustomSection = FunctionTab:AddSection({
-    Name = "自定义数值"
-})
+local OtherSection = FunctionTab:AddSection({Name = "其他功能"})
 
-FunctionTab:AddTextbox({
-    Name = "自定义跳跃高度",
-    Default = "输入数值",
-    TextDisappear = true,
-    Callback = function(Value)
-        local num = tonumber(Value)
-        if num and player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
-            player.Character.Humanoid.JumpPower = num
-        end
-    end
-})
-
-FunctionTab:AddTextbox({
-    Name = "自定义移动速度",
-    Default = "输入数值",
-    TextDisappear = true,
-    Callback = function(Value)
-        local num = tonumber(Value)
-        if num and player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
-            player.Character.Humanoid.WalkSpeed = num
-        end
-    end
-})
-
-FunctionTab:AddTextbox({
-    Name = "自定义重力",
-    Default = "输入数值（默认196.2）",
-    TextDisappear = true,
-    Callback = function(Value)
-        local num = tonumber(Value)
-        if num then
-            game.Workspace.Gravity = num
-        end
-    end
-})
-
--- 开关功能美化
 FunctionTab:AddToggle({
     Name = "夜视模式",
     Default = false,
     Callback = function(Value)
         if Value then
-            game.Lighting.Ambient = Color3.new(0.5, 0.5, 0.5)
-            game.Lighting.Brightness = 2
+            Lighting.Ambient = Color3.new(0.5, 0.5, 0.5)
+            Lighting.Brightness = 2
+            OrionLib:MakeNotification({Name = "夜视开启", Content = "环境亮度已提升", Time = 1.5})
         else
-            game.Lighting.Ambient = Color3.new(0, 0, 0)
-            game.Lighting.Brightness = 1
+            Lighting.Ambient = Color3.new(0, 0, 0)
+            Lighting.Brightness = 1
+            OrionLib:MakeNotification({Name = "夜视关闭", Content = "环境亮度已恢复", Time = 1.5})
         end
     end,
-    -- 开关颜色
-    Color = Color3.fromRGB(255, 165, 0)  -- 橙色：特殊功能
+    Color = Color3.fromRGB(255, 165, 0)
 })
+
+-- 脚本中心标签页（重点优化）
+local ScriptCenterTab = Window:MakeTab({
+    Name = "脚本中心",
+    Icon = "rbxassetid://4483346000",
+    PremiumOnly = false
+})
+
+-- 添加脚本说明卡片
+local ScriptInfo = ScriptCenterTab:AddSection({Name = "外部脚本资源"})
+ScriptCenterTab:AddParagraph("皮脚本信息", "功能丰富的辅助脚本，包含多种实用工具")
+ScriptCenterTab:AddParagraph("QQ群", "1002100032（点击按钮加载脚本）")
+
+-- 加载按钮（增加状态反馈）
+local isLoading = false -- 防止重复加载
+ScriptCenterTab:AddButton({
+    Name = "加载皮脚本",
+    Callback = function()
+        if isLoading then
+            OrionLib:MakeNotification({
+                Name = "提示",
+                Content = "脚本正在加载中，请稍候...",
+                Time = 2
+            })
+            return
+        end
+        
+        isLoading = true
+        OrionLib:MakeNotification({
+            Name = "开始加载",
+            Content = "正在加载皮脚本，请耐心等待...",
+            Time = 3
+        })
+        
+        -- 异步加载防止UI卡顿
+        task.spawn(function()
+            pcall(function()
+                -- 执行脚本代码
+                getgenv().XiaoPi = "皮脚本QQ群1002100032" 
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaopi77/xiaopi77/main/QQ1002100032-Roblox-Pi-script.lua"))()
+                
+                -- 加载成功提示
+                OrionLib:MakeNotification({
+                    Name = "加载成功",
+                    Content = "皮脚本已加载完成！",
+                    Time = 3,
+                    Image = "rbxassetid://4483346000"
+                })
+            end)
+            isLoading = false
+        end)
+    end,
+    Color = Color3.fromRGB(123, 104, 238),
+    Highlight = true -- 高亮按钮更醒目
+})
+
+-- 增加分隔线提升布局层次感
+ScriptCenterTab:AddSection({Name = "使用提示"})
+ScriptCenterTab:AddParagraph("注意事项", "1. 加载外部脚本可能需要科学上网\n2. 若加载失败请检查网络后重试\n3. 脚本功能请在合规范围内使用")
 
 -- 初始化UI
 OrionLib:Init()
