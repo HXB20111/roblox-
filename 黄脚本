@@ -1,3 +1,8 @@
+-- 用户名白名单配置
+local USER_WHITELIST = {
+    ["HXB201111"] = true -- 添加HXB201111到白名单
+}
+
 -- 加载Orion库（增强错误防护）
 local OrionLib
 local success, err = pcall(function()
@@ -15,6 +20,33 @@ local Lighting = game:GetService("Lighting")
 local Workspace = game:GetService("Workspace")
 local StarterGui = game:GetService("StarterGui")
 local player = Players.LocalPlayer
+
+-- 白名单验证（使用用户名）
+local isWhitelisted = USER_WHITELIST[player.Name] or false
+if not isWhitelisted then
+    -- 非白名单用户提示
+    pcall(function()
+        StarterGui:SetCore("SendNotification", {
+            Title = "未授权访问",
+            Text = "您的用户名不在白名单中，无法使用功能",
+            Duration = 5,
+            Icon = "rbxassetid://9108657181"
+        })
+    end)
+    -- 创建限制窗口
+    local RestrictWindow = OrionLib:MakeWindow({
+        Name = "访问受限",
+        HidePremium = false,
+        SaveConfig = false,
+        Theme = "Dark",
+        Icon = "rbxassetid://9108657181"
+    })
+    local InfoTab = RestrictWindow:MakeTab({Name = "权限不足"})
+    InfoTab:AddParagraph("提示", "请联系管理员添加白名单")
+    InfoTab:AddParagraph("您的用户名", player.Name) -- 显示当前用户名
+    OrionLib:Init()
+    return
+end
 
 -- 工具函数：创建圆形边角（增加安全检查）
 local function makeRound(obj, radius)
@@ -137,6 +169,7 @@ PlayerTab:AddParagraph("您的用户名", player.Name)
 PlayerTab:AddParagraph("您的ID", tostring(player.UserId))
 PlayerTab:AddParagraph("注入器", executorName)
 PlayerTab:AddParagraph("服务器ID", tostring(game.GameId))
+PlayerTab:AddParagraph("白名单状态", "<font color='green'>已授权用户</font>") -- 显示授权状态
 
 -- 玩家功能标签页（优化文本框逻辑）
 local FunctionTab = Window:MakeTab({
@@ -165,7 +198,7 @@ local function addSettingTextbox(tab, config)
                 OrionLib:MakeNotification({Name = "错误", Content = "设置失败: " .. err, Time = 2})
             end
         end
-    })
+    end)
     
     -- 文本框样式处理（深度查找）
     task.delay(0.2, function()
@@ -179,7 +212,7 @@ local function addSettingTextbox(tab, config)
                 border.Thickness = 1
                 border.Parent = input
             end
-        end
+        end)
     end)
     return textbox
 end
@@ -308,8 +341,4 @@ task.delay(0.3, function()
 end)
 
 -- 玩家离开时清理
-player.AncestryChanged:Connect(function(_, parent)
-    if not parent then
-        Window:Destroy()  -- 清理窗口
-    end
-end)
+player.Ances
