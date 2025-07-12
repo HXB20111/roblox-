@@ -1,10 +1,76 @@
--- 加载UI库
-local OrionLib = loadstring(game:HttpGet(("https://pastebin.com/raw/FUEx0f3G")))()
+-- 白名单系统核心配置
+local WHITELIST = {
+    [12345678] = true, -- 替换为允许的用户ID
+    [87654321] = true,
+    [1357377308] = true -- 示例：作者ID
+}
 
--- 基础设置
-local player = game.Players.LocalPlayer
+-- 加载UI库（白名单验证前的基础加载）
+local OrionLib
+local success, err = pcall(function()
+    OrionLib = loadstring(game:HttpGet("https://pastebin.com/raw/FUEx0f3G"))()
+end)
+if not success or not OrionLib then
+    warn("UI库加载失败: " .. (err or "未知错误"))
+    return
+end
+
+-- 服务初始化
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
 local Workspace = game:GetService("Workspace")
 local Lighting = game:GetService("Lighting")
+local StarterGui = game:GetService("StarterGui")
+
+-- 检查用户是否在白名单内
+local isWhitelisted = WHITELIST[player.UserId] or false
+
+-- 白名单验证提示
+local function showWhitelistMessage(isAllowed)
+    StarterGui:SetCore("SendNotification", {
+        Title = isAllowed and "验证通过" or "未授权访问",
+        Text = isAllowed and "您已获得使用权限" or "您的ID不在白名单内，无法使用功能",
+        Duration = 5,
+        Icon = isAllowed and "rbxassetid://4483345998" or "rbxassetid://9108657181"
+    })
+end
+
+-- 如果不在白名单，仅显示提示界面
+if not isWhitelisted then
+    showWhitelistMessage(false)
+    
+    -- 创建限制访问的提示窗口
+    local RestrictWindow = OrionLib:MakeWindow({
+        Name = "未授权访问",
+        HidePremium = false,
+        SaveConfig = false,
+        Theme = "Dark",
+        Icon = "rbxassetid://9108657181"
+    })
+    
+    local InfoTab = RestrictWindow:MakeTab({
+        Name = "访问受限",
+        Icon = "rbxassetid://9108657181"
+    })
+    
+    InfoTab:AddParagraph("权限不足", "您的账号未被授权使用此脚本")
+    InfoTab:AddParagraph("您的ID", tostring(player.UserId))
+    InfoTab:AddParagraph("提示", "请联系管理员添加白名单")
+    
+    OrionLib:Init()
+    return -- 终止后续功能加载
+end
+
+-- 白名单用户加载完整功能
+showWhitelistMessage(true)
+
+-- 工具函数：创建圆角效果
+local function makeRound(obj, radius)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = radius or UDim.new(0.05, 0)
+    corner.Parent = obj
+    return corner
+end
 
 -- 创建主窗口
 local Window = OrionLib:MakeWindow({
@@ -16,22 +82,6 @@ local Window = OrionLib:MakeWindow({
     Icon = "rbxassetid://4483345998"
 })
 
--- 工具函数：创建圆角效果
-local function makeRound(obj, radius)
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = radius or UDim.new(0.05, 0)
-    corner.Parent = obj
-    return corner
-end
-
--- 欢迎通知
-game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "脚本加载成功",
-    Text = "UI已就绪，点击图标打开面板",
-    Duration = 5,
-    Icon = "rbxassetid://4483345998"
-})
-
 -- 1. 玩家信息标签页
 local PlayerTab = Window:MakeTab({
     Name = "玩家信息",
@@ -39,9 +89,9 @@ local PlayerTab = Window:MakeTab({
     PremiumOnly = false
 })
 
--- 玩家信息卡片
+-- 玩家信息卡片（包含白名单状态）
 local infoCard = Instance.new("Frame")
-infoCard.Size = UDim2.new(1, -20, 0, 180)
+infoCard.Size = UDim2.new(1, -20, 0, 200)
 infoCard.Position = UDim2.new(0, 10, 0, 10)
 infoCard.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
 infoCard.BorderSizePixel = 0
@@ -59,12 +109,12 @@ makeRound(avatar, UDim.new(0.5, 0)) -- 圆形头像
 avatar.Parent = infoCard
 
 -- 信息文本
-local function addInfoText(text, yPos)
+local function addInfoText(text, yPos, isHighlighted)
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(1, 0, 0, 20)
     label.Position = UDim2.new(0, 0, 0, yPos)
     label.BackgroundTransparency = 1
-    label.TextColor3 = Color3.new(0.9, 0.9, 0.9)
+    label.TextColor3 = isHighlighted and Color3.new(0, 1, 0) or Color3.new(0.9, 0.9, 0.9)
     label.Text = text
     label.TextXAlignment = Enum.TextXAlignment.Center
     label.TextSize = 14
@@ -75,6 +125,7 @@ end
 addInfoText("用户名: "..player.Name, 100)
 addInfoText("用户ID: "..player.UserId, 125)
 addInfoText("服务器: "..game.JobId:sub(1, 8).."...", 150)
+addInfoText("[已授权] 白名单用户", 175, true) -- 显示白名单状态
 
 -- 2. 角色功能标签页
 local CharacterTab = Window:MakeTab({
@@ -86,7 +137,6 @@ local CharacterTab = Window:MakeTab({
 -- 移动设置区域
 local MovementSection = CharacterTab:AddSection({Name = "移动控制"})
 
--- 滑块控制
 CharacterTab:AddSlider({
     Name = "移动速度",
     Min = 16,
@@ -126,51 +176,43 @@ CharacterTab:AddToggle({
     end
 })
 
--- 穿墙模式
-CharacterTab:AddToggle({
-    Name = "穿墙模式",
-    Default = false,
-    Callback = function(Value)
-        if player.Character then
-            for _, part in pairs(player.Character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CanCollide = not Value
-                end
-            end
-        end
-    end
-})
-
--- 3. 世界设置标签页
-local WorldTab = Window:MakeTab({
-    Name = "世界设置",
-    Icon = "rbxassetid://6034775432",
+-- 3. 白名单管理标签页（仅白名单用户可见）
+local WhitelistTab = Window:MakeTab({
+    Name = "白名单管理",
+    Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
--- 时间控制
-WorldTab:AddSlider({
-    Name = "时间速度",
-    Min = 0.1,
-    Max = 10,
-    Default = 1,
-    Increment = 0.1,
-    Callback = function(Value)
-        game.Lighting.ClockTime = game.Lighting.ClockTime
-        game.Lighting.TimeOfDay = game.Lighting.TimeOfDay
-        game.Lighting.CycleLength = 24 * 60 / Value
-    end
-})
+WhitelistTab:AddParagraph("当前白名单", "仅管理员可修改白名单配置")
 
--- 重力设置
-WorldTab:AddSlider({
-    Name = "重力大小",
-    Min = 100,
-    Max = 2000,
-    Default = 196.2,
-    Increment = 50,
+-- 显示当前白名单列表
+local whitelistList = "已授权用户ID:\n"
+for userId in pairs(WHITELIST) do
+    whitelistList ..= "- " .. tostring(userId) .. "\n"
+end
+WhitelistTab:AddParagraph("列表", whitelistList)
+
+-- 添加白名单功能（示例：实际使用时可添加权限验证）
+local addWhitelistBox = WhitelistTab:AddTextbox({
+    Name = "添加用户到白名单",
+    Default = "输入用户ID",
+    TextDisappear = true,
     Callback = function(Value)
-        Workspace.Gravity = Value
+        local userId = tonumber(Value)
+        if userId then
+            WHITELIST[userId] = true
+            OrionLib:MakeNotification({
+                Name = "成功",
+                Content = "用户 " .. userId .. " 已添加到白名单",
+                Time = 2
+            })
+        else
+            OrionLib:MakeNotification({
+                Name = "错误",
+                Content = "请输入有效的用户ID",
+                Time = 2
+            })
+        end
     end
 })
 
@@ -181,7 +223,6 @@ local QuickTab = Window:MakeTab({
     PremiumOnly = false
 })
 
--- 快速按钮
 QuickTab:AddButton({
     Name = "重生角色",
     Callback = function()
@@ -189,53 +230,6 @@ QuickTab:AddButton({
         OrionLib:MakeNotification({
             Name = "成功",
             Content = "角色已重生",
-            Time = 2
-        })
-    end
-})
-
-QuickTab:AddButton({
-    Name = "清除障碍物",
-    Callback = function()
-        for _, v in pairs(Workspace:GetDescendants()) do
-            if v:IsA("BasePart") and v.Name ~= "Terrain" and not v:FindFirstAncestor(player.Name) then
-                v:Destroy()
-            end
-        end
-        OrionLib:MakeNotification({
-            Name = "成功",
-            Content = "障碍物已清除",
-            Time = 2
-        })
-    end
-})
-
--- 5. 配置保存标签页
-local ConfigTab = Window:MakeTab({
-    Name = "配置管理",
-    Icon = "rbxassetid://6034775432",
-    PremiumOnly = false
-})
-
-ConfigTab:AddButton({
-    Name = "保存当前配置",
-    Callback = function()
-        OrionLib:SaveConfig()
-        OrionLib:MakeNotification({
-            Name = "保存成功",
-            Content = "配置已保存",
-            Time = 2
-        })
-    end
-})
-
-ConfigTab:AddButton({
-    Name = "加载配置",
-    Callback = function()
-        OrionLib:LoadConfig()
-        OrionLib:MakeNotification({
-            Name = "加载成功",
-            Content = "配置已加载",
             Time = 2
         })
     end
