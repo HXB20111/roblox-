@@ -190,7 +190,7 @@ local whitelistList = "已授权用户ID:\n"
 for userId in pairs(WHITELIST) do
     whitelistList ..= "- " .. tostring(userId) .. "\n"
 end
-WhitelistTab:AddParagraph("列表", whitelistList)
+WhitelistTab:AddParagraph("HXB201111", whitelistList)
 
 -- 添加白名单功能（示例：实际使用时可添加权限验证）
 local addWhitelistBox = WhitelistTab:AddTextbox({
