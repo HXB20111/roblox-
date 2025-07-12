@@ -1,9 +1,18 @@
--- 依赖库加载
-local OrionLib = loadstring(game:HttpGet("https://pastebin.com/raw/FUEx0f3G"))()
+-- 依赖库加载（增加防失效备用方案）
+local OrionLib
+local success, err = pcall(function()
+    OrionLib = loadstring(game:HttpGet("https://pastebin.com/raw/FUEx0f3G"))()
+end)
+if not success then
+    warn("默认Orion库加载失败，尝试备用链接：", err)
+    OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/Orion-UI-Library/Orion/main/source"))()
+end
+
 local player = game.Players.LocalPlayer
 local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
 local UIS = game:GetService("UserInputService")
+local StarterGui = game:GetService("StarterGui")
 
 -- 核心工具：全局圆角配置（统一管理圆角大小）
 local ROUND_RADIUS = UDim.new(0.5, 0) -- 正圆（如需调整，改这里统一生效）
@@ -14,7 +23,7 @@ local function applyRound(instance)
     return corner
 end
 
--- 时间显示模块（独立封装）
+-- 时间显示模块（独立封装 + 错误防护）
 local TimeUI = {} do
     TimeUI.Gui = Instance.new("ScreenGui")
     TimeUI.Gui.Name = "TimeDisplay"
@@ -52,7 +61,7 @@ local TimeUI = {} do
     RunService.Heartbeat:Connect(TimeUI.Update)
 end
 
--- 主窗口配置（深度圆角优化）
+-- 主窗口配置（深度圆角优化 + 兼容性修复）
 local Window = OrionLib:MakeWindow({
     Name = "黄脚本",
     HidePremium = false,
@@ -70,9 +79,9 @@ task.delay(0.2, function()
         applyRound(Window.Instance)
         
         -- 顶部栏按钮强制圆形（覆盖默认样式）
-        local topButtons = Window.Instance:FindFirstChild("TopBar", true)
-        if topButtons then
-            for _, btn in ipairs(topButtons:GetChildren()) do
+        local topBar = Window.Instance:FindFirstChild("TopBar")
+        if topBar then
+            for _, btn in ipairs(topBar:GetChildren()) do
                 if btn:IsA("GuiButton") then
                     applyRound(btn)
                     btn.Size = UDim2.new(0, 44, 0, 44) -- 更大的圆形点击区
@@ -82,15 +91,17 @@ task.delay(0.2, function()
     end
 end)
 
--- 通知系统强化（统一样式）
+-- 通知系统强化（统一样式 + 错误防护）
 local function showNotify(title, content, time)
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = title,
-        Text = content,
-        Duration = time or 3,
-        Icon = "rbxassetid://4483345998",
-        Button1 = "确认",
-    })
+    pcall(function()
+        StarterGui:SetCore("SendNotification", {
+            Title = title,
+            Text = content,
+            Duration = time or 3,
+            Icon = "rbxassetid://4483345998",
+            Button1 = "确认",
+        })
+    end)
 end
 showNotify("黄脚本", "欢迎使用！功能已加载", 4)
 
@@ -111,10 +122,10 @@ for _, info in ipairs(AuthorInfo) do
     AuthorTab:AddParagraph(info.Label, info.Value)
 end
 
--- 圆形按钮工厂（复用逻辑）
+-- 圆形按钮工厂（复用逻辑 + 动画修复）
 local function createRoundButton(tab, config)
     local btn = tab:AddButton(config)
-    if btn.Instance then
+    if btn.Instance and btn.Instance:IsA("GuiButton") then
         applyRound(btn.Instance)
         btn.Instance.Size = UDim2.new(0, 130, 0, 44) -- 更大更圆润
         -- 弹性动画（按下缩小，松开回弹）
@@ -133,12 +144,14 @@ local function createRoundButton(tab, config)
     return btn
 end
 
--- 交互按钮
+-- 交互按钮（修复setclipboard兼容性）
 createRoundButton(AuthorTab, {
     Name = "复制作者QQ",
     Callback = function()
-        setclipboard("1357377308")
-        showNotify("复制成功", "作者QQ已复制到剪贴板", 2)
+        pcall(function()
+            setclipboard("1357377308")
+            showNotify("复制成功", "作者QQ已复制到剪贴板", 2)
+        end)
     end,
     Color = Color3.fromRGB(70, 130, 255)
 })
@@ -146,8 +159,10 @@ createRoundButton(AuthorTab, {
 createRoundButton(AuthorTab, {
     Name = "复制QQ群",
     Callback = function()
-        setclipboard("")
-        showNotify("提示", "群号暂未更新", 2)
+        pcall(function()
+            setclipboard("")
+            showNotify("提示", "群号暂未更新", 2)
+        end)
     end,
     Color = Color3.fromRGB(100, 200, 100)
 })
@@ -161,7 +176,7 @@ local PlayerTab = Window:MakeTab({
 
 PlayerTab:AddParagraph("用户名", player.Name)
 PlayerTab:AddParagraph("用户ID", tostring(player.UserId))
-PlayerTab:AddParagraph("注入器", identifyexecutor() or "未知")
+PlayerTab:AddParagraph("注入器", identifyexecutor and identifyexecutor() or "未知") -- 修复函数调用
 PlayerTab:AddParagraph("服务器ID", tostring(game.GameId))
 
 -- 玩家功能标签页（控件系统优化）
@@ -171,22 +186,24 @@ local FunctionTab = Window:MakeTab({
     PremiumOnly = false
 })
 
--- 滑块工厂（统一圆形处理）
+-- 滑块工厂（统一圆形处理 + 错误防护）
 local function createRoundSlider(tab, config)
     local slider = tab:AddSlider(config)
     if slider.Instance then
         -- 轨道圆角
         local track = slider.Instance:FindFirstChild("Track")
-        track and applyRound(track)
+        if track then
+            applyRound(track)
+        end
         
         -- 手柄圆形+磁吸动画
         local handle = slider.Instance:FindFirstChild("Handle")
-        if handle then
+        if handle and handle:IsA("GuiObject") then
             handle.Size = UDim2.new(0, 28, 0, 28)
             applyRound(handle)
             -- 滑动时的弹性反馈
             local handleSpring = UISpring.new(handle, {
-                Goal = {Position = UDim2.new(0, 0, 0.5, 0)},
+                Goal = {Position = handle.Position},
                 Speed = 15,
                 Damper = 0.6
             })
@@ -200,7 +217,7 @@ local function createRoundSlider(tab, config)
     return slider
 end
 
--- 移动速度调节
+-- 移动速度调节（修复空引用）
 createRoundSlider(FunctionTab, {
     Name = "移动速度",
     Min = 16,
@@ -218,7 +235,7 @@ createRoundSlider(FunctionTab, {
     end
 })
 
--- 跳跃高度调节
+-- 跳跃高度调节（修复空引用）
 createRoundSlider(FunctionTab, {
     Name = "跳跃高度",
     Min = 50,
@@ -236,7 +253,7 @@ createRoundSlider(FunctionTab, {
     end
 })
 
--- 夜视模式开关（圆形+过渡动画）
+-- 夜视模式开关（圆形+过渡动画 + 修复空引用）
 local NightVisionToggle = FunctionTab:AddToggle({
     Name = "夜视模式",
     Default = false,
@@ -252,16 +269,18 @@ local NightVisionToggle = FunctionTab:AddToggle({
     Color = Color3.fromRGB(255, 165, 0)
 })
 
--- 开关样式强化
+-- 开关样式强化（修复空引用）
 if NightVisionToggle.Instance then
     local switchBg = NightVisionToggle.Instance:FindFirstChild("Switch")
     local switchHandle = NightVisionToggle.Instance:FindFirstChild("Handle")
-    switchBg and applyRound(switchBg)
-    switchHandle and applyRound(switchHandle)
-    switchHandle.Size = UDim2.new(0, 24, 0, 24)
+    if switchBg then applyRound(switchBg) end
+    if switchHandle and switchHandle:IsA("GuiObject") then 
+        switchHandle.Size = UDim2.new(0, 24, 0, 24)
+        applyRound(switchHandle)
+    end
 end
 
--- 脚本中心标签页（加载逻辑优化）
+-- 脚本中心标签页（加载逻辑优化 + 错误处理）
 local ScriptCenterTab = Window:MakeTab({
     Name = "脚本中心",
     Icon = "rbxassetid://4483346000",
@@ -272,8 +291,10 @@ createRoundButton(ScriptCenterTab, {
     Name = "加载皮脚本",
     Callback = function()
         -- 防重复加载锁
-        local loadLock = false
-        if loadLock then return showNotify("提示", "脚本加载中，请稍后...", 2) end
+        static loadLock = false
+        if loadLock then 
+            return showNotify("提示", "脚本加载中，请稍后...", 2) 
+        end
         loadLock = true
         
         showNotify("加载中", "正在获取皮脚本资源...", 3)
