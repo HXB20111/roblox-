@@ -1,110 +1,184 @@
--- 创建屏幕GUI
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "CuteUI"
-screenGui.Parent = game.Players.LocalPlayer.PlayerGui
+-- 等待玩家的PlayerGui加载完成，确保能正确放置UI
+local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
--- 主面板
-local mainFrame = Instance.new("Frame")
-mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 300, 0, 400)
-mainFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
-mainFrame.BackgroundColor3 = Color3.fromRGB(255, 245, 250) -- 浅粉色
-mainFrame.BorderColor3 = Color3.fromRGB(255, 192, 203) -- 粉色边框
-mainFrame.BorderSizePixel = 2
-mainFrame.CornerRadius = UDim.new(0, 15) -- 圆角
-mainFrame.Parent = screenGui
+-- 创建主ScreenGui容器，所有UI元素都放在这里
+local mainGui = Instance.new("ScreenGui")
+mainGui.Name = "CustomUI"  -- 给UI起个名字，方便识别和管理
+mainGui.Parent = playerGui
 
--- 标题文本
-local titleLabel = Instance.new("TextLabel")
-titleLabel.Name = "TitleLabel"
-titleLabel.Size = UDim2.new(1, 0, 0, 60)
-titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "✨ 可爱小工具 ✨"
-titleLabel.TextColor3 = Color3.fromRGB(219, 68, 148) -- 深粉色文字
-titleLabel.TextScaled = true
-titleLabel.Font = Enum.Font.Cartoon
-titleLabel.Parent = mainFrame
+-------------------------
+-- 左侧圆形按钮区域逻辑
+-------------------------
+-- 大圆形按钮（带交互示例，可替换图片、绑定实际功能）
+local bigCircleBtn = Instance.new("ImageButton")
+bigCircleBtn.Parent = mainGui
+bigCircleBtn.Image = "rbxassetid://3926305904"  -- 替换为你实际的圆形按钮图片ID
+bigCircleBtn.Size = UDim2.new(0, 100, 0, 100)
+bigCircleBtn.Position = UDim2.new(0.05, 0, 0.2, 0)
+-- 按钮点击事件
+bigCircleBtn.MouseButton1Click:Connect(function()
+    print("大圆形按钮被点击，可在此处添加展开菜单等逻辑")
+    -- 示例：比如弹出一个小菜单，这里先简单打印，实际可创建新UI元素实现
+end)
 
--- 按钮1：粉色按钮
-local button1 = Instance.new("TextButton")
-button1.Name = "Button1"
-button1.Size = UDim2.new(0.8, 0, 0, 50)
-button1.Position = UDim2.new(0.1, 0, 0, 80)
-button1.BackgroundColor3 = Color3.fromRGB(255, 183, 200)
-button1.Text = "🐰 兔子模式"
-button1.TextColor3 = Color3.fromRGB(255, 255, 255)
-button1.Font = Enum.Font.Cartoon
-button1.TextScaled = true
-button1.CornerRadius = UDim.new(0, 25) -- 圆形按钮
-button1.Parent = mainFrame
+-- 左侧带进度/状态的圆形区域（可动态调整进度显示）
+local statusCircle = Instance.new("ImageLabel")
+statusCircle.Parent = mainGui
+statusCircle.Image = "rbxassetid://3926305904"  -- 替换为你实际的圆形背景图片ID
+statusCircle.Size = UDim2.new(0, 120, 0, 120)
+statusCircle.Position = UDim2.new(0.03, 0, 0.4, 0)
 
--- 按钮2：蓝色按钮
-local button2 = Instance.new("TextButton")
-button2.Name = "Button2"
-button2.Size = UDim2.new(0.8, 0, 0, 50)
-button2.Position = UDim2.new(0.1, 0, 0, 150)
-button2.BackgroundColor3 = Color3.fromRGB(173, 216, 255)
-button2.Text = "💧 水滴模式"
-button2.TextColor3 = Color3.fromRGB(70, 130, 180)
-button2.Font = Enum.Font.Cartoon
-button2.TextScaled = true
-button2.CornerRadius = UDim.new(0, 25)
-button2.Parent = mainFrame
+-- 模拟进度条的圆形覆盖层（可动态修改进度）
+local progressCircle = Instance.new("ImageLabel")
+progressCircle.Parent = statusCircle
+progressCircle.Image = "rbxassetid://123456789"  -- 替换为你实际的进度条图片ID
+progressCircle.Size = UDim2.new(0, 120, 0, 120)
+progressCircle.ImageRectOffset = Vector2.new(0, 0)  -- 控制显示图片的偏移，用于动态调整进度
+progressCircle.ImageRectSize = Vector2.new(120, 120)
+progressCircle.ImageTransparency = 0.5  -- 半透明效果，让背景能显示
 
--- 按钮3：黄色按钮
-local button3 = Instance.new("TextButton")
-button3.Name = "Button3"
-button3.Size = UDim2.new(0.8, 0, 0, 50)
-button3.Position = UDim2.new(0.1, 0, 0, 220)
-button3.BackgroundColor3 = Color3.fromRGB(255, 248, 189)
-button3.Text = "🍯 蜂蜜模式"
-button3.TextColor3 = Color3.fromRGB(218, 165, 32)
-button3.Font = Enum.Font.Cartoon
-button3.TextScaled = true
-button3.CornerRadius = UDim.new(0, 25)
-button3.Parent = mainFrame
+-------------------------
+-- 中间主窗口区域逻辑
+-------------------------
+local mainWindow = Instance.new("Frame")
+mainWindow.Parent = mainGui
+mainWindow.Size = UDim2.new(0, 500, 0, 400)
+mainWindow.Position = UDim2.new(0.2, 0, 0.1, 0)
+mainWindow.BackgroundColor3 = Color3.fromRGB(50, 100, 150)  -- 可根据设计调整颜色
 
--- 关闭按钮
-local closeButton = Instance.new("TextButton")
-closeButton.Name = "CloseButton"
-closeButton.Size = UDim2.new(0, 30, 0, 30)
-closeButton.Position = UDim2.new(1, -35, 0, 5)
-closeButton.BackgroundColor3 = Color3.fromRGB(255, 105, 180)
-closeButton.Text = "✕"
-closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeButton.Font = Enum.Font.Cartoon
-closeButton.CornerRadius = UDim.new(1, 0) -- 圆形按钮
-closeButton.Parent = mainFrame
+-- 主窗口标题栏
+local titleBar = Instance.new("TextLabel")
+titleBar.Parent = mainWindow
+titleBar.Size = UDim2.new(1, 0, 0, 30)
+titleBar.Text = "主窗窗"
+titleBar.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleBar.BackgroundColor3 = Color3.fromRGB(30, 80, 130)
 
--- 按钮点击效果
-local function addHoverEffect(button)
-    local originalColor = button.BackgroundColor3
-    button.MouseEnter:Connect(function()
-        button.BackgroundColor3 = originalColor:Lerp(Color3.new(1,1,1), 0.3) -- 高亮
-        button:TweenSize(UDim2.new(button.Size.X.Scale, 0, button.Size.Y.Scale + 0.05, 0), "Out", "Quad", 0.1, true)
-    end)
-    button.MouseLeave:Connect(function()
-        button.BackgroundColor3 = originalColor
-        button:TweenSize(UDim2.new(button.Size.X.Scale, 0, button.Size.Y.Scale - 0.05, 0), "Out", "Quad", 0.1, true)
+-- 主窗口 - 个人信息板块
+local infoFrame = Instance.new("Frame")
+infoFrame.Parent = mainWindow
+infoFrame.Size = UDim2.new(0, 200, 0, 150)
+infoFrame.Position = UDim2.new(0.05, 0, 0.2, 0)
+infoFrame.BackgroundColor3 = Color3.fromRGB(40, 90, 140)
+
+-- 头像显示（需替换为实际玩家头像获取逻辑，比如用Players:GetUserThumbnailAsync）
+local avatar = Instance.new("ImageLabel")
+avatar.Parent = infoFrame
+avatar.Size = UDim2.new(0, 60, 0, 60)
+avatar.Position = UDim2.new(0.2, 0, 0.1, 0)
+avatar.Image = "rbxassetid://8612345678"  -- 替换为真实头像图片ID
+
+-- 用户名显示
+local nameLabel = Instance.new("TextLabel")
+nameLabel.Parent = infoFrame
+nameLabel.Size = UDim2.new(1, 0, 0, 20)
+nameLabel.Position = UDim2.new(0, 0, 0.6, 0)
+nameLabel.Text = "Genrio Masioln"
+nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+-- 主窗口 - 玩家列表板块（可动态添加列表项）
+local listFrame = Instance.new("Frame")
+listFrame.Parent = mainWindow
+listFrame.Size = UDim2.new(0, 250, 0, 200)
+listFrame.Position = UDim2.new(0.4, 0, 0.2, 0)
+listFrame.BackgroundColor3 = Color3.fromRGB(40, 90, 140)
+
+-- 封装创建列表项的函数，方便复用
+local function createListItem(itemName, parentFrame)
+    local item = Instance.new("TextButton")
+    item.Parent = parentFrame
+    item.Size = UDim2.new(1, 0, 0, 30)
+    item.Text = itemName
+    item.TextColor3 = Color3.fromRGB(255, 255, 255)
+    item.BackgroundColor3 = Color3.fromRGB(30, 80, 130)
+    -- 列表项点击事件
+    item.MouseButton1Click:Connect(function()
+        print(itemName .. " 被点击，可添加查看详情等逻辑")
     end)
 end
 
-addHoverEffect(button1)
-addHoverEffect(button2)
-addHoverEffect(button3)
+-- 添加示例列表项
+createListItem("Gnlsuuf coser", listFrame)
+createListItem("Sboi dnanr", listFrame)
+createListItem("Clbhnvotz", listFrame)
+createListItem("3ioun ea", listFrame)
 
--- 关闭功能
-closeButton.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
+-------------------------
+-- 右侧玩家功能板块逻辑
+-------------------------
+local playerFuncFrame = Instance.new("Frame")
+playerFuncFrame.Parent = mainGui
+playerFuncFrame.Size = UDim2.new(0, 200, 0, 150)
+playerFuncFrame.Position = UDim2.new(0.75, 0, 0.2, 0)
+playerFuncFrame.BackgroundColor3 = Color3.fromRGB(50, 100, 150)
+
+-- 功能板块标题
+local funcTitle = Instance.new("TextLabel")
+funcTitle.Parent = playerFuncFrame
+funcTitle.Size = UDim2.new(1, 0, 0, 20)
+funcTitle.Text = "玩家功能"
+funcTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+funcTitle.BackgroundColor3 = Color3.fromRGB(30, 80, 130)
+
+-- 目标功能按钮
+local targetBtn = Instance.new("TextButton")
+targetBtn.Parent = playerFuncFrame
+targetBtn.Size = UDim2.new(0, 80, 0, 25)
+targetBtn.Position = UDim2.new(0.1, 0, 0.3, 0)
+targetBtn.Text = "Tar1919T"
+targetBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+targetBtn.BackgroundColor3 = Color3.fromRGB(30, 80, 130)
+targetBtn.MouseButton1Click:Connect(function()
+    print("目标功能按钮被点击，可添加追踪目标等逻辑")
 end)
 
--- 示例功能
-button1.MouseButton1Click:Connect(function()
-    print("兔子模式激活！")
+-- 创建功能按钮
+local createBtn = Instance.new("TextButton")
+createBtn.Parent = playerFuncFrame
+createBtn.Size = UDim2.new(0, 80, 0, 25)
+createBtn.Position = UDim2.new(0.5, 0, 0.3, 0)
+createBtn.Text = "Crateeeel"
+createBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+createBtn.BackgroundColor3 = Color3.fromRGB(30, 80, 130)
+createBtn.MouseButton1Click:Connect(function()
+    print("创建功能按钮被点击，可添加创建物件等逻辑")
 end)
-button2.MouseButton1Click:Connect(function()
-    print("水滴模式激活！")
+
+-------------------------
+-- 右侧游戏中心板块逻辑
+-------------------------
+local gameCenterFrame = Instance.new("Frame")
+gameCenterFrame.Parent = mainGui
+gameCenterFrame.Size = UDim2.new(0, 200, 0, 200)
+gameCenterFrame.Position = UDim2.new(0.75, 0, 0.5, 0)
+gameCenterFrame.BackgroundColor3 = Color3.fromRGB(50, 100, 150)
+
+-- 游戏中心标题
+local centerTitle = Instance.new("TextLabel")
+centerTitle.Parent = gameCenterFrame
+centerTitle.Size = UDim2.new(1, 0, 0, 20)
+centerTitle.Text = "游戏 软牛中心"
+centerTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+centerTitle.BackgroundColor3 = Color3.fromRGB(30, 80, 130)
+
+-- 播放/开始按钮（示例，可替换为实际功能图标）
+local playBtn = Instance.new("ImageButton")
+playBtn.Parent = gameCenterFrame
+playBtn.Size = UDim2.new(0, 60, 0, 60)
+playBtn.Position = UDim2.new(0.25, 0, 0.3, 0)
+playBtn.Image = "rbxassetid://9876543210"  -- 替换为实际播放按钮图片ID
+playBtn.MouseButton1Click:Connect(function()
+    print("游戏中心播放按钮被点击，可添加开始游戏等逻辑")
 end)
-button3.MouseButton1Click:Connect(function()
-    print("蜂蜜模式激活！")
+
+-- 游戏中心操作按钮
+local startBtn = Instance.new("TextButton")
+startBtn.Parent = gameCenterFrame
+startBtn.Size = UDim2.new(0, 80, 0, 25)
+startBtn.Position = UDim2.new(0.2, 0, 0.7, 0)
+startBtn.Text = "Genvthcarl"
+startBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+startBtn.BackgroundColor3 = Color3.fromRGB(30, 80, 130)
+startBtn.MouseButton1Click:Connect(function()
+    print("游戏中心开始按钮被点击，可添加进入游戏模式等逻辑")
 end)
