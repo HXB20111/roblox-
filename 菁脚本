@@ -1,96 +1,110 @@
--- 创建UI容器
+-- 创建屏幕GUI
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "ColoredPlayerName"
+screenGui.Name = "CuteUI"
 screenGui.Parent = game.Players.LocalPlayer.PlayerGui
 
--- 获取本地玩家
-local player = game.Players.LocalPlayer
-
--- 主面板（透明背景）
+-- 主面板
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 300, 0, 100)
-mainFrame.Position = UDim2.new(0.5, -150, 0.1, 0) -- 顶部居中
-mainFrame.BackgroundTransparency = 1 -- 完全透明背景
-mainFrame.BorderSizePixel = 0 -- 无边框
+mainFrame.Size = UDim2.new(0, 300, 0, 400)
+mainFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
+mainFrame.BackgroundColor3 = Color3.fromRGB(255, 245, 250) -- 浅粉色
+mainFrame.BorderColor3 = Color3.fromRGB(255, 192, 203) -- 粉色边框
+mainFrame.BorderSizePixel = 2
+mainFrame.CornerRadius = UDim.new(0, 15) -- 圆角
 mainFrame.Parent = screenGui
 
--- 彩色玩家名字标签
-local playerNameLabel = Instance.new("TextLabel")
-playerNameLabel.Name = "PlayerNameLabel"
-playerNameLabel.Size = UDim2.new(1, 0, 0.7, 0)
-playerNameLabel.Position = UDim2.new(0, 0, 0.15, 0)
-playerNameLabel.BackgroundTransparency = 1 -- 透明背景
-playerNameLabel.Text = player.Name -- 显示玩家名字
-playerNameLabel.TextScaled = true -- 自动缩放文本
-playerNameLabel.Font = Enum.Font.SourceSansBold -- 加粗字体
-playerNameLabel.Parent = mainFrame
+-- 标题文本
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Name = "TitleLabel"
+titleLabel.Size = UDim2.new(1, 0, 0, 60)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "✨ 可爱小工具 ✨"
+titleLabel.TextColor3 = Color3.fromRGB(219, 68, 148) -- 深粉色文字
+titleLabel.TextScaled = true
+titleLabel.Font = Enum.Font.Cartoon
+titleLabel.Parent = mainFrame
 
--- 彩色效果（通过Tween实现颜色渐变）
-local tweenService = game:GetService("TweenService")
-local colorInfo = TweenInfo.new(
-    2, -- 颜色变化周期（秒）
-    Enum.EasingStyle.Linear, -- 线性过渡
-    Enum.EasingDirection.InOut,
-    -1 -- 无限循环
-)
+-- 按钮1：粉色按钮
+local button1 = Instance.new("TextButton")
+button1.Name = "Button1"
+button1.Size = UDim2.new(0.8, 0, 0, 50)
+button1.Position = UDim2.new(0.1, 0, 0, 80)
+button1.BackgroundColor3 = Color3.fromRGB(255, 183, 200)
+button1.Text = "🐰 兔子模式"
+button1.TextColor3 = Color3.fromRGB(255, 255, 255)
+button1.Font = Enum.Font.Cartoon
+button1.TextScaled = true
+button1.CornerRadius = UDim.new(0, 25) -- 圆形按钮
+button1.Parent = mainFrame
 
--- 颜色渐变序列（可自定义添加更多颜色）
-local colors = {
-    Color3.new(1, 0, 0), -- 红
-    Color3.new(1, 1, 0), -- 黄
-    Color3.new(0, 1, 0), -- 绿
-    Color3.new(0, 1, 1), -- 青
-    Color3.new(0, 0, 1), -- 蓝
-    Color3.new(1, 0, 1), -- 紫
-    Color3.new(1, 0, 0) -- 回到红色
-}
+-- 按钮2：蓝色按钮
+local button2 = Instance.new("TextButton")
+button2.Name = "Button2"
+button2.Size = UDim2.new(0.8, 0, 0, 50)
+button2.Position = UDim2.new(0.1, 0, 0, 150)
+button2.BackgroundColor3 = Color3.fromRGB(173, 216, 255)
+button2.Text = "💧 水滴模式"
+button2.TextColor3 = Color3.fromRGB(70, 130, 180)
+button2.Font = Enum.Font.Cartoon
+button2.TextScaled = true
+button2.CornerRadius = UDim.new(0, 25)
+button2.Parent = mainFrame
 
--- 执行颜色渐变
-local currentColorIndex = 1
-while true do
-    local nextColorIndex = currentColorIndex % #colors + 1
-    local tween = tweenService:Create(
-        playerNameLabel,
-        colorInfo,
-        {TextColor3 = colors[nextColorIndex]}
-    )
-    tween:Play()
-    tween.Completed:Wait()
-    currentColorIndex = nextColorIndex
+-- 按钮3：黄色按钮
+local button3 = Instance.new("TextButton")
+button3.Name = "Button3"
+button3.Size = UDim2.new(0.8, 0, 0, 50)
+button3.Position = UDim2.new(0.1, 0, 0, 220)
+button3.BackgroundColor3 = Color3.fromRGB(255, 248, 189)
+button3.Text = "🍯 蜂蜜模式"
+button3.TextColor3 = Color3.fromRGB(218, 165, 32)
+button3.Font = Enum.Font.Cartoon
+button3.TextScaled = true
+button3.CornerRadius = UDim.new(0, 25)
+button3.Parent = mainFrame
+
+-- 关闭按钮
+local closeButton = Instance.new("TextButton")
+closeButton.Name = "CloseButton"
+closeButton.Size = UDim2.new(0, 30, 0, 30)
+closeButton.Position = UDim2.new(1, -35, 0, 5)
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 105, 180)
+closeButton.Text = "✕"
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.Font = Enum.Font.Cartoon
+closeButton.CornerRadius = UDim.new(1, 0) -- 圆形按钮
+closeButton.Parent = mainFrame
+
+-- 按钮点击效果
+local function addHoverEffect(button)
+    local originalColor = button.BackgroundColor3
+    button.MouseEnter:Connect(function()
+        button.BackgroundColor3 = originalColor:Lerp(Color3.new(1,1,1), 0.3) -- 高亮
+        button:TweenSize(UDim2.new(button.Size.X.Scale, 0, button.Size.Y.Scale + 0.05, 0), "Out", "Quad", 0.1, true)
+    end)
+    button.MouseLeave:Connect(function()
+        button.BackgroundColor3 = originalColor
+        button:TweenSize(UDim2.new(button.Size.X.Scale, 0, button.Size.Y.Scale - 0.05, 0), "Out", "Quad", 0.1, true)
+    end)
 end
 
--- 缩放控制器（右下角）
-local resizeHandle = Instance.new("TextButton")
-resizeHandle.Name = "ResizeHandle"
-resizeHandle.Size = UDim2.new(0, 15, 0, 15)
-resizeHandle.Position = UDim2.new(1, -15, 1, -15)
-resizeHandle.BackgroundColor3 = Color3.new(0.6, 0.6, 0.6)
-resizeHandle.BackgroundTransparency = 0.5 -- 半透明
-resizeHandle.Text = ""
-resizeHandle.Parent = mainFrame
+addHoverEffect(button1)
+addHoverEffect(button2)
+addHoverEffect(button3)
 
--- 缩放功能
-local isResizing = false
-local startMousePos, startSize
-
-resizeHandle.MouseButton1Down:Connect(function(input)
-    isResizing = true
-    startMousePos = Vector2.new(input.Position.X, input.Position.Y)
-    startSize = Vector2.new(mainFrame.AbsoluteSize.X, mainFrame.AbsoluteSize.Y)
+-- 关闭功能
+closeButton.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
 end)
 
-game:GetService("UserInputService").InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        isResizing = false
-    end
+-- 示例功能
+button1.MouseButton1Click:Connect(function()
+    print("兔子模式激活！")
 end)
-
-game:GetService("UserInputService").InputChanged:Connect(function(input)
-    if isResizing and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = Vector2.new(input.Position.X, input.Position.Y) - startMousePos
-        local newWidth = math.max(startSize.X + delta.X, 100)
-        local newHeight = math.max(startSize.Y + delta.Y, 50)
-        mainFrame.Size = UDim2.new(0, newWidth, 0, newHeight)
-    end
+button2.MouseButton1Click:Connect(function()
+    print("水滴模式激活！")
+end)
+button3.MouseButton1Click:Connect(function()
+    print("蜂蜜模式激活！")
 end)
