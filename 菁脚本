@@ -1,17 +1,16 @@
 -- 引入必要服务
 local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
 
--- 确保在客户端运行
+-- 检查运行环境（必须在客户端）
 if not player then
-    error("代码必须放在 LocalScript 中（客户端运行）")
+    error("请将脚本放在LocalScript中运行")
 end
 
 -- 等待PlayerGui加载（带超时处理）
 local playerGui = player:WaitForChild("PlayerGui", 10)
 if not playerGui then
-    error("PlayerGui加载超时，请检查脚本位置")
+    error("PlayerGui加载超时")
 end
 
 -- 创建或复用UI容器
@@ -19,53 +18,54 @@ local screenGui = playerGui:FindFirstChild("PlayerInfoUI") or Instance.new("Scre
 screenGui.Name = "PlayerInfoUI"
 screenGui.Parent = playerGui
 
--- 清除旧UI元素（避免重复显示）
+-- 清除旧元素，避免重复显示
 for _, child in ipairs(screenGui:GetChildren()) do
     child:Destroy()
 end
 
--- 主背景框架
+-- 主背景Frame（青色区域）
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 450, 0, 220)  -- 适中的尺寸
-mainFrame.Position = UDim2.new(0.5, -225, 0.1, 0)  -- 居中显示
-mainFrame.BackgroundColor3 = Color3.fromRGB(48, 173, 168)  -- 主体青绿色
+mainFrame.Size = UDim2.new(0, 450, 0, 200) -- 宽450，高200
+mainFrame.Position = UDim2.new(0.5, -225, 0.5, -100) -- 居中显示
+mainFrame.BackgroundColor3 = Color3.fromRGB(48, 173, 168) -- 青色背景
 mainFrame.BorderSizePixel = 0
 mainFrame.Parent = screenGui
 
--- 左侧白色竖线
+-- 左侧竖线（不相交，贴上下边缘）
 local leftLine = Instance.new("Frame")
 leftLine.Name = "LeftLine"
-leftLine.Size = UDim2.new(0, 2, 0, 150)  -- 竖线高度
-leftLine.Position = UDim2.new(0, 70, 0.1, 0)  -- 竖线位置
-leftLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)  -- 白色线条
+leftLine.Size = UDim2.new(0, 2, 0, 180) -- 高度180（贴上下边缘）
+leftLine.Position = UDim2.new(0, 50, 0, 10) -- 左边缘50，顶部10（与底部距离10）
+leftLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- 白色线条
 leftLine.BorderSizePixel = 0
 leftLine.Parent = mainFrame
 
--- 底部白色横线
+-- 底部横线（不相交，贴左右边缘）
 local bottomLine = Instance.new("Frame")
 bottomLine.Name = "BottomLine"
-bottomLine.Size = UDim2.new(0, 430, 0, 2)  -- 横线宽度适配主框架
-bottomLine.Position = UDim2.new(0, 10, 0.65, 0)  -- 横线位置
-bottomLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+bottomLine.Size = UDim2.new(0, 430, 0, 2) -- 宽度430（贴左右边缘）
+bottomLine.Position = UDim2.new(0, 10, 0, 150) -- 上边缘150，左边缘10（与右边缘距离10）
+bottomLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- 白色线条
 bottomLine.BorderSizePixel = 0
 bottomLine.Parent = mainFrame
 
--- 玩家头像（圆形，动态获取）
-local function createPlayerAvatar()
-    local avatarFrame = Instance.new("ImageLabel")
-    avatarFrame.Name = "PlayerAvatar"
-    avatarFrame.Size = UDim2.new(0, 60, 0, 60)  -- 头像大小
-    avatarFrame.Position = UDim2.new(0, 5, 0.7, 0)  -- 头像位置（靠近底部）
-    avatarFrame.BorderSizePixel = 0
-    avatarFrame.Parent = mainFrame
+-- 玩家头像（圆形，背景透明）
+local function createPlayerIcon()
+    local iconContainer = Instance.new("ImageLabel")
+    iconContainer.Name = "PlayerIcon"
+    iconContainer.Size = UDim2.new(0, 60, 0, 60) -- 60x60像素
+    iconContainer.Position = UDim2.new(0, 5, 0.3, 0) -- 与名字水平平行
+    iconContainer.BorderSizePixel = 0
+    iconContainer.BackgroundTransparency = 1 -- 完全透明背景（核心修正）
+    iconContainer.Parent = mainFrame
 
     -- 圆形裁剪
     local uiCorner = Instance.new("UICorner")
-    uiCorner.CornerRadius = UDim.new(1, 0)  -- 完全圆形
-    uiCorner.Parent = avatarFrame
+    uiCorner.CornerRadius = UDim.new(1, 0) -- 完全圆形
+    uiCorner.Parent = iconContainer
 
-    -- 加载玩家头像（带错误处理）
+    -- 异步获取头像（带错误处理）
     local success, content, isReady = pcall(function()
         return Players:GetUserThumbnailAsync(
             player.UserId,
@@ -75,87 +75,88 @@ local function createPlayerAvatar()
     end)
 
     if success and isReady then
-        avatarFrame.Image = content
+        iconContainer.Image = content
     else
         warn("头像加载失败：" .. (content or "未知错误"))
-        avatarFrame.Image = "rbxassetid://3926305904"  -- 默认头像
+        iconContainer.Image = "rbxassetid://3926305904" -- 默认占位图
     end
 end
-createPlayerAvatar()
+createPlayerIcon()
 
--- 彩色玩家名字标签（核心效果）
+-- 玩家名字（与头像水平平行，彩色）
 local userNameLabel = Instance.new("TextLabel")
 userNameLabel.Name = "UserNameLabel"
-userNameLabel.Size = UDim2.new(0, 180, 0, 30)  -- 足够宽度避免文字截断
-userNameLabel.Position = UDim2.new(0, 80, 0.7, 0)  -- 与头像对齐
-userNameLabel.Text = player.Name  -- 显示玩家真实名字
+userNameLabel.Size = UDim2.new(0, 180, 0, 30) -- 适配长名字
+userNameLabel.Position = UDim2.new(0, 80, 0.35, 0) -- 与头像水平对齐
+userNameLabel.Text = player.Name -- 显示玩家名
 userNameLabel.Font = Enum.Font.SourceSansBold
-userNameLabel.TextSize = 22  -- 稍大字体突出显示
-userNameLabel.BackgroundColor3 = Color3.fromRGB(150, 150, 150)  -- 灰色背景
+userNameLabel.TextSize = 20
+userNameLabel.BackgroundColor3 = Color3.fromRGB(150, 150, 150) -- 灰色背景
 userNameLabel.BorderSizePixel = 0
 userNameLabel.Parent = mainFrame
 
--- 彩色文字动画（彩虹渐变效果）
-local function startRainbowEffect(label)
-    local hue = 0
-    while label.Parent do  -- 标签存在时循环
-        hue = (hue + 1) % 360  -- 色相循环（0-359）
-        label.TextColor3 = Color3.fromHSV(hue / 360, 1, 1)  -- HSV转RGB
-        task.wait(0.1)  -- 颜色切换速度
+-- 彩虹色名字效果（循环安全退出）
+local hue = 0
+local colorLoop = coroutine.create(function()
+    while true do
+        if not userNameLabel:IsDescendantOf(game) then
+            break -- 标签被删除时停止
+        end
+        hue = (hue + 2) % 360
+        userNameLabel.TextColor3 = Color3.fromHSV(hue / 360, 1, 1)
+        task.wait(0.1) -- 更稳定的等待方式
     end
-end
-task.spawn(startRainbowEffect, userNameLabel)  -- 异步启动动画
+end)
+coroutine.resume(colorLoop)
 
--- 注入器名字标签（动态获取）
+-- 注入器名字（动态获取）
 local function getInjectorName()
-    -- 实际场景中替换为真实获取逻辑（示例：从配置文件读取）
-    -- 例如：return game.ReplicatedStorage.InjectorConfig.Name.Value
-    return "UltraInjector X5"  -- 示例名字
+    -- 实际项目中替换为真实逻辑，例如从服务器获取
+    return "ProInjector V3.0"
 end
 
-local injectorLabel = Instance.new("TextLabel")
-injectorLabel.Name = "InjectorLabel"
-injectorLabel.Size = UDim2.new(0, 150, 0, 25)
-injectorLabel.Position = UDim2.new(0, 200, 0.65, 0)  -- 位于用户名右侧
-injectorLabel.Text = "注入器: " .. getInjectorName()  -- 显示注入器名字
-injectorLabel.TextColor3 = Color3.fromRGB(255, 255, 255)  -- 白色文字
-injectorLabel.Font = Enum.Font.SourceSans
-injectorLabel.TextSize = 18
-injectorLabel.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
-injectorLabel.BorderSizePixel = 0
-injectorLabel.Parent = mainFrame
+local injectorNameLabel = Instance.new("TextLabel")
+injectorNameLabel.Name = "InjectorNameLabel"
+injectorNameLabel.Size = UDim2.new(0, 150, 0, 20)
+injectorNameLabel.Position = UDim2.new(0, 190, 0.55, 0)
+injectorNameLabel.Text = getInjectorName()
+injectorNameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+injectorNameLabel.Font = Enum.Font.SourceSans
+injectorNameLabel.TextSize = 16
+injectorNameLabel.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
+injectorNameLabel.BorderSizePixel = 0
+injectorNameLabel.Parent = mainFrame
 
 -- 用户ID标签
 local userIDLabel = Instance.new("TextLabel")
 userIDLabel.Name = "UserIDLabel"
-userIDLabel.Size = UDim2.new(0, 120, 0, 25)
-userIDLabel.Position = UDim2.new(0, 200, 0.78, 0)  -- 在注入器名字下方
-userIDLabel.Text = "ID: " .. tostring(player.UserId)  -- 显示玩家ID
+userIDLabel.Size = UDim2.new(0, 100, 0, 20)
+userIDLabel.Position = UDim2.new(0, 190, 0.65, 0)
+userIDLabel.Text = tostring(player.UserId) -- 显示玩家ID
 userIDLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 userIDLabel.Font = Enum.Font.SourceSans
-userIDLabel.TextSize = 18
+userIDLabel.TextSize = 16
 userIDLabel.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
 userIDLabel.BorderSizePixel = 0
 userIDLabel.Parent = mainFrame
 
--- 右侧图片区域
+-- 图片区域
 local imageArea = Instance.new("ImageLabel")
 imageArea.Name = "ImageArea"
-imageArea.Size = UDim2.new(0, 80, 0, 50)  -- 图片区域大小
-imageArea.Position = UDim2.new(0, 370, 0.68, 0)  -- 右侧位置
-imageArea.Image = "rbxassetid://10427444644"  -- 示例图片（可替换）
-imageArea.BackgroundColor3 = Color3.fromRGB(200, 200, 200)  -- 浅灰背景
+imageArea.Size = UDim2.new(0, 80, 0, 40)
+imageArea.Position = UDim2.new(0, 330, 0.65, 0)
+imageArea.Image = "rbxassetid://10480235714" -- 示例图片
+imageArea.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
 imageArea.BorderSizePixel = 0
 imageArea.Parent = mainFrame
 
--- 图片区域文字说明
+-- 图片文字标签
 local imageText = Instance.new("TextLabel")
 imageText.Name = "ImageText"
 imageText.Size = UDim2.new(0, 80, 0, 20)
-imageText.Position = UDim2.new(0, 370, 0.63, 0)  -- 图片上方
+imageText.Position = UDim2.new(0, 330, 0.6, 0)
 imageText.Text = "状态图"
 imageText.TextColor3 = Color3.fromRGB(255, 255, 255)
 imageText.Font = Enum.Font.SourceSans
 imageText.TextSize = 16
-imageText.BackgroundTransparency = 1  -- 透明背景
-imageText.Parent = mainFrame
+imageText.Parent = imageArea
