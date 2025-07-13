@@ -1,201 +1,161 @@
--- ======================================
--- 未来科技风 UI - 显示玩家头像版
--- 功能：创建悬浮透明面板、动态光效、模块化布局，悬浮窗口显示玩家头像
--- ======================================
+-- 引入必要服务
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local player = Players.LocalPlayer
 
--- 1. 获取玩家相关服务和对象
-local player = game.Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
-local contentProvider = game:GetService("ContentProvider")
-local runService = game:GetService("RunService")
-local guiService = game:GetService("GuiService")
+-- 确保在客户端运行
+if not player then
+    error("代码必须放在 LocalScript 中（客户端运行）")
+end
 
--- 2. 创建主 ScreenGui（所有 UI 元素的父容器）
-local mainGui = Instance.new("ScreenGui")
-mainGui.Name = "FuturisticUI"  -- 命名方便管理
-mainGui.Parent = playerGui
+-- 等待PlayerGui加载（带超时处理）
+local playerGui = player:WaitForChild("PlayerGui", 10)
+if not playerGui then
+    error("PlayerGui加载超时，请检查脚本位置")
+end
 
--- 3. 背景容器：模拟科技感渐变背景
-local background = Instance.new("Frame")
-background.Parent = mainGui
-background.Size = UDim2.new(1, 0, 1, 0)  -- 全屏覆盖
-background.BackgroundTransparency = 0.9  -- 半透明背景
-background.BackgroundColor3 = Color3.fromRGB(0, 120, 180)  -- 基础色调
+-- 创建或复用UI容器
+local screenGui = playerGui:FindFirstChild("PlayerInfoUI") or Instance.new("ScreenGui")
+screenGui.Name = "PlayerInfoUI"
+screenGui.Parent = playerGui
 
--- 3.1 动态背景渐变（用 UIGradient 实现）
-local bgGradient = Instance.new("UIGradient")
-bgGradient.Parent = background
-bgGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 50, 100)),   -- 起始色
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 150, 200))  -- 结束色
-})
-bgGradient.Rotation = 45  -- 渐变角度，增强科技感
+-- 清除旧UI元素（避免重复显示）
+for _, child in ipairs(screenGui:GetChildren()) do
+    child:Destroy()
+end
 
--- 4. 主标题栏：显示“未来风风格”标题
-local titleBar = Instance.new("TextLabel")
-titleBar.Parent = mainGui
-titleBar.Size = UDim2.new(0, 200, 0, 40)
-titleBar.Position = UDim2.new(0.1, 0, 0.05, 0)
-titleBar.Text = "未来风风格"
-titleBar.Font = Enum.Font.SourceSansBold  -- 科技感字体（可替换为更贴合的字体）
-titleBar.TextSize = 28
-titleBar.TextColor3 = Color3.fromRGB(0, 255, 255)  -- 荧光蓝标题
-titleBar.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)  -- 文字描边增强辨识度
-titleBar.TextStrokeTransparency = 0.5
-titleBar.BackgroundTransparency = 1  -- 透明背景
+-- 主背景框架
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 450, 0, 220)  -- 适中的尺寸
+mainFrame.Position = UDim2.new(0.5, -225, 0.1, 0)  -- 居中显示
+mainFrame.BackgroundColor3 = Color3.fromRGB(48, 173, 168)  -- 主体青绿色
+mainFrame.BorderSizePixel = 0
+mainFrame.Parent = screenGui
 
--- 字体 fallback，防止字体缺失
-pcall(function()
-    if not contentProvider:PreloadAsync({Enum.Font.SourceSansBold}) then
-        titleBar.Font = Enum.Font.ArialBold
+-- 左侧白色竖线
+local leftLine = Instance.new("Frame")
+leftLine.Name = "LeftLine"
+leftLine.Size = UDim2.new(0, 2, 0, 150)  -- 竖线高度
+leftLine.Position = UDim2.new(0, 70, 0.1, 0)  -- 竖线位置
+leftLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)  -- 白色线条
+leftLine.BorderSizePixel = 0
+leftLine.Parent = mainFrame
+
+-- 底部白色横线
+local bottomLine = Instance.new("Frame")
+bottomLine.Name = "BottomLine"
+bottomLine.Size = UDim2.new(0, 430, 0, 2)  -- 横线宽度适配主框架
+bottomLine.Position = UDim2.new(0, 10, 0.65, 0)  -- 横线位置
+bottomLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+bottomLine.BorderSizePixel = 0
+bottomLine.Parent = mainFrame
+
+-- 玩家头像（圆形，动态获取）
+local function createPlayerAvatar()
+    local avatarFrame = Instance.new("ImageLabel")
+    avatarFrame.Name = "PlayerAvatar"
+    avatarFrame.Size = UDim2.new(0, 60, 0, 60)  -- 头像大小
+    avatarFrame.Position = UDim2.new(0, 5, 0.7, 0)  -- 头像位置（靠近底部）
+    avatarFrame.BorderSizePixel = 0
+    avatarFrame.Parent = mainFrame
+
+    -- 圆形裁剪
+    local uiCorner = Instance.new("UICorner")
+    uiCorner.CornerRadius = UDim.new(1, 0)  -- 完全圆形
+    uiCorner.Parent = avatarFrame
+
+    -- 加载玩家头像（带错误处理）
+    local success, content, isReady = pcall(function()
+        return Players:GetUserThumbnailAsync(
+            player.UserId,
+            Enum.ThumbnailType.HeadShot,
+            Enum.ThumbnailSize.Size420x420
+        )
+    end)
+
+    if success and isReady then
+        avatarFrame.Image = content
+    else
+        warn("头像加载失败：" .. (content or "未知错误"))
+        avatarFrame.Image = "rbxassetid://3926305904"  -- 默认头像
     end
-end)
-
--- 5. 悬浮面板：核心功能区（模拟 3D 悬浮效果）
-local mainPanel = Instance.new("Frame")
-mainPanel.Parent = mainGui
-mainPanel.Size = UDim2.new(0, 800, 0, 400)
-mainPanel.Position = UDim2.new(0.1, 0, 0.2, 0)
-mainPanel.BackgroundTransparency = 0.8  -- 半透明面板
-mainPanel.BorderSizePixel = 0  -- 隐藏边框
-mainPanel.BackgroundColor3 = Color3.fromRGB(0, 100, 150)
-
--- 5.1 面板渐变光效（模拟科技感边框）
-local panelGradient = Instance.new("UIGradient")
-panelGradient.Parent = mainPanel
-panelGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 200, 255)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 100, 200))
-})
-panelGradient.Offset = Vector2.new(0, 0.1)  -- 渐变偏移，营造层次感
-
--- 6. 功能模块：左侧“求贤机 UI”卡片
-local card1 = Instance.new("Frame")
-card1.Parent = mainPanel
-card1.Size = UDim2.new(0, 220, 0, 150)
-card1.Position = UDim2.new(0.05, 0, 0.1, 0)
-card1.BackgroundTransparency = 0.9
-card1.BackgroundColor3 = Color3.fromRGB(0, 80, 120)
-
--- 6.1 卡片标题
-local card1Title = Instance.new("TextLabel")
-card1Title.Parent = card1
-card1Title.Size = UDim2.new(1, 0, 0, 30)
-card1Title.Text = "求贤机 UI"
-card1Title.Font = Enum.Font.SourceSansBold
-card1Title.TextSize = 20
-card1Title.TextColor3 = Color3.fromRGB(0, 255, 255)
-card1Title.BackgroundTransparency = 1
-
--- 6.2 卡片内容（示例：加载进度条）
-local card1Progress = Instance.new("Frame")
-card1Progress.Parent = card1
-card1Progress.Size = UDim2.new(0.8, 0, 0, 20)
-card1Progress.Position = UDim2.new(0.1, 0, 0.4, 0)
-card1Progress.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
-
--- 模拟进度（可动态修改）
-local progressFill = Instance.new("Frame")
-progressFill.Parent = card1Progress
-progressFill.Size = UDim2.new(0.6, 0, 1, 0)  -- 60% 进度
-progressFill.BackgroundColor3 = Color3.fromRGB(0, 255, 150)
-
--- 7. 3D 悬浮窗口：中间显示玩家头像
-local floatingWindow = Instance.new("ImageLabel")
-floatingWindow.Parent = mainPanel
-floatingWindow.Size = UDim2.new(0, 300, 0, 200)
-floatingWindow.Position = UDim2.new(0.35, 0, 0.2, 0)
-floatingWindow.ImageTransparency = 0.2  -- 半透明效果
-floatingWindow.Rotation = 5  -- 轻微旋转，模拟 3D 悬浮
-
--- 获取玩家头像并设置到悬浮窗口
-local success, thumbnailUrl = pcall(function()
-    return game.Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
-end)
-if success then
-    floatingWindow.Image = thumbnailUrl
-else
-    warn("获取玩家头像失败: " .. tostring(thumbnailUrl))
-    -- 若获取失败，可设置默认图片
-    floatingWindow.Image = "rbxassetid://3926305904"
 end
+createPlayerAvatar()
 
--- 8. 右侧功能区：模块化按钮
-local function createRightModule(title, positionY)
-    local module = Instance.new("Frame")
-    module.Parent = mainPanel
-    module.Size = UDim2.new(0, 180, 0, 120)
-    module.Position = UDim2.new(0.7, 0, positionY, 0)
-    module.BackgroundTransparency = 0.8
-    module.BackgroundColor3 = Color3.fromRGB(0, 80, 120)
+-- 彩色玩家名字标签（核心效果）
+local userNameLabel = Instance.new("TextLabel")
+userNameLabel.Name = "UserNameLabel"
+userNameLabel.Size = UDim2.new(0, 180, 0, 30)  -- 足够宽度避免文字截断
+userNameLabel.Position = UDim2.new(0, 80, 0.7, 0)  -- 与头像对齐
+userNameLabel.Text = player.Name  -- 显示玩家真实名字
+userNameLabel.Font = Enum.Font.SourceSansBold
+userNameLabel.TextSize = 22  -- 稍大字体突出显示
+userNameLabel.BackgroundColor3 = Color3.fromRGB(150, 150, 150)  -- 灰色背景
+userNameLabel.BorderSizePixel = 0
+userNameLabel.Parent = mainFrame
 
-    local moduleTitle = Instance.new("TextLabel")
-    moduleTitle.Parent = module
-    moduleTitle.Size = UDim2.new(1, 0, 0, 25)
-    moduleTitle.Text = title
-    moduleTitle.Font = Enum.Font.SourceSansBold
-    moduleTitle.TextSize = 18
-    moduleTitle.TextColor3 = Color3.fromRGB(0, 255, 255)
-    moduleTitle.BackgroundTransparency = 1
-
-    return module
-end
-
--- 8.1 模块 1：“解锁新模块皮肤”
-local module1 = createRightModule("解锁新模块皮肤", 0.2)
-
--- 8.2 模块 2：“资源加载完成”
-local module2 = createRightModule("资源加载完成", 0.5)
-
--- 9. 底部操作按钮：“领取奖励”
-local actionButton = Instance.new("TextButton")
-actionButton.Parent = mainPanel
-actionButton.Size = UDim2.new(0, 150, 0, 40)
-actionButton.Position = UDim2.new(0.75, 0, 0.8, 0)
-actionButton.Text = "领取奖励"
-actionButton.Font = Enum.Font.SourceSansBold
-actionButton.TextSize = 20
-actionButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-actionButton.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
-actionButton.MouseButton1Click:Connect(function()
-    print("领取奖励按钮点击！可扩展逻辑：播放动画、发放道具等")
-    -- 示例：短暂闪烁效果
-    actionButton.BackgroundColor3 = Color3.fromRGB(0, 255, 150)
-    wait(0.3)
-    actionButton.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
-end)
-
--- 10. 动态光效：模拟扫描动画（可选增强项）
-local scanEffect = Instance.new("Frame")
-scanEffect.Parent = mainPanel
-scanEffect.Size = UDim2.new(1, -20, 0, 2)
-scanEffect.Position = UDim2.new(0.01, 0, 0.15, 0)
-scanEffect.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
-scanEffect.BackgroundTransparency = 0.5
-
--- 循环移动动画
-coroutine.wrap(function()
-    while true do
-        scanEffect:TweenPosition(UDim2.new(0.01, 0, 0.85, 0), Enum.EasingDirection.InOut, Enum.EasingStyle.Linear, 3, true)
-        wait(3)
-        scanEffect:TweenPosition(UDim2.new(0.01, 0, 0.15, 0), Enum.EasingDirection.InOut, Enum.EasingStyle.Linear, 3, true)
-        wait(3)
+-- 彩色文字动画（彩虹渐变效果）
+local function startRainbowEffect(label)
+    local hue = 0
+    while label.Parent do  -- 标签存在时循环
+        hue = (hue + 1) % 360  -- 色相循环（0-359）
+        label.TextColor3 = Color3.fromHSV(hue / 360, 1, 1)  -- HSV转RGB
+        task.wait(0.1)  -- 颜色切换速度
     end
-end)()
+end
+task.spawn(startRainbowEffect, userNameLabel)  -- 异步启动动画
 
--- 11. 自适应屏幕分辨率
-local function updateUIPosition()
-    local viewport = guiService:GetGuiInset()
-    local screenSize = workspace.CurrentCamera.ViewportSize
-
-    -- 重新计算 mainPanel 位置（示例：居中适配）
-    mainPanel.Position = UDim2.new(
-        0.1, 0, 
-        0.2, 0
-    )
-    -- 复杂布局建议用：(screenSize.X * 0.1, screenSize.Y * 0.2) 动态计算
+-- 注入器名字标签（动态获取）
+local function getInjectorName()
+    -- 实际场景中替换为真实获取逻辑（示例：从配置文件读取）
+    -- 例如：return game.ReplicatedStorage.InjectorConfig.Name.Value
+    return "UltraInjector X5"  -- 示例名字
 end
 
--- 监听窗口变化
-runService.RenderStepped:Connect(updateUIPosition)
-updateUIPosition()  -- 初始化
+local injectorLabel = Instance.new("TextLabel")
+injectorLabel.Name = "InjectorLabel"
+injectorLabel.Size = UDim2.new(0, 150, 0, 25)
+injectorLabel.Position = UDim2.new(0, 200, 0.65, 0)  -- 位于用户名右侧
+injectorLabel.Text = "注入器: " .. getInjectorName()  -- 显示注入器名字
+injectorLabel.TextColor3 = Color3.fromRGB(255, 255, 255)  -- 白色文字
+injectorLabel.Font = Enum.Font.SourceSans
+injectorLabel.TextSize = 18
+injectorLabel.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
+injectorLabel.BorderSizePixel = 0
+injectorLabel.Parent = mainFrame
+
+-- 用户ID标签
+local userIDLabel = Instance.new("TextLabel")
+userIDLabel.Name = "UserIDLabel"
+userIDLabel.Size = UDim2.new(0, 120, 0, 25)
+userIDLabel.Position = UDim2.new(0, 200, 0.78, 0)  -- 在注入器名字下方
+userIDLabel.Text = "ID: " .. tostring(player.UserId)  -- 显示玩家ID
+userIDLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+userIDLabel.Font = Enum.Font.SourceSans
+userIDLabel.TextSize = 18
+userIDLabel.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
+userIDLabel.BorderSizePixel = 0
+userIDLabel.Parent = mainFrame
+
+-- 右侧图片区域
+local imageArea = Instance.new("ImageLabel")
+imageArea.Name = "ImageArea"
+imageArea.Size = UDim2.new(0, 80, 0, 50)  -- 图片区域大小
+imageArea.Position = UDim2.new(0, 370, 0.68, 0)  -- 右侧位置
+imageArea.Image = "rbxassetid://10427444644"  -- 示例图片（可替换）
+imageArea.BackgroundColor3 = Color3.fromRGB(200, 200, 200)  -- 浅灰背景
+imageArea.BorderSizePixel = 0
+imageArea.Parent = mainFrame
+
+-- 图片区域文字说明
+local imageText = Instance.new("TextLabel")
+imageText.Name = "ImageText"
+imageText.Size = UDim2.new(0, 80, 0, 20)
+imageText.Position = UDim2.new(0, 370, 0.63, 0)  -- 图片上方
+imageText.Text = "状态图"
+imageText.TextColor3 = Color3.fromRGB(255, 255, 255)
+imageText.Font = Enum.Font.SourceSans
+imageText.TextSize = 16
+imageText.BackgroundTransparency = 1  -- 透明背景
+imageText.Parent = mainFrame
