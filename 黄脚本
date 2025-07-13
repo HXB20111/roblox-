@@ -1,7 +1,7 @@
 -- 白名单系统核心配置（添加HXB201111的用户ID）
 local WHITELIST = {
-    [6039062907] = true, -- 作者ID（示例）
-    [] = true  -- 替换为HXB201111的实际用户ID（数字）
+    [1357377308] = true, -- 作者ID（示例）
+    [6039062907] = true  -- 替换为HXB201111的实际用户ID（数字）
 }
 
 -- 加载Orion库（增强错误防护）
@@ -213,7 +213,7 @@ local function addSettingTextbox(tab, config)
                 border.Thickness = 1
                 border.Parent = input
             end
-        end)
+        end
     end)
     return textbox
 end
@@ -223,13 +223,16 @@ addSettingTextbox(FunctionTab, {
     Name = "跳跃高度设置",
     SuccessMsg = "跳跃高度已更新",
     Callback = function(num)
-        -- 等待角色加载完成
+        -- 等待角色加载完成（带超时处理）
         local character = player.Character or player.CharacterAdded:Wait()
-        local humanoid = character:FindFirstChildOfClass("Humanoid") or character:WaitForChild("Humanoid", 5)
+        local humanoid = character:FindFirstChildOfClass("Humanoid") 
+        if not humanoid then
+            humanoid = character:WaitForChild("Humanoid", 5) -- 5秒超时
+        end
         if humanoid then
             humanoid.JumpPower = num
         else
-            error("未找到人形对象")
+            error("未找到人形对象（超时）")
         end
     end
 })
@@ -240,11 +243,14 @@ addSettingTextbox(FunctionTab, {
     SuccessMsg = "移动速度已更新",
     Callback = function(num)
         local character = player.Character or player.CharacterAdded:Wait()
-        local humanoid = character:FindFirstChildOfClass("Humanoid") or character:WaitForChild("Humanoid", 5)
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if not humanoid then
+            humanoid = character:WaitForChild("Humanoid", 5)
+        end
         if humanoid then
             humanoid.WalkSpeed = num
         else
-            error("未找到人形对象")
+            error("未找到人形对象（超时）")
         end
     end
 })
@@ -341,5 +347,34 @@ task.delay(0.3, function()
     end
 end)
 
--- 玩家离开时清理
-playe
+-- 玩家离开时清理资源
+local connections = {}  -- 存储所有连接便于清理
+
+-- 记录连接
+table.insert(connections, player.AncestryChanged:Connect(function()
+    -- 清理所有事件连接
+    for _, conn in ipairs(connections) do
+        if conn and typeof(conn) == "RBXScriptConnection" then
+            conn:Disconnect()
+        end
+    end
+    -- 销毁界面
+    if Window and Window.Instance then
+        Window.Instance:Destroy()
+    end
+    -- 重置游戏设置
+    Lighting.Ambient = Color3.new(0, 0, 0)
+    Lighting.Brightness = 1
+    Workspace.Gravity = 196.2  -- Roblox默认重力
+end))
+
+-- 窗口关闭时清理
+table.insert(connections, Window.Instance:GetPropertyChangedSignal("Parent"):Connect(function()
+    if not Window.Instance.Parent then  -- 窗口被销毁时
+        for _, conn in ipairs(connections) do
+            if conn and typeof(conn) == "RBXScriptConnection" then
+                conn:Disconnect()
+            end
+        end
+    end
+end))
