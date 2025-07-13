@@ -1,5 +1,5 @@
 local WHITELIST = {
-    [6039062907] = true
+    [6039062907] = true,  -- 修复：添加逗号分隔表元素
     [7939421722] = true
 }
 
@@ -155,7 +155,7 @@ PlayerTab:AddParagraph("您的用户名", player.Name)
 PlayerTab:AddParagraph("您的ID", tostring(player.UserId))
 PlayerTab:AddParagraph("注入器", executorName)
 PlayerTab:AddParagraph("服务器ID", tostring(game.GameId))
-PlayerTab:AddParagraph("白名单状态", "<font color='green'>已授权用户</font>") -- 显示授权状态
+PlayerTab:AddParagraph("白名单状态", "<font color='green'>已授权用户</font>")
 
 local FunctionTab = Window:MakeTab({
     Name = "玩家功能",
@@ -195,7 +195,7 @@ local function addSettingTextbox(tab, config)
                 border.Thickness = 1
                 border.Parent = input
             end
-        end
+        end)
     end)
     return textbox
 end
@@ -276,6 +276,7 @@ task.delay(0.2, function()
     end
 end)
 
+-- 修复：将重复的变量名改为不同名称
 local ScriptCenterTab = Window:MakeTab({
     Name = "脚本中心",
     Icon = "rbxassetid://4483346000",
@@ -309,11 +310,15 @@ addRoundButton(ScriptCenterTab, {
     Color = Color3.fromRGB(123, 104, 238)
 })
 
-local ScriptCenterTab = Window:MakeTab({
+-- 修复：使用新变量名定义“黄脚本”标签页
+local HuangScriptTab = Window:MakeTab({  -- 变量名修改为HuangScriptTab，避免重复
     Name = "黄脚本",
     Icon = "rbxassetid://4483346000",
     PremiumOnly = false
 })
+
+-- 为“黄脚本”标签页添加基础内容（可选）
+HuangScriptTab:AddParagraph("黄脚本功能", "黄脚本专属功能即将上线")
 
 OrionLib:Init()
 task.delay(0.3, function()
@@ -345,12 +350,15 @@ table.insert(connections, Players.PlayerRemoving:Connect(function(leavingPlayer)
     end
 end))
 
-table.insert(connections, Window.Instance:GetPropertyChangedSignal("Parent"):Connect(function()
-    if not Window.Instance.Parent then
-        for _, conn in ipairs(connections) do
-            if conn and typeof(conn) == "RBXScriptConnection" then
-                conn:Disconnect()
+-- 修复：添加Window.Instance存在性检查，避免空引用错误
+if Window.Instance then
+    table.insert(connections, Window.Instance:GetPropertyChangedSignal("Parent"):Connect(function()
+        if not Window.Instance.Parent then
+            for _, conn in ipairs(connections) do
+                if conn and typeof(conn) == "RBXScriptConnection" then
+                    conn:Disconnect()
+                end
             end
         end
-    end
-end))
+    end))
+end
