@@ -1,7 +1,7 @@
 -- 白名单系统核心配置（添加HXB201111的用户ID）
 local WHITELIST = {
     [1357377308] = true, -- 作者ID（示例）
-    [123456789] = true  -- 替换为HXB201111的实际用户ID（数字）
+    [6039062907] = true  -- 替换为HXB201111的实际用户ID（数字）
 }
 
 -- 加载Orion库（增强错误防护）
@@ -43,7 +43,7 @@ if not isWhitelisted then
         Icon = "rbxassetid://9108657181"
     })
     local InfoTab = RestrictWindow:MakeTab({Name = "权限不足"})
-    InfoTab:AddParagraph("提示", "请联系管理员添加白名单")
+    InfoTab:AddParagraph("提示", "请联系作者添加白名单")
     InfoTab:AddParagraph("您的ID", tostring(player.UserId)) -- 显示用户ID方便申请
     OrionLib:Init()
     return
