@@ -1,10 +1,8 @@
--- 白名单系统核心配置（添加HXB201111的用户ID）
 local WHITELIST = {
-    [6039062907] = true, -- 作者ID（示例）
-    [7939421722] = true  -- 替换为HXB201111的实际用户ID（数字）
+    [6039062907] = true
+    [7939421722] = true
 }
 
--- 加载Orion库（增强错误防护）
 local OrionLib
 local success, err = pcall(function()
     OrionLib = loadstring(game:HttpGet("https://pastebin.com/raw/FUEx0f3G"))()
@@ -14,7 +12,6 @@ if not success or not OrionLib then
     return
 end
 
--- 服务与变量初始化
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
@@ -22,10 +19,8 @@ local Workspace = game:GetService("Workspace")
 local StarterGui = game:GetService("StarterGui")
 local player = Players.LocalPlayer
 
--- 白名单验证
 local isWhitelisted = WHITELIST[player.UserId] or false
 if not isWhitelisted then
-    -- 非白名单用户提示
     pcall(function()
         StarterGui:SetCore("SendNotification", {
             Title = "未授权访问",
@@ -34,7 +29,7 @@ if not isWhitelisted then
             Icon = "rbxassetid://9108657181"
         })
     end)
-    -- 创建限制窗口
+    
     local RestrictWindow = OrionLib:MakeWindow({
         Name = "访问受限",
         HidePremium = false,
@@ -44,12 +39,11 @@ if not isWhitelisted then
     })
     local InfoTab = RestrictWindow:MakeTab({Name = "权限不足"})
     InfoTab:AddParagraph("提示", "请联系作者添加白名单")
-    InfoTab:AddParagraph("您的ID", tostring(player.UserId)) -- 显示用户ID方便申请
+    InfoTab:AddParagraph("您的ID", tostring(player.UserId))
     OrionLib:Init()
     return
 end
 
--- 工具函数：创建圆形边角（增加安全检查）
 local function makeRound(obj, radius)
     if not obj or not obj:IsA("GuiObject") then return end
     local corner = Instance.new("UICorner")
@@ -58,7 +52,6 @@ local function makeRound(obj, radius)
     return corner
 end
 
--- 创建主窗口
 local Window = OrionLib:MakeWindow({
     Name = "新黄脚本",
     HidePremium = false,
@@ -69,7 +62,6 @@ local Window = OrionLib:MakeWindow({
     Icon = "rbxassetid://4483345998"
 })
 
--- 欢迎通知（兼容处理）
 pcall(function()
     StarterGui:SetCore("SendNotification", {
         Title = "新黄脚本",
@@ -79,7 +71,6 @@ pcall(function()
     })
 end)
 
--- 作者信息标签页
 local AuthorTab = Window:MakeTab({
     Name = "作者信息",
     Icon = "rbxassetid://4483345998",
@@ -90,14 +81,12 @@ AuthorTab:AddParagraph("作者", "小黄")
 AuthorTab:AddParagraph("作者QQ", "1357377308")
 AuthorTab:AddParagraph("QQ群", "543121803")
 
--- 圆形按钮生成器（修复内存泄漏）
 local function addRoundButton(tab, config)
     local btn = tab:AddButton(config)
     if btn.Instance and btn.Instance:IsA("GuiButton") then
         btn.Instance.Size = UDim2.new(0, 120, 0, 36)
         makeRound(btn.Instance)
         
-        -- 悬停效果（增加事件清理）
         local hover = Instance.new("UIScale")
         hover.Scale = 1
         hover.Parent = btn.Instance
@@ -109,7 +98,6 @@ local function addRoundButton(tab, config)
             hover.Scale = 1
         end)
         
-        -- 按钮销毁时清理事件
         btn.Instance.AncestryChanged:Connect(function(_, parent)
             if not parent then
                 enterConn:Disconnect()
@@ -120,7 +108,6 @@ local function addRoundButton(tab, config)
     return btn
 end
 
--- 作者信息页按钮（修复复制功能兼容）
 addRoundButton(AuthorTab, {
     Name = "复制作者QQ",
     Callback = function()
@@ -151,14 +138,12 @@ addRoundButton(AuthorTab, {
     Color = Color3.fromRGB(100, 200, 100)
 })
 
--- 玩家信息标签页（修复注入器信息获取）
 local PlayerTab = Window:MakeTab({
     Name = "玩家信息",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
--- 安全获取注入器名称
 local executorName = "未知"
 pcall(function()
     if identifyexecutor then
@@ -172,7 +157,6 @@ PlayerTab:AddParagraph("注入器", executorName)
 PlayerTab:AddParagraph("服务器ID", tostring(game.GameId))
 PlayerTab:AddParagraph("白名单状态", "<font color='green'>已授权用户</font>") -- 显示授权状态
 
--- 玩家功能标签页（优化文本框逻辑）
 local FunctionTab = Window:MakeTab({
     Name = "玩家功能",
     Icon = "rbxassetid://4483345998",
@@ -181,7 +165,6 @@ local FunctionTab = Window:MakeTab({
 
 local MovementSection = FunctionTab:AddSection({Name = "移动设置"})
 
--- 文本框配置函数（修复查找逻辑）
 local function addSettingTextbox(tab, config)
     local textbox = tab:AddTextbox({
         Name = config.Name,
@@ -189,7 +172,7 @@ local function addSettingTextbox(tab, config)
         TextDisappear = true,
         Callback = function(Value)
             local num = tonumber(Value)
-            if not num or num <= 0 then  -- 防止无效数值
+            if not num or num <= 0 then  
                 return OrionLib:MakeNotification({Name = "错误", Content = "请输入正数", Time = 2})
             end
             local success, err = pcall(config.Callback, num)
@@ -201,10 +184,9 @@ local function addSettingTextbox(tab, config)
         end
     })
     
-    -- 文本框样式处理（深度查找）
     task.delay(0.2, function()
         if textbox.Instance then
-            local input = textbox.Instance:FindFirstChildOfClass("TextBox", true)  -- 深度查找嵌套控件
+            local input = textbox.Instance:FindFirstChildOfClass("TextBox", true)  
             if input then
                 makeRound(input, UDim.new(0.2, 0))
                 local border = Instance.new("UIStroke")
@@ -218,16 +200,14 @@ local function addSettingTextbox(tab, config)
     return textbox
 end
 
--- 添加跳跃高度设置（等待角色加载）
 addSettingTextbox(FunctionTab, {
     Name = "跳跃高度设置",
     SuccessMsg = "跳跃高度已更新",
     Callback = function(num)
-        -- 等待角色加载完成（带超时处理）
         local character = player.Character or player.CharacterAdded:Wait()
         local humanoid = character:FindFirstChildOfClass("Humanoid") 
         if not humanoid then
-            humanoid = character:WaitForChild("Humanoid", 5) -- 5秒超时
+            humanoid = character:WaitForChild("Humanoid", 5)
         end
         if humanoid then
             humanoid.JumpPower = num
@@ -237,7 +217,6 @@ addSettingTextbox(FunctionTab, {
     end
 })
 
--- 添加移动速度设置（同上）
 addSettingTextbox(FunctionTab, {
     Name = "移动速度设置",
     SuccessMsg = "移动速度已更新",
@@ -255,7 +234,6 @@ addSettingTextbox(FunctionTab, {
     end
 })
 
--- 添加重力设置（限制范围）
 addSettingTextbox(FunctionTab, {
     Name = "重力设置",
     SuccessMsg = "重力已更新",
@@ -267,10 +245,8 @@ addSettingTextbox(FunctionTab, {
     end
 })
 
--- 其他功能区
 local OtherSection = FunctionTab:AddSection({Name = "其他功能"})
 
--- 夜视模式开关（修复样式）
 local nightToggle = FunctionTab:AddToggle({
     Name = "夜视模式",
     Default = false,
@@ -286,7 +262,6 @@ local nightToggle = FunctionTab:AddToggle({
     Color = Color3.fromRGB(255, 165, 0)
 })
 
--- 开关样式修复
 task.delay(0.2, function()
     if nightToggle.Instance then
         local switch = nightToggle.Instance:FindFirstChild("Switch", true)
@@ -301,7 +276,6 @@ task.delay(0.2, function()
     end
 end)
 
--- 脚本中心标签页（修复加载逻辑）
 local ScriptCenterTab = Window:MakeTab({
     Name = "脚本中心",
     Icon = "rbxassetid://4483346000",
@@ -310,7 +284,7 @@ local ScriptCenterTab = Window:MakeTab({
 
 local isScriptLoading = false
 addRoundButton(ScriptCenterTab, {
-    Name = "加载皮脚本",
+    Name = "皮脚本",
     Callback = function()
         if isScriptLoading then
             return OrionLib:MakeNotification({Name = "提示", Content = "加载中，请稍候...", Time = 2})
@@ -321,11 +295,10 @@ addRoundButton(ScriptCenterTab, {
         task.spawn(function()
             local success, err = pcall(function()
                 getgenv().XiaoPi = "皮脚本QQ群1002100032"
-                -- 增加缓存控制
                 local scriptUrl = "https://raw.githubusercontent.com/xiaopi77/xiaopi77/main/QQ1002100032-Roblox-Pi-script.lua"
-                loadstring(game:HttpGet(scriptUrl, true))()  -- 禁用缓存
+                loadstring(game:HttpGet(scriptUrl, true))() 
             end)
-            isScriptLoading = false  -- 确保状态重置
+            isScriptLoading = false
             if success then
                 OrionLib:MakeNotification({Name = "加载成功", Content = "皮脚本已加载完成！", Time = 3})
             else
@@ -336,49 +309,48 @@ addRoundButton(ScriptCenterTab, {
     Color = Color3.fromRGB(123, 104, 238)
 })
 
--- 主窗口样式处理
+local ScriptCenterTab = Window:MakeTab({
+    Name = "黄脚本",
+    Icon = "rbxassetid://4483346000",
+    PremiumOnly = false
+})
+
 OrionLib:Init()
 task.delay(0.3, function()
     if Window.Instance then
-        local mainFrame = Window.Instance:FindFirstChild("MainFrame", true)  -- 补全查找逻辑
+        local mainFrame = Window.Instance:FindFirstChild("MainFrame", true)
         if mainFrame then
-            makeRound(mainFrame, UDim.new(0.08, 0))  -- 应用圆角样式
+            makeRound(mainFrame, UDim.new(0.08, 0))
         end
     end
 end)
 
--- 玩家离开时清理资源
-local connections = {}  -- 存储所有连接便于清理
+local connections = {}
 
--- 记录玩家离开事件
 table.insert(connections, Players.PlayerRemoving:Connect(function(leavingPlayer)
     if leavingPlayer == player then
-        -- 清理所有事件连接
         for _, conn in ipairs(connections) do
             if conn and typeof(conn) == "RBXScriptConnection" then
                 conn:Disconnect()
             end
         end
-        -- 销毁界面
+        
         if Window and Window.Instance then
             Window.Instance:Destroy()
         end
-        -- 重置游戏设置
+        
         Lighting.Ambient = Color3.new(0, 0, 0)
         Lighting.Brightness = 1
-        Workspace.Gravity = 196.2  -- Roblox默认重力值
+        Workspace.Gravity = 196.2  
     end
 end))
 
--- 窗口关闭时清理（修复空引用问题）
-if Window.Instance then  -- 增加实例存在性检查
-    table.insert(connections, Window.Instance:GetPropertyChangedSignal("Parent"):Connect(function()
-        if not Window.Instance or not Window.Instance.Parent then  -- 双重检查避免空引用
-            for _, conn in ipairs(connections) do
-                if conn and typeof(conn) == "RBXScriptConnection" then
-                    conn:Disconnect()
-                end
+table.insert(connections, Window.Instance:GetPropertyChangedSignal("Parent"):Connect(function()
+    if not Window.Instance.Parent then
+        for _, conn in ipairs(connections) do
+            if conn and typeof(conn) == "RBXScriptConnection" then
+                conn:Disconnect()
             end
         end
-    end))
-end
+    end
+end))
