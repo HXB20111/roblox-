@@ -1,138 +1,96 @@
--- 科技风UI核心脚本
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "TechUI"
-ScreenGui.Parent = game.Players.LocalPlayer.PlayerGui
+-- 创建UI容器
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "ColoredPlayerName"
+screenGui.Parent = game.Players.LocalPlayer.PlayerGui
 
--- 主面板
-local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0.8, 0, 0.7, 0)
-MainFrame.Position = UDim2.new(0.1, 0, 0.15, 0)
-MainFrame.BackgroundColor3 = Color3.fromRGB(10, 15, 30)
-MainFrame.BackgroundTransparency = 0.3
-MainFrame.BorderSizePixel = 0
-MainFrame.Active = true
-MainFrame.Draggable = true -- 可拖动
-MainFrame.Parent = ScreenGui
+-- 获取本地玩家
+local player = game.Players.LocalPlayer
 
--- 科技风边框
-local Border = Instance.new("Frame")
-Border.Size = UDim2.new(1, 4, 1, 4)
-Border.Position = UDim2.new(-0.002, 0, -0.002, 0)
-Border.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
-Border.BackgroundTransparency = 0.8
-Border.BorderSizePixel = 0
-Border.ZIndex = -1
-Border.Parent = MainFrame
+-- 主面板（透明背景）
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 300, 0, 100)
+mainFrame.Position = UDim2.new(0.5, -150, 0.1, 0) -- 顶部居中
+mainFrame.BackgroundTransparency = 1 -- 完全透明背景
+mainFrame.BorderSizePixel = 0 -- 无边框
+mainFrame.Parent = screenGui
 
--- 标题栏
-local TitleBar = Instance.new("Frame")
-TitleBar.Size = UDim2.new(1, 0, 0.1, 0)
-TitleBar.BackgroundColor3 = Color3.fromRGB(0, 50, 80)
-TitleBar.Parent = MainFrame
+-- 彩色玩家名字标签
+local playerNameLabel = Instance.new("TextLabel")
+playerNameLabel.Name = "PlayerNameLabel"
+playerNameLabel.Size = UDim2.new(1, 0, 0.7, 0)
+playerNameLabel.Position = UDim2.new(0, 0, 0.15, 0)
+playerNameLabel.BackgroundTransparency = 1 -- 透明背景
+playerNameLabel.Text = player.Name -- 显示玩家名字
+playerNameLabel.TextScaled = true -- 自动缩放文本
+playerNameLabel.Font = Enum.Font.SourceSansBold -- 加粗字体
+playerNameLabel.Parent = mainFrame
 
-local TitleText = Instance.new("TextLabel")
-TitleText.Text = "SYSTEM CONTROL PANEL"
-TitleText.Size = UDim2.new(1, 0, 1, 0)
-TitleText.Font = Enum.Font.Code
-TitleText.TextColor3 = Color3.fromRGB(0, 255, 200)
-TitleText.TextScaled = true
-TitleText.Parent = TitleBar
+-- 彩色效果（通过Tween实现颜色渐变）
+local tweenService = game:GetService("TweenService")
+local colorInfo = TweenInfo.new(
+    2, -- 颜色变化周期（秒）
+    Enum.EasingStyle.Linear, -- 线性过渡
+    Enum.EasingDirection.InOut,
+    -1 -- 无限循环
+)
 
--- 功能按钮区
-local ButtonContainer = Instance.new("Frame")
-ButtonContainer.Size = UDim2.new(1, 0, 0.8, 0)
-ButtonContainer.Position = UDim2.new(0, 0, 0.1, 0)
-ButtonContainer.BackgroundTransparency = 1
-ButtonContainer.Parent = MainFrame
+-- 颜色渐变序列（可自定义添加更多颜色）
+local colors = {
+    Color3.new(1, 0, 0), -- 红
+    Color3.new(1, 1, 0), -- 黄
+    Color3.new(0, 1, 0), -- 绿
+    Color3.new(0, 1, 1), -- 青
+    Color3.new(0, 0, 1), -- 蓝
+    Color3.new(1, 0, 1), -- 紫
+    Color3.new(1, 0, 0) -- 回到红色
+}
 
--- 科技风按钮模板
-local function createTechButton(name, position, size, callback)
-    local btn = Instance.new("TextButton")
-    btn.Name = name
-    btn.Size = size
-    btn.Position = position
-    btn.BackgroundColor3 = Color3.fromRGB(0, 40, 60)
-    btn.BorderColor3 = Color3.fromRGB(0, 200, 255)
-    btn.BorderSizePixel = 1
-    btn.Font = Enum.Font.Code
-    btn.Text = name:upper()
-    btn.TextColor3 = Color3.fromRGB(200, 255, 255)
-    btn.TextScaled = true
-    
-    -- 悬停效果
-    btn.MouseEnter:Connect(function()
-        btn.BackgroundColor3 = Color3.fromRGB(0, 60, 90)
-        btn.BorderColor3 = Color3.fromRGB(0, 255, 255)
-    end)
-    
-    btn.MouseLeave:Connect(function()
-        btn.BackgroundColor3 = Color3.fromRGB(0, 40, 60)
-        btn.BorderColor3 = Color3.fromRGB(0, 200, 255)
-    end)
-    
-    btn.MouseButton1Click:Connect(callback)
-    btn.Parent = ButtonContainer
-    return btn
+-- 执行颜色渐变
+local currentColorIndex = 1
+while true do
+    local nextColorIndex = currentColorIndex % #colors + 1
+    local tween = tweenService:Create(
+        playerNameLabel,
+        colorInfo,
+        {TextColor3 = colors[nextColorIndex]}
+    )
+    tween:Play()
+    tween.Completed:Wait()
+    currentColorIndex = nextColorIndex
 end
 
--- 创建功能按钮
-createTechButton("ENGINE", UDim2.new(0.05, 0, 0.1, 0), UDim2.new(0.2, 0, 0.2, 0), function()
-    print("Engine activated")
+-- 缩放控制器（右下角）
+local resizeHandle = Instance.new("TextButton")
+resizeHandle.Name = "ResizeHandle"
+resizeHandle.Size = UDim2.new(0, 15, 0, 15)
+resizeHandle.Position = UDim2.new(1, -15, 1, -15)
+resizeHandle.BackgroundColor3 = Color3.new(0.6, 0.6, 0.6)
+resizeHandle.BackgroundTransparency = 0.5 -- 半透明
+resizeHandle.Text = ""
+resizeHandle.Parent = mainFrame
+
+-- 缩放功能
+local isResizing = false
+local startMousePos, startSize
+
+resizeHandle.MouseButton1Down:Connect(function(input)
+    isResizing = true
+    startMousePos = Vector2.new(input.Position.X, input.Position.Y)
+    startSize = Vector2.new(mainFrame.AbsoluteSize.X, mainFrame.AbsoluteSize.Y)
 end)
 
-createTechButton("SHIELD", UDim2.new(0.35, 0, 0.1, 0), UDim2.new(0.2, 0, 0.2, 0), function()
-    print("Shield engaged")
+game:GetService("UserInputService").InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        isResizing = false
+    end
 end)
 
-createTechButton("SCAN", UDim2.new(0.65, 0, 0.1, 0), UDim2.new(0.2, 0, 0.2, 0), function()
-    print("Scanning...")
-end)
-
--- 状态显示区
-local StatusPanel = Instance.new("Frame")
-StatusPanel.Size = UDim2.new(1, -20, 0.3, 0)
-StatusPanel.Position = UDim2.new(0, 10, 0.6, 0)
-StatusPanel.BackgroundColor3 = Color3.fromRGB(0, 30, 50)
-StatusPanel.BorderSizePixel = 0
-StatusPanel.Parent = ButtonContainer
-
-local StatusText = Instance.new("TextLabel")
-StatusText.Text = "SYSTEM STATUS: ONLINE\nPOWER: 98%\nCONNECTION: STABLE"
-StatusText.Size = UDim2.new(1, 0, 1, 0)
-StatusText.Font = Enum.Font.Code
-StatusText.TextColor3 = Color3.fromRGB(0, 255, 150)
-StatusText.TextXAlignment = Enum.TextXAlignment.Left
-StatusText.TextYAlignment = Enum.TextYAlignment.Top
-StatusText.TextSize = 14
-StatusText.Parent = StatusPanel
-
--- 关闭按钮
-local CloseBtn = Instance.new("TextButton")
-CloseBtn.Size = UDim2.new(0.05, 0, 0.8, 0)
-CloseBtn.Position = UDim2.new(0.94, 0, 0.1, 0)
-CloseBtn.Text = "X"
-CloseBtn.Font = Enum.Font.Code
-CloseBtn.TextColor3 = Color3.fromRGB(255, 50, 50)
-CloseBtn.BackgroundColor3 = Color3.fromRGB(50, 0, 0)
-CloseBtn.BackgroundTransparency = 0.5
-CloseBtn.BorderSizePixel = 0
-CloseBtn.Parent = TitleBar
-CloseBtn.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
-end)
-
--- 动态扫描线效果
-local scanLine = Instance.new("Frame")
-scanLine.Size = UDim2.new(1, 0, 0.01, 0)
-scanLine.BackgroundColor3 = Color3.fromRGB(0, 255, 200)
-scanLine.BackgroundTransparency = 0.7
-scanLine.BorderSizePixel = 0
-scanLine.Parent = MainFrame
-
--- 扫描动画
-game:GetService("RunService").RenderStepped:Connect(function()
-    local pos = scanLine.Position.Y.Scale + 0.01
-    if pos > 1 then pos = 0 end
-    scanLine.Position = UDim2.new(0, 0, pos, 0)
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if isResizing and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = Vector2.new(input.Position.X, input.Position.Y) - startMousePos
+        local newWidth = math.max(startSize.X + delta.X, 100)
+        local newHeight = math.max(startSize.Y + delta.Y, 50)
+        mainFrame.Size = UDim2.new(0, newWidth, 0, newHeight)
+    end
 end)
