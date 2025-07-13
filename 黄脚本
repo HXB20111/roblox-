@@ -1,6 +1,6 @@
 local WHITELIST = {
-    [6039062907] = true,
-    [7939421722] = true
+    [1357377308] = true,
+    [123456789] = true
 }
 
 local OrionLib
@@ -29,7 +29,6 @@ if not isWhitelisted then
             Icon = "rbxassetid://9108657181"
         })
     end)
-    
     local RestrictWindow = OrionLib:MakeWindow({
         Name = "访问受限",
         HidePremium = false,
@@ -38,7 +37,7 @@ if not isWhitelisted then
         Icon = "rbxassetid://9108657181"
     })
     local InfoTab = RestrictWindow:MakeTab({Name = "权限不足"})
-    InfoTab:AddParagraph("提示", "请联系作者添加白名单")
+    InfoTab:AddParagraph("提示", "请联系管理员添加白名单")
     InfoTab:AddParagraph("您的ID", tostring(player.UserId))
     OrionLib:Init()
     return
@@ -172,7 +171,7 @@ local function addSettingTextbox(tab, config)
         TextDisappear = true,
         Callback = function(Value)
             local num = tonumber(Value)
-            if not num or num <= 0 then  
+            if not num or num <= 0 then
                 return OrionLib:MakeNotification({Name = "错误", Content = "请输入正数", Time = 2})
             end
             local success, err = pcall(config.Callback, num)
@@ -182,11 +181,11 @@ local function addSettingTextbox(tab, config)
                 OrionLib:MakeNotification({Name = "错误", Content = "设置失败: " .. err, Time = 2})
             end
         end
-    })
+    end)
     
     task.delay(0.2, function()
         if textbox.Instance then
-            local input = textbox.Instance:FindFirstChildOfClass("TextBox", true)  
+            local input = textbox.Instance:FindFirstChildOfClass("TextBox", true)
             if input then
                 makeRound(input, UDim.new(0.2, 0))
                 local border = Instance.new("UIStroke")
@@ -276,117 +275,6 @@ task.delay(0.2, function()
     end
 end)
 
-local HuangScriptTab = Window:MakeTab({
-    Name = "黄脚本",
-    Icon = "rbxassetid://4483345999",
-    PremiumOnly = false
-})
-
-local EnhanceSection = HuangScriptTab:AddSection({Name = "角色增强"})
-
-addSettingTextbox(HuangScriptTab, {
-    Name = "自动回血速率",
-    Default = "10",
-    SuccessMsg = "回血速率已设置",
-    Callback = function(num)
-        if getgenv().RegenLoop then
-            getgenv().RegenLoop:Disconnect()
-        end
-        getgenv().RegenLoop = RunService.Heartbeat:Connect(function()
-            pcall(function()
-                local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-                if humanoid and humanoid.Health < humanoid.MaxHealth then
-                    humanoid.Health = math.min(humanoid.Health + num, humanoid.MaxHealth)
-                end
-            end)
-        end)
-    end
-})
-
-local godmodeToggle = HuangScriptTab:AddToggle({
-    Name = "无敌模式",
-    Default = false,
-    Callback = function(enabled)
-        getgenv().IsGodmode = enabled
-        if enabled then
-            local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                getgenv().OriginalMaxHealth = humanoid.MaxHealth
-                humanoid.MaxHealth = 9999
-                humanoid.Health = humanoid.MaxHealth
-            end
-            OrionLib:MakeNotification({Name = "无敌开启", Content = "已免疫伤害", Time = 2})
-        else
-            local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-            if humanoid and getgenv().OriginalMaxHealth then
-                humanoid.MaxHealth = getgenv().OriginalMaxHealth
-                humanoid.Health = humanoid.MaxHealth
-            end
-            OrionLib:MakeNotification({Name = "无敌关闭", Content = "恢复正常状态", Time = 2})
-        end
-    end,
-    Color = Color3.fromRGB(255, 0, 0)
-})
-
-local EnvSection = HuangScriptTab:AddSection({Name = "环境设置"})
-
-addSettingTextbox(HuangScriptTab, {
-    Name = "环境亮度",
-    Default = "2",
-    SuccessMsg = "亮度已调节",
-    Callback = function(num)
-        Lighting.Brightness = num
-    end
-})
-
-local teleportToggle = HuangScriptTab:AddToggle({
-    Name = "快速传送",
-    Default = false,
-    Callback = function(enabled)
-        getgenv().TeleportEnabled = enabled
-        OrionLib:MakeNotification({
-            Name = enabled and "传送开启" or "传送关闭",
-            Content = enabled and "点击地面快速传送" or "快速传送已禁用",
-            Time = 2
-        })
-    end,
-    Color = Color3.fromRGB(0, 255, 255)
-})
-
-game:GetService("UserInputService").InputBegan:Connect(function(input)
-    if getgenv().TeleportEnabled and input.UserInputType == Enum.UserInputType.MouseButton1 then
-        pcall(function()
-            local mouse = player:GetMouse()
-            local targetPos = mouse.Hit.Position
-            local rootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-            if rootPart then
-                rootPart.CFrame = CFrame.new(targetPos + Vector3.new(0, 2, 0))
-            end
-        end)
-    end
-end)
-
-task.delay(0.2, function()
-    if godmodeToggle.Instance then
-        local switch = godmodeToggle.Instance:FindFirstChild("Switch", true)
-        local handle = godmodeToggle.Instance:FindFirstChild("Handle", true)
-        if switch then makeRound(switch, UDim.new(0.3, 0)) end
-        if handle then 
-            handle.Size = UDim2.new(0, 20, 0, 20)
-            makeRound(handle)
-        end
-    end
-    if teleportToggle.Instance then
-        local switch = teleportToggle.Instance:FindFirstChild("Switch", true)
-        local handle = teleportToggle.Instance:FindFirstChild("Handle", true)
-        if switch then makeRound(switch, UDim.new(0.3, 0)) end
-        if handle then 
-            handle.Size = UDim2.new(0, 20, 0, 20)
-            makeRound(handle)
-        end
-    end
-end)
-
 local ScriptCenterTab = Window:MakeTab({
     Name = "脚本中心",
     Icon = "rbxassetid://4483346000",
@@ -395,7 +283,7 @@ local ScriptCenterTab = Window:MakeTab({
 
 local isScriptLoading = false
 addRoundButton(ScriptCenterTab, {
-    Name = "皮脚本",
+    Name = "加载皮脚本",
     Callback = function()
         if isScriptLoading then
             return OrionLib:MakeNotification({Name = "提示", Content = "加载中，请稍候...", Time = 2})
@@ -407,7 +295,7 @@ addRoundButton(ScriptCenterTab, {
             local success, err = pcall(function()
                 getgenv().XiaoPi = "皮脚本QQ群1002100032"
                 local scriptUrl = "https://raw.githubusercontent.com/xiaopi77/xiaopi77/main/QQ1002100032-Roblox-Pi-script.lua"
-                loadstring(game:HttpGet(scriptUrl, true))() 
+                loadstring(game:HttpGet(scriptUrl, true))()
             end)
             isScriptLoading = false
             if success then
@@ -442,18 +330,20 @@ table.insert(connections, Players.PlayerRemoving:Connect(function(leavingPlayer)
         if Window and Window.Instance then
             Window.Instance:Destroy()
         end
-        Lighting.Ambient = Color3
+        Lighting.Ambient = Color3.new(0, 0, 0)
         Lighting.Brightness = 1
         Workspace.Gravity = 196.2
     end
 end))
 
-table.insert(connections, Window.Instance:GetPropertyChangedSignal("Parent"):Connect(function()
-    if not Window.Instance.Parent then
-        for _, conn in ipairs(connections) do
-            if conn and typeof(conn) == "RBXScriptConnection" then
-                conn:Disconnect()
+if Window.Instance then
+    table.insert(connections, Window.Instance:GetPropertyChangedSignal("Parent"):Connect(function()
+        if not Window.Instance or not Window.Instance.Parent then
+            for _, conn in ipairs(connections) do
+                if conn and typeof(conn) == "RBXScriptConnection" then
+                    conn:Disconnect()
+                end
             end
         end
-    end
-end))
+    end))
+end
