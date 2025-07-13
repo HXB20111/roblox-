@@ -1,6 +1,6 @@
 local WHITELIST = {
-    [1357377308] = true,
-    [123456789] = true
+    [6039062907] = true,
+    [HXB201111的实际用户ID] = true
 }
 
 local OrionLib
@@ -29,6 +29,7 @@ if not isWhitelisted then
             Icon = "rbxassetid://9108657181"
         })
     end)
+    
     local RestrictWindow = OrionLib:MakeWindow({
         Name = "访问受限",
         HidePremium = false,
@@ -181,7 +182,7 @@ local function addSettingTextbox(tab, config)
                 OrionLib:MakeNotification({Name = "错误", Content = "设置失败: " .. err, Time = 2})
             end
         end
-    end)
+    })
     
     task.delay(0.2, function()
         if textbox.Instance then
@@ -204,7 +205,7 @@ addSettingTextbox(FunctionTab, {
     SuccessMsg = "跳跃高度已更新",
     Callback = function(num)
         local character = player.Character or player.CharacterAdded:Wait()
-        local humanoid = character:FindFirstChildOfClass("Humanoid") 
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
         if not humanoid then
             humanoid = character:WaitForChild("Humanoid", 5)
         end
@@ -336,14 +337,12 @@ table.insert(connections, Players.PlayerRemoving:Connect(function(leavingPlayer)
     end
 end))
 
-if Window.Instance then
-    table.insert(connections, Window.Instance:GetPropertyChangedSignal("Parent"):Connect(function()
-        if not Window.Instance or not Window.Instance.Parent then
-            for _, conn in ipairs(connections) do
-                if conn and typeof(conn) == "RBXScriptConnection" then
-                    conn:Disconnect()
-                end
+table.insert(connections, Window.Instance:GetPropertyChangedSignal("Parent"):Connect(function()
+    if not Window.Instance.Parent then
+        for _, conn in ipairs(connections) do
+            if conn and typeof(conn) == "RBXScriptConnection" then
+                conn:Disconnect()
             end
         end
-    end))
-end
+    end
+end))
