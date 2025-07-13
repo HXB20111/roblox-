@@ -340,4 +340,43 @@ addRoundButton(ScriptCenterTab, {
 OrionLib:Init()
 task.delay(0.3, function()
     if Window.Instance then
-        local mainFrame = Window.Instance:FindFirst
+        local mainFrame = Window.Instance:FindFirstChild("MainFrame", true)  -- 补全查找逻辑
+        if mainFrame then
+            makeRound(mainFrame, UDim.new(0.08, 0))  -- 应用圆角样式
+        end
+    end
+end)
+
+-- 玩家离开时清理资源
+local connections = {}  -- 存储所有连接便于清理
+
+-- 记录玩家离开事件
+table.insert(connections, Players.PlayerRemoving:Connect(function(leavingPlayer)
+    if leavingPlayer == player then
+        -- 清理所有事件连接
+        for _, conn in ipairs(connections) do
+            if conn and typeof(conn) == "RBXScriptConnection" then
+                conn:Disconnect()
+            end
+        end
+        -- 销毁界面
+        if Window and Window.Instance then
+            Window.Instance:Destroy()
+        end
+        -- 重置游戏设置
+        Lighting.Ambient = Color3.new(0, 0, 0)
+        Lighting.Brightness = 1
+        Workspace.Gravity = 196.2  -- Roblox默认重力值
+    end
+end))
+
+-- 窗口关闭时清理
+table.insert(connections, Window.Instance:GetPropertyChangedSignal("Parent"):Connect(function()
+    if not Window.Instance.Parent then  -- 窗口被销毁时
+        for _, conn in ipairs(connections) do
+            if conn and typeof(conn) == "RBXScriptConnection" then
+                conn:Disconnect()
+            end
+        end
+    end
+end))
