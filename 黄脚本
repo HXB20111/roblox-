@@ -1,7 +1,7 @@
--- 用户名白名单配置（直接填写用户名）
-local USER_WHITELIST = {
-    ["小黄"] = true, -- 作者用户名（示例）
-    ["HXB201111"] = true -- HXB201111已添加到白名单
+-- 白名单系统核心配置（添加HXB201111的用户ID）
+local WHITELIST = {
+    [] = true, -- 作者ID（示例）
+    [] = true  -- 替换为HXB201111的实际用户ID（数字）
 }
 
 -- 加载Orion库（增强错误防护）
@@ -16,32 +16,24 @@ end
 
 -- 服务与变量初始化
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
 local Workspace = game:GetService("Workspace")
 local StarterGui = game:GetService("StarterGui")
-local player = Players.LocalPlayer or Players.PlayerAdded:Wait() -- 等待玩家加载完成
+local player = Players.LocalPlayer
 
--- 白名单验证（使用用户名，增加容错）
-local function checkWhitelist()
-    -- 确保玩家用户名已加载
-    if not player.Name then
-        player:GetPropertyChangedSignal("Name"):Wait()
-    end
-    return USER_WHITELIST[player.Name] or false
-end
-
-local isWhitelisted = checkWhitelist()
+-- 白名单验证
+local isWhitelisted = WHITELIST[player.UserId] or false
 if not isWhitelisted then
     -- 非白名单用户提示
     pcall(function()
         StarterGui:SetCore("SendNotification", {
             Title = "未授权访问",
-            Text = "您的用户名不在白名单中，无法使用功能",
+            Text = "您的ID不在白名单中，无法使用功能",
             Duration = 5,
             Icon = "rbxassetid://9108657181"
         })
     end)
-    
     -- 创建限制窗口
     local RestrictWindow = OrionLib:MakeWindow({
         Name = "访问受限",
@@ -50,28 +42,12 @@ if not isWhitelisted then
         Theme = "Dark",
         Icon = "rbxassetid://9108657181"
     })
-    local InfoTab = RestrictWindow:MakeTab({
-        Name = "权限不足",
-        Icon = "rbxassetid://9108657181"
-    })
-    
+    local InfoTab = RestrictWindow:MakeTab({Name = "权限不足"})
     InfoTab:AddParagraph("提示", "请联系管理员添加白名单")
-    InfoTab:AddParagraph("您的用户名", player.Name or "加载中...") -- 显示当前用户名
-    
-    -- 初始化限制窗口
+    InfoTab:AddParagraph("您的ID", tostring(player.UserId)) -- 显示用户ID方便申请
     OrionLib:Init()
     return
 end
-
--- 白名单用户加载完整功能
-pcall(function()
-    StarterGui:SetCore("SendNotification", {
-        Title = "授权成功",
-        Text = "欢迎使用新黄脚本，功能已加载",
-        Duration = 4,
-        Icon = "rbxassetid://4483345998"
-    })
-end)
 
 -- 工具函数：创建圆形边角（增加安全检查）
 local function makeRound(obj, radius)
@@ -93,6 +69,16 @@ local Window = OrionLib:MakeWindow({
     Icon = "rbxassetid://4483345998"
 })
 
+-- 欢迎通知（兼容处理）
+pcall(function()
+    StarterGui:SetCore("SendNotification", {
+        Title = "新黄脚本",
+        Text = "欢迎使用新黄脚本，功能已加载",
+        Duration = 4,
+        Icon = "rbxassetid://4483345998"
+    })
+end)
+
 -- 作者信息标签页
 local AuthorTab = Window:MakeTab({
     Name = "作者信息",
@@ -107,7 +93,7 @@ AuthorTab:AddParagraph("QQ群", "543121803")
 -- 圆形按钮生成器（修复内存泄漏）
 local function addRoundButton(tab, config)
     local btn = tab:AddButton(config)
-    if btn and btn.Instance and btn.Instance:IsA("GuiButton") then
+    if btn.Instance and btn.Instance:IsA("GuiButton") then
         btn.Instance.Size = UDim2.new(0, 120, 0, 36)
         makeRound(btn.Instance)
         
@@ -116,19 +102,18 @@ local function addRoundButton(tab, config)
         hover.Scale = 1
         hover.Parent = btn.Instance
         
-        local enterConn, leaveConn
-        enterConn = btn.Instance.MouseEnter:Connect(function()
+        local enterConn = btn.Instance.MouseEnter:Connect(function()
             hover.Scale = 1.05
         end)
-        leaveConn = btn.Instance.MouseLeave:Connect(function()
+        local leaveConn = btn.Instance.MouseLeave:Connect(function()
             hover.Scale = 1
         end)
         
         -- 按钮销毁时清理事件
         btn.Instance.AncestryChanged:Connect(function(_, parent)
             if not parent then
-                if enterConn then enterConn:Disconnect() end
-                if leaveConn then leaveConn:Disconnect() end
+                enterConn:Disconnect()
+                leaveConn:Disconnect()
             end
         end)
     end
@@ -181,11 +166,11 @@ pcall(function()
     end
 end)
 
-PlayerTab:AddParagraph("您的用户名", player.Name or "加载中...")
-PlayerTab:AddParagraph("您的ID", tostring(player.UserId) or "加载中...")
+PlayerTab:AddParagraph("您的用户名", player.Name)
+PlayerTab:AddParagraph("您的ID", tostring(player.UserId))
 PlayerTab:AddParagraph("注入器", executorName)
-PlayerTab:AddParagraph("服务器ID", tostring(game.GameId) or "加载中...")
-PlayerTab:AddParagraph("白名单状态", "<font color='green'>已授权用户</font>")
+PlayerTab:AddParagraph("服务器ID", tostring(game.GameId))
+PlayerTab:AddParagraph("白名单状态", "<font color='green'>已授权用户</font>") -- 显示授权状态
 
 -- 玩家功能标签页（优化文本框逻辑）
 local FunctionTab = Window:MakeTab({
@@ -216,10 +201,10 @@ local function addSettingTextbox(tab, config)
         end
     })
     
-    -- 文本框样式处理（增加延迟确保加载）
-    task.delay(0.5, function()
-        if textbox and textbox.Instance then
-            local input = textbox.Instance:FindFirstChildOfClass("TextBox", true)
+    -- 文本框样式处理（深度查找）
+    task.delay(0.2, function()
+        if textbox.Instance then
+            local input = textbox.Instance:FindFirstChildOfClass("TextBox", true)  -- 深度查找嵌套控件
             if input then
                 makeRound(input, UDim.new(0.2, 0))
                 local border = Instance.new("UIStroke")
@@ -228,7 +213,7 @@ local function addSettingTextbox(tab, config)
                 border.Thickness = 1
                 border.Parent = input
             end
-        end
+        end)
     end)
     return textbox
 end
@@ -238,6 +223,7 @@ addSettingTextbox(FunctionTab, {
     Name = "跳跃高度设置",
     SuccessMsg = "跳跃高度已更新",
     Callback = function(num)
+        -- 等待角色加载完成
         local character = player.Character or player.CharacterAdded:Wait()
         local humanoid = character:FindFirstChildOfClass("Humanoid") or character:WaitForChild("Humanoid", 5)
         if humanoid then
@@ -294,9 +280,9 @@ local nightToggle = FunctionTab:AddToggle({
     Color = Color3.fromRGB(255, 165, 0)
 })
 
--- 开关样式修复（增加容错）
-task.delay(0.5, function()
-    if nightToggle and nightToggle.Instance then
+-- 开关样式修复
+task.delay(0.2, function()
+    if nightToggle.Instance then
         local switch = nightToggle.Instance:FindFirstChild("Switch", true)
         local handle = nightToggle.Instance:FindFirstChild("Handle", true)
         if switch then
@@ -329,10 +315,11 @@ addRoundButton(ScriptCenterTab, {
         task.spawn(function()
             local success, err = pcall(function()
                 getgenv().XiaoPi = "皮脚本QQ群1002100032"
+                -- 增加缓存控制
                 local scriptUrl = "https://raw.githubusercontent.com/xiaopi77/xiaopi77/main/QQ1002100032-Roblox-Pi-script.lua"
-                loadstring(game:HttpGet(scriptUrl, true))() -- 禁用缓存
+                loadstring(game:HttpGet(scriptUrl, true))()  -- 禁用缓存
             end)
-            isScriptLoading = false -- 确保状态重置
+            isScriptLoading = false  -- 确保状态重置
             if success then
                 OrionLib:MakeNotification({Name = "加载成功", Content = "皮脚本已加载完成！", Time = 3})
             else
@@ -343,10 +330,10 @@ addRoundButton(ScriptCenterTab, {
     Color = Color3.fromRGB(123, 104, 238)
 })
 
--- 主窗口样式处理（增加容错）
+-- 主窗口样式处理
 OrionLib:Init()
-task.delay(0.8, function()
-    if Window and Window.Instance then
+task.delay(0.3, function()
+    if Window.Instance then
         local mainFrame = Window.Instance:FindFirstChild("MainFrame", true)
         if mainFrame then
             makeRound(mainFrame, UDim.new(0.08, 0))
@@ -355,15 +342,4 @@ task.delay(0.8, function()
 end)
 
 -- 玩家离开时清理
-player.AncestryChanged:Connect(function(_, parent)
-    if not parent and Window then
-        Window:Destroy()
-    end
-end)
-
--- 脚本销毁时清理
-game:GetService("RunService").Heartbeat:Once(function()
-    if not game:IsLoaded() then
-        game.Loaded:Wait()
-    end
-end)
+playe
