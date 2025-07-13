@@ -370,13 +370,15 @@ table.insert(connections, Players.PlayerRemoving:Connect(function(leavingPlayer)
     end
 end))
 
--- 窗口关闭时清理
-table.insert(connections, Window.Instance:GetPropertyChangedSignal("Parent"):Connect(function()
-    if not Window.Instance.Parent then  -- 窗口被销毁时
-        for _, conn in ipairs(connections) do
-            if conn and typeof(conn) == "RBXScriptConnection" then
-                conn:Disconnect()
+-- 窗口关闭时清理（修复空引用问题）
+if Window.Instance then  -- 增加实例存在性检查
+    table.insert(connections, Window.Instance:GetPropertyChangedSignal("Parent"):Connect(function()
+        if not Window.Instance or not Window.Instance.Parent then  -- 双重检查避免空引用
+            for _, conn in ipairs(connections) do
+                if conn and typeof(conn) == "RBXScriptConnection" then
+                    conn:Disconnect()
+                end
             end
         end
-    end
-end))
+    end))
+end
