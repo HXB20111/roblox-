@@ -1,10 +1,12 @@
--- 白名单系统配置（已添加7079287947和7534842829）
+-- 白名单系统配置（已添加3290363371）
 local WHITELIST = {
     [8515693093] = true, -- 作者ID
     [6039062907] = true,
     [8080735686] = true,
-    [7079287947] = true, -- 新增白名单ID
-    [7534842829] = true  -- 新增白名单ID
+    [7079287947] = true,
+    [7534842829] = true,
+    [7686957632] = true,
+    [3290363371] = true  -- 新增白名单ID
     -- 可继续添加白名单ID
 }
 
@@ -137,7 +139,7 @@ PlayerTab:AddParagraph("注入器", executorName)
 PlayerTab:AddParagraph("服务器ID", tostring(game.GameId))
 PlayerTab:AddParagraph("白名单状态", "<font color='green'>已授权</font>")
 
--- 玩家功能标签页
+-- 玩家功能标签页（含飞行功能）
 local FunctionTab = Window:MakeTab({Name = "玩家功能", Icon = "rbxassetid://4483345998"})
 
 -- 文本框配置函数
@@ -174,6 +176,25 @@ addSettingTextbox(FunctionTab, {
     end
 })
 
+-- 飞行功能
+addRoundButton(FunctionTab, {
+    Name = "飞行功能",
+    Callback = function()
+        OrionLib:MakeNotification({Name = "提示", Content = "正在加载飞行功能...", Time = 3})
+        task.spawn(function()
+            local success, err = pcall(function()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt"))()
+            end)
+            if success then
+                OrionLib:MakeNotification({Name = "成功", Content = "飞行功能加载完成", Time = 3})
+            else
+                OrionLib:MakeNotification({Name = "失败", Content = "加载错误: " .. err, Time = 3})
+            end
+        end)
+    end,
+    Color = Color3.fromRGB(135, 206, 235)
+})
+
 -- 夜视模式
 FunctionTab:AddToggle({
     Name = "夜视模式",
@@ -188,7 +209,7 @@ FunctionTab:AddToggle({
 -- 脚本中心标签页
 local ScriptCenterTab = Window:MakeTab({Name = "脚本中心", Icon = "rbxassetid://4483346000"})
 
--- 原有加载按钮：皮脚本
+-- 皮脚本
 addRoundButton(ScriptCenterTab, {
     Name = "加载皮脚本",
     Callback = function()
