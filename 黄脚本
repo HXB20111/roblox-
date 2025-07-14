@@ -210,37 +210,31 @@ addSettingTextbox(FunctionTab, {
     end
 })
 
--- 相机自由调节功能
-FunctionTab:AddSlider({
+-- 相机焦距输入调节
+FunctionTab:AddTextbox({
     Name = "相机最大缩放距离",
-    Min = 1,  -- 最低可拉近距离
-    Max = 200000,  -- 最大可推远距离
-    Default = game.Players.LocalPlayer.CameraMaxZoomDistance,  -- 保留当前默认值
+    Placeholder = "输入数值（1-200000）",
     Callback = function(Value)
-        game.Players.LocalPlayer.CameraMaxZoomDistance = Value
-        OrionLib:MakeNotification({
-            Name = "已调整",
-            Content = "最大缩放距离: " .. Value,
-            Time = 1.2
-        })
-    end,
-    Color = Color3.fromRGB(140, 180, 255)
+        local num = tonumber(Value)
+        if not num or num < 1 or num > 200000 then
+            return OrionLib:MakeNotification({Name = "错误", Content = "请输入1-200000之间的数值", Time = 2})
+        end
+        game.Players.LocalPlayer.CameraMaxZoomDistance = num
+        OrionLib:MakeNotification({Name = "已调整", Content = "最大缩放距离: " .. num, Time = 1.5})
+    end
 })
 
-FunctionTab:AddSlider({
+FunctionTab:AddTextbox({
     Name = "相机视野角度【正常70】",
-    Min = 10,  -- 最小视野（更合理范围，避免过近失真）
-    Max = 9999,  -- 最大视野（广角范围）
-    Default = workspace.CurrentCamera.FieldOfView,  -- 保留当前默认值
+    Placeholder = "输入数值（10-120）",
     Callback = function(Value)
-        workspace.CurrentCamera.FieldOfView = Value
-        OrionLib:MakeNotification({
-            Name = "已调整",
-            Content = "视野角度: " .. Value,
-            Time = 1.2
-        })
-    end,
-    Color = Color3.fromRGB(140, 255, 180)
+        local num = tonumber(Value)
+        if not num or num < 10 or num > 120 then
+            return OrionLib:MakeNotification({Name = "错误", Content = "请输入10-120之间的数值", Time = 2})
+        end
+        workspace.CurrentCamera.FieldOfView = num
+        OrionLib:MakeNotification({Name = "已调整", Content = "视野角度: " .. num, Time = 1.5})
+    end
 })
 
 -- 飞行功能
