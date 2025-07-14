@@ -22,6 +22,7 @@ local WHITELIST = {
     [7999887964] = true,
     [7589742339] = true,
     [8866205982] = true,
+    [8237450364] = true，
 }
 
 -- 加载Orion库
