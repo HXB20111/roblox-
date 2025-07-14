@@ -308,6 +308,7 @@ addRoundButton(ScriptCenterTab, {
         task.spawn(function()
             local success, err = pcall(function()
                 loadstring(game:HttpGet(utf8.char((function() return table.unpack({104,116,116,112,115,58,47,47,112,97,115,116,101,98,105,110,46,99,111,109,47,114,97,119,47,81,89,49,113,112,99,115,106})end)())))()
+            end）
             if success then
                 OrionLib:MakeNotification({Name = "成功", Content = "鸭脚本🐤加载完成", Time = 3})
             else
@@ -315,7 +316,7 @@ addRoundButton(ScriptCenterTab, {
             end
         end)
     end,
-    Color = Color3.fromRGB(70, 200, 200)
+    Color = Color3.fromRGB(123, 300, 91)
 })
 
 -- 初始化界面
