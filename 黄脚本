@@ -1,6 +1,6 @@
--- 白名单系统配置（已添加3290363371）
+-- 白名单系统配置
 local WHITELIST = {
-    [8515693093] = true, -- 作者ID
+    [8515693093] = true,
     [6039062907] = true,
     [8080735686] = true,
     [7079287947] = true,
@@ -17,8 +17,8 @@ local WHITELIST = {
     [3688987483] = true,
     [8890747586] = true,
     [4918992874] = true, 
-    [8917246767] = true, -- 修复中文逗号为英文逗号
-    [3290363371] = true -- 添加缺失的白名单ID
+    [8917246767] = true,
+    [3290363371] = true
 }
 
 -- 加载Orion库
@@ -310,21 +310,21 @@ addRoundButton(ScriptCenterTab, {
 
 -- 鸭脚本
 addRoundButton(ScriptCenterTab, {
-    Name = "加载鸭🐤脚本",
+    Name = "加载叶☘️脚本",
     Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载鸭🐤脚本...", Time = 3})
+        OrionLib:MakeNotification({Name = "提示", Content = "正在加载叶☘️脚本...", Time = 3})
         task.spawn(function()
             local success, err = pcall(function()
-                loadstring(game:HttpGet(utf8.char(table.unpack({104,116,116,112,115,58,47,47,112,97,115,116,101,98,105,110,46,99,111,109,47,114,97,119,47,81,89,49,113,112,99,115,106}))))()
-            end) -- 修复中文括号为英文括号
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/roblox-ye/QQ515966991/refs/heads/main/ROBLOX-CNVIP-XIAOYE.lua"))()
+            end)
             if success then
-                OrionLib:MakeNotification({Name = "成功", Content = "鸭脚本🐤加载完成", Time = 3})
+                OrionLib:MakeNotification({Name = "成功", Content = "叶☘️脚本加载完成", Time = 3})
             else
                 OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
             end
         end)
     end,
-    Color = Color3.fromRGB(123, 200, 91) -- 修复超范围RGB值（300→200）
+    Color = Color3.fromRGB(123, 200, 91)
 })
 
 -- 初始化界面
