@@ -210,27 +210,37 @@ addSettingTextbox(FunctionTab, {
     end
 })
 
--- 相机焦距设置
+-- 相机自由调节功能
 FunctionTab:AddSlider({
-    Name = "相机焦距上限",
-    Min = 128,
-    Max = 200000,
-    Default = 128,
+    Name = "相机最大缩放距离",
+    Min = 1,  -- 最低可拉近距离
+    Max = 200000,  -- 最大可推远距离
+    Default = game.Players.LocalPlayer.CameraMaxZoomDistance,  -- 保留当前默认值
     Callback = function(Value)
-        game:GetService("Players").LocalPlayer.CameraMaxZoomDistance = Value
-        OrionLib:MakeNotification({Name = "设置成功", Content = "相机焦距上限已调整为: " .. Value, Time = 1.5})
-    end
+        game.Players.LocalPlayer.CameraMaxZoomDistance = Value
+        OrionLib:MakeNotification({
+            Name = "已调整",
+            Content = "最大缩放距离: " .. Value,
+            Time = 1.2
+        })
+    end,
+    Color = Color3.fromRGB(140, 180, 255)
 })
 
 FunctionTab:AddSlider({
-    Name = "相机焦距【正常为70】",
-    Min = 0.1,
-    Max = 250,
-    Default = 70,
+    Name = "相机视野角度【正常70】",
+    Min = 10,  -- 最小视野（更合理范围，避免过近失真）
+    Max = 9999,  -- 最大视野（广角范围）
+    Default = workspace.CurrentCamera.FieldOfView,  -- 保留当前默认值
     Callback = function(Value)
-        game.Workspace.CurrentCamera.FieldOfView = Value
-        OrionLib:MakeNotification({Name = "设置成功", Content = "相机焦距已调整为: " .. Value, Time = 1.5})
-    end
+        workspace.CurrentCamera.FieldOfView = Value
+        OrionLib:MakeNotification({
+            Name = "已调整",
+            Content = "视野角度: " .. Value,
+            Time = 1.2
+        })
+    end,
+    Color = Color3.fromRGB(140, 255, 180)
 })
 
 -- 飞行功能
