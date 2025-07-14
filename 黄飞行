@@ -43,12 +43,12 @@ down.TextSize = 14.000
 
 onof.Name = "onof"
 onof.Parent = Frame
-onof.BackgroundColor3 = Color3.fromRGB(255, 100, 130)
+onof.BackgroundColor3 = Color3.fromRGB(255, 255, 153)
 onof.Position = UDim2.new(0.702823281, 0, 0, 0)
 onof.Size = UDim2.new(0, 56, 0, 28)
 onof.Font = Enum.Font.SourceSans
 onof.Text = "飞行"
-onof.TextColor3 = Color3.fromRGB(0, 0, 0)
+onof.TextColor3 = Color3.fromRGB(101, 67, 33)
 onof.TextSize = 14.000
 
 TextLabel.Parent = Frame
@@ -66,7 +66,7 @@ plus.Name = "plus"
 plus.Parent = Frame
 plus.BackgroundColor3 = Color3.fromRGB(255, 236, 139)
 plus.Position = UDim2.new(0.231578946, 0, 0, 0)
-plus.Size = UDim2.new(0, 100, 0, 28)
+plus.Size = UDim2.new(0, 45, 0, 29)
 plus.Font = Enum.Font.SourceSans
 plus.Text = "加速"
 plus.TextColor3 = Color3.fromRGB(101, 67, 33)
