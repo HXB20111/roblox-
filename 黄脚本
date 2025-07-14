@@ -18,7 +18,10 @@ local WHITELIST = {
     [8890747586] = true,
     [4918992874] = true, 
     [8917246767] = true,
-    [3290363371] = true
+    [3290363371] = true,
+    [7999887964] = true,
+    [7589742339] = true,
+    [8866205982] = true,
 }
 
 -- 加载Orion库
@@ -89,7 +92,7 @@ end)
 
 -- 作者信息标签页
 local AuthorTab = Window:MakeTab({Name = "作者信息", Icon = "rbxassetid://4483345998"})
-AuthorTab:AddParagraph("作者", "小黄")
+AuthorTab:AddParagraph("作者", "Hfh916")
 AuthorTab:AddParagraph("作者QQ", "1357377308")
 AuthorTab:AddParagraph("QQ群", "543121803")
 
@@ -149,7 +152,7 @@ PlayerTab:AddParagraph("用户名", player.Name)
 PlayerTab:AddParagraph("用户ID", tostring(player.UserId))
 PlayerTab:AddParagraph("注入器", executorName)
 PlayerTab:AddParagraph("服务器ID", tostring(game.GameId))
-PlayerTab:AddParagraph("白名单状态", "<font color='green'>已授权</font>")
+PlayerTab:AddParagraph("白名单状态", "💎VIP💎用户")
 
 -- 玩家功能标签页（含飞行功能）
 local FunctionTab = Window:MakeTab({Name = "玩家功能", Icon = "rbxassetid://4483345998"})
@@ -203,7 +206,7 @@ addRoundButton(FunctionTab, {
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载飞行功能...", Time = 3})
         task.spawn(function()
             local success, err = pcall(function()
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt"))()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/%E9%BB%84%E9%A3%9E%E8%A1%8C"))()
             end)
             if success then
                 OrionLib:MakeNotification({Name = "成功", Content = "飞行功能加载完成", Time = 3})
