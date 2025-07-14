@@ -24,6 +24,7 @@ local WHITELIST = {
     [8866205982] = true,
     [8237450364] = true,
     [5421980555] = true,
+    [7098780145] = true,
 }
 
 -- 加载Orion库
@@ -61,6 +62,7 @@ if not WHITELIST[player.UserId] then
     InfoTab:AddParagraph("QQ群", "543121803")
     InfoTab:AddParagraph("必须", "进群后看公告")
     InfoTab:AddParagraph("您的ID", tostring(player.UserId))
+    InfoTab:AddParagraph("警告", "↑为你的ID")
     OrionLib:Init()
     return
 end
