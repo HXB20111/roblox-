@@ -29,7 +29,7 @@ up.Size = UDim2.new(0, 44, 0, 28)
 up.Font = Enum.Font.SourceSans
 up.Text = "↑"
 up.TextColor3 = Color3.fromRGB(0, 0, 0)
-up.TextSize = 14.000
+up.TextSize = 25
 
 down.Name = "down"
 down.Parent = Frame
@@ -39,7 +39,7 @@ down.Size = UDim2.new(0, 44, 0, 28)
 down.Font = Enum.Font.SourceSans
 down.Text = "↓"
 down.TextColor3 = Color3.fromRGB(0, 0, 0)
-down.TextSize = 14.000
+down.TextSize = 25
 
 onof.Name = "onof"
 onof.Parent = Frame
@@ -49,7 +49,7 @@ onof.Size = UDim2.new(0, 56, 0, 28)
 onof.Font = Enum.Font.SourceSans
 onof.Text = "飞行"
 onof.TextColor3 = Color3.fromRGB(0, 0, 0)
-onof.TextSize = 14.000
+onof.TextSize = 25
 
 TextLabel.Parent = Frame
 TextLabel.BackgroundColor3 = Color3.fromRGB(255, 228, 181)
