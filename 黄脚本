@@ -210,6 +210,29 @@ addSettingTextbox(FunctionTab, {
     end
 })
 
+-- 相机焦距设置
+FunctionTab:AddSlider({
+    Name = "相机焦距上限",
+    Min = 128,
+    Max = 200000,
+    Default = 128,
+    Callback = function(Value)
+        game:GetService("Players").LocalPlayer.CameraMaxZoomDistance = Value
+        OrionLib:MakeNotification({Name = "设置成功", Content = "相机焦距上限已调整为: " .. Value, Time = 1.5})
+    end
+})
+
+FunctionTab:AddSlider({
+    Name = "相机焦距【正常为70】",
+    Min = 0.1,
+    Max = 250,
+    Default = 70,
+    Callback = function(Value)
+        game.Workspace.CurrentCamera.FieldOfView = Value
+        OrionLib:MakeNotification({Name = "设置成功", Content = "相机焦距已调整为: " .. Value, Time = 1.5})
+    end
+})
+
 -- 飞行功能
 addRoundButton(FunctionTab, {
     Name = "飞行功能",
@@ -241,20 +264,51 @@ FunctionTab:AddToggle({
 })
 
 -- 穿墙模式
-addRoundButton(FunctionTab, {
+local Clipon = false
+local Stepped
+
+FunctionTab:AddToggle({
     Name = "穿墙模式",
-    Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载穿墙模式...", Time = 3})
-        task.spawn(function()
-            local success, err = pcall(function()
-                loadstring(game:HttpGet("https://pastebin.com/raw/B5xRxTnk", true))()
+    Default = false,
+    Callback = function(enabled)
+        Clipon = enabled
+        local Workspace = game:GetService("Workspace")
+        local Players = game:GetService("Players")
+        
+        -- 断开已有连接，避免重复运行
+        if Stepped then
+            Stepped:Disconnect()
+        end
+        
+        if enabled then
+            -- 开启穿墙：循环禁用角色所有部件的碰撞
+            Stepped = game:GetService("RunService").Stepped:Connect(function()
+                if Clipon then
+                    local playerChar = Workspace:FindFirstChild(Players.LocalPlayer.Name)
+                    if playerChar then
+                        for _, part in pairs(playerChar:GetChildren()) do
+                            if part:IsA("BasePart") then
+                                part.CanCollide = false
+                            end
+                        end
+                    end
+                else
+                    Stepped:Disconnect()
+                end
             end)
-            if success then
-                OrionLib:MakeNotification({Name = "成功", Content = "穿墙模式加载完成", Time = 3})
-            else
-                OrionLib:MakeNotification({Name = "失败", Content = "错误: 链接解析失败或脚本异常", Time = 3})
+            OrionLib:MakeNotification({Name = "成功", Content = "穿墙模式已开启", Time = 2})
+        else
+            -- 关闭穿墙：恢复角色部件碰撞
+            local playerChar = Workspace:FindFirstChild(Players.LocalPlayer.Name)
+            if playerChar then
+                for _, part in pairs(playerChar:GetChildren()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = true
+                    end
+                end
             end
-        end)
+            OrionLib:MakeNotification({Name = "提示", Content = "穿墙模式已关闭", Time = 2})
+        end
     end,
     Color = Color3.fromRGB(100, 149, 237)
 })
