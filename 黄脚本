@@ -337,7 +337,7 @@ addRoundButton(ScriptCenterTab, {
     Color = Color3.fromRGB(123, 200, 91)
 })
 
--- 新增：刹🗡脚本
+-- 刹🗡脚本
 addRoundButton(ScriptCenterTab, {
     Name = "加载刹🗡脚本",
     Callback = function()
@@ -354,7 +354,7 @@ addRoundButton(ScriptCenterTab, {
             end
         end)
     end,
-    Color = Color3.fromRGB(200, 70, 70)  -- 红色系按钮，与脚本名称风格匹配
+    Color = Color3.fromRGB(200, 70, 70)
 })
 
 -- 初始化界面
@@ -373,4 +373,6 @@ local function cleanUp()
     if Window and Window.Instance then
         Window.Instance:Destroy()
     end
-    Lighting.Ambient = Color3.new(
+    Lighting.Ambient = Color3.new(0, 0, 0)
+    Lighting.Brightness = 1
+end
