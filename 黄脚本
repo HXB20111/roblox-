@@ -14,7 +14,7 @@ local WHITELIST = {
     [8894877952] = true,
     [3444667637] = true,
     [8836656383] = true,
-    [1] = true,
+    [3688987483] = true,
     [1] = true,
     
 }
@@ -50,7 +50,8 @@ if not WHITELIST[player.UserId] then
         Icon = "rbxassetid://9108657181"
     })
     local InfoTab = RestrictWindow:MakeTab({Name = "权限不足"})
-    InfoTab:AddParagraph("提示", "请联系管理员添加白名单")
+    InfoTab:AddParagraph("提示", "请加入群联系管理员添加白名单")
+    InfoTab:AddParagraph("QQ群", "543121803")
     InfoTab:AddParagraph("您的ID", tostring(player.UserId))
     OrionLib:Init()
     return
