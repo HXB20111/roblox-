@@ -179,8 +179,11 @@ end
 addSettingTextbox(FunctionTab, {
     Name = "跳跃高度",
     Callback = function(num)
+        if not player.Character then
+            error("角色不存在")
+        end
         local humanoid = player.Character:WaitForChild("Humanoid", 5)
-        if humanoid then -- 增加存在性检查
+        if humanoid then
             humanoid.JumpPower = num
         else
             error("未找到Humanoid")
@@ -191,8 +194,11 @@ addSettingTextbox(FunctionTab, {
 addSettingTextbox(FunctionTab, {
     Name = "移动速度",
     Callback = function(num)
+        if not player.Character then
+            error("角色不存在")
+        end
         local humanoid = player.Character:WaitForChild("Humanoid", 5)
-        if humanoid then -- 增加存在性检查
+        if humanoid then
             humanoid.WalkSpeed = num
         else
             error("未找到Humanoid")
@@ -312,7 +318,7 @@ addRoundButton(ScriptCenterTab, {
     Color = Color3.fromRGB(70, 200, 200)
 })
 
--- 鸭脚本
+-- 叶☘️脚本
 addRoundButton(ScriptCenterTab, {
     Name = "加载叶☘️脚本",
     Callback = function()
@@ -331,6 +337,26 @@ addRoundButton(ScriptCenterTab, {
     Color = Color3.fromRGB(123, 200, 91)
 })
 
+-- 新增：刹🗡脚本
+addRoundButton(ScriptCenterTab, {
+    Name = "加载刹🗡脚本",
+    Callback = function()
+        OrionLib:MakeNotification({Name = "提示", Content = "正在加载刹🗡脚本...", Time = 3})
+        task.spawn(function()
+            local success, err = pcall(function()
+                getgenv().FwngYu = "殺脚本 QQ群819104139"
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/FengYu-3/FengY4/refs/heads/main/shascript.lua"))()
+            end)
+            if success then
+                OrionLib:MakeNotification({Name = "成功", Content = "刹🗡脚本加载完成", Time = 3})
+            else
+                OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
+            end
+        end)
+    end,
+    Color = Color3.fromRGB(200, 70, 70)  -- 红色系按钮，与脚本名称风格匹配
+})
+
 -- 初始化界面
 OrionLib:Init()
 
@@ -347,13 +373,4 @@ local function cleanUp()
     if Window and Window.Instance then
         Window.Instance:Destroy()
     end
-    Lighting.Ambient = Color3.new(0, 0, 0)
-    Lighting.Brightness = 1
-end
-
--- 玩家离开时清理
-Players.PlayerRemoving:Connect(function(leavingPlayer)
-    if leavingPlayer == player then
-        cleanUp()
-    end
-end)
+    Lighting.Ambient = Color3.new(
