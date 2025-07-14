@@ -103,7 +103,7 @@ closebutton.Parent = main.Frame
 closebutton.BackgroundColor3 = Color3.fromRGB(255, 183, 77)
 closebutton.Font = "SourceSans"
 closebutton.Size = UDim2.new(0, 45, 0, 28)
-closebutton.Text = "✖"
+closebutton.Text = "关闭"
 closebutton.TextSize = 30
 closebutton.Position =  UDim2.new(0, 0, -1, 27)
 
@@ -112,8 +112,8 @@ mini.Parent = main.Frame
 mini.BackgroundColor3 = Color3.fromRGB(255, 204, 102)
 mini.Font = "SourceSans"
 mini.Size = UDim2.new(0, 45, 0, 28)
-mini.Text = "="
-mini.TextSize = 40
+mini.Text = "隐藏"
+mini.TextSize = 30
 mini.Position = UDim2.new(0, 44, -1, 27)
 
 mini2.Name = "minimize2"
@@ -121,8 +121,8 @@ mini2.Parent = main.Frame
 mini2.BackgroundColor3 = Color3.fromRGB(255, 204, 102)
 mini2.Font = "SourceSans"
 mini2.Size = UDim2.new(0, 45,0,28)
-mini2.Text = "+"
-mini2.TextSize = 40
+mini2.Text = "显示"
+mini2.TextSize = 30
 mini2.Position = UDim2.new(0, 44, -1, 57)
 mini2.Visible = false
 
