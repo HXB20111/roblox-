@@ -275,25 +275,24 @@ addRoundButton(ScriptCenterTab, {
     Color = Color3.fromRGB(139, 69, 19)
 })
 
--- 鬼脚本
+-- 霖溺-免费版加载器
 addRoundButton(ScriptCenterTab, {
-    Name = "加载鬼脚本",
+    Name = "加载霖溺脚本",
     Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载鬼脚本...", Time = 3})
+        OrionLib:MakeNotification({Name = "提示", Content = "正在加载霖溺-免费版加载器...", Time = 3})
         task.spawn(function()
             local success, err = pcall(function()
-                Ghost_Script = "作者_鬼"
-                Ghost_Script = "交流群858895377"
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/Ghost-Gui-888/Ghost-Script/refs/heads/main/QQ858895377"))()
+                LnScript = "霖溺-免费版加载器"
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/ShenJiaoBen/ScriptLoader/refs/heads/main/Linni_FreeLoader.lua"))()
             end)
             if success then
-                OrionLib:MakeNotification({Name = "成功", Content = "鬼脚本加载完成", Time = 3})
+                OrionLib:MakeNotification({Name = "成功", Content = "霖溺-免费版加载器加载完成", Time = 3})
             else
                 OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
             end
         end)
     end,
-    Color = Color3.fromRGB(50, 50, 50)
+    Color = Color3.fromRGB(70, 200, 200)
 })
 
 -- 初始化界面
