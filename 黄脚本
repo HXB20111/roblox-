@@ -58,6 +58,7 @@ if not WHITELIST[player.UserId] then
     local InfoTab = RestrictWindow:MakeTab({Name = "权限不足"})
     InfoTab:AddParagraph("提示", "请加入群联系管理员添加白名单")
     InfoTab:AddParagraph("QQ群", "543121803")
+    InfoTab:AddParagraph("必须", "进群后看公告")
     InfoTab:AddParagraph("您的ID", tostring(player.UserId))
     OrionLib:Init()
     return
