@@ -210,30 +210,62 @@ addSettingTextbox(FunctionTab, {
     end
 })
 
--- 相机焦距输入调节
-FunctionTab:AddTextbox({
+-- 相机焦距输入调节（输入后自动清空）
+local function addCameraTextbox(tab, config)
+    local textboxObj
+    textboxObj = tab:AddTextbox({
+        Name = config.Name,
+        Placeholder = config.Placeholder,
+        Callback = function(Value)
+            local num = tonumber(Value)
+            if not num or num < config.Min or num > config.Max then
+                return OrionLib:MakeNotification({
+                    Name = "错误", 
+                    Content = "请输入" .. config.Min .. "-" .. config.Max .. "之间的数值", 
+                    Time = 2
+                })
+            end
+            -- 执行设置
+            config.Callback(num)
+            -- 显示成功通知
+            OrionLib:MakeNotification({
+                Name = "已调整", 
+                Content = config.SuccessText .. num, 
+                Time = 1.5
+            })
+            -- 清空输入框（利用延迟确保设置完成后再清空）
+            task.delay(0.1, function()
+                if textboxObj and textboxObj.Instance then
+                    local inputField = textboxObj.Instance:FindFirstChildOfClass("TextBox")
+                    if inputField then
+                        inputField.Text = ""
+                    end
+                end
+            end)
+        end
+    })
+end
+
+-- 添加相机调节功能
+addCameraTextbox(FunctionTab, {
     Name = "相机最大缩放距离",
     Placeholder = "输入数值（1-200000）",
-    Callback = function(Value)
-        local num = tonumber(Value)
-        if not num or num < 1 or num > 200000 then
-            return OrionLib:MakeNotification({Name = "错误", Content = "请输入1-200000之间的数值", Time = 2})
-        end
+    Min = 1,
+    Max = 200000,
+    SuccessText = "最大缩放距离: ",
+    Callback = function(num)
         game.Players.LocalPlayer.CameraMaxZoomDistance = num
-        OrionLib:MakeNotification({Name = "已调整", Content = "最大缩放距离: " .. num, Time = 1.5})
     end
 })
 
-FunctionTab:AddTextbox({
+addCameraTextbox(FunctionTab, {
     Name = "相机视野角度【正常70】",
     Placeholder = "输入数值（10-120）",
-    Callback = function(Value)
-        local num = tonumber(Value)
-        if not num or num < 10 or num > 120 then
-            return OrionLib:MakeNotification({Name = "错误", Content = "请输入10-120之间的数值", Time = 2})
-        end
+    Min = 10,
+    Max = 120,
+    SuccessText = "视野角度: ",
+    Callback = function(num)
         workspace.CurrentCamera.FieldOfView = num
-        OrionLib:MakeNotification({Name = "已调整", Content = "视野角度: " .. num, Time = 1.5})
     end
 })
 
