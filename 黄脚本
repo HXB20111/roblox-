@@ -103,7 +103,7 @@ PlayerTab:AddParagraph("用户名", player.Name)
 PlayerTab:AddParagraph("用户ID", tostring(player.UserId))
 PlayerTab:AddParagraph("注入器", executorName)
 PlayerTab:AddParagraph("服务器ID", tostring(game.GameId))
-PlayerTab:AddParagraph("白名单状态", "已授权用户")
+PlayerTab:AddParagraph("白名单状态", "普通玩家")
 
 -- 玩家功能标签页（含飞行功能）
 local FunctionTab = Window:MakeTab({Name = "玩家功能", Icon = "rbxassetid://4483345998"})
