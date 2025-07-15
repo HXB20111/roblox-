@@ -85,7 +85,7 @@ local Window = OrionLib:MakeWindow({
     SaveConfig = true,
     IntroText = "新黄脚本 - 功能加载完成",
     Theme = "FlatBlue",
-    Icon = "rbxassetid://4483345998"
+    Icon = "rbxassetid://118894209472715"
 })
 
 -- 欢迎通知
