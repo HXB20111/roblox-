@@ -1,46 +1,3 @@
--- 白名单系统配置
-local WHITELIST = {
-    [8515693093] = true,
-    [6039062907] = true,
-    [8080735686] = true,
-    [7079287947] = true,
-    [7534842829] = true,
-    [7686957632] = true,
-    [8796556454] = true,
-    [8366861724] = true,
-    [8909392174] = true,
-    [8908667873] = true,
-    [7833145231] = true,
-    [8894877952] = true,
-    [3444667637] = true,
-    [8836656383] = true,
-    [3688987483] = true,
-    [8890747586] = true,
-    [4918992874] = true, 
-    [8917246767] = true,
-    [3290363371] = true,
-    [7999887964] = true,
-    [7589742339] = true,
-    [8866205982] = true,
-    [8237450364] = true,
-    [5421980555] = true,
-    [7098780145] = true,
-    [8698220824] = true,
-    [7155678576] = true,
-    [8718956606] = true,
-    [3245989140] = true,
-    [8916058266] = true,
-    [8340410124] = true,
-    [8360569918] = true,
-    [8515367219] = true,
-    [2863135612] = true,
-    [8182263725] = true,
-    [8925403110] = true,
-    [3245989140] = true,
-    [7943850025] = true,
-    [4890698091] = true,
-}
-
 -- 加载Orion库
 local OrionLib
 local success, err = pcall(function()
@@ -55,31 +12,6 @@ end
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
 local player = Players.LocalPlayer
-
--- 白名单验证
-if not WHITELIST[player.UserId] then
-    pcall(function()
-        game:GetService("StarterGui"):SetCore("SendNotification", {
-            Title = "未授权访问",
-            Text = "您的ID不在白名单中",
-            Duration = 5,
-            Icon = "rbxassetid://118894209472715"
-        })
-    end)
-    local RestrictWindow = OrionLib:MakeWindow({
-        Name = "访问受限",
-        Theme = "Dark",
-        Icon = "rbxassetid://118894209472715"
-    })
-    local InfoTab = RestrictWindow:MakeTab({Name = "权限不足"})
-    InfoTab:AddParagraph("提示", "请加入群联系管理员添加白名单")
-    InfoTab:AddParagraph("QQ群", "543121803")
-    InfoTab:AddParagraph("必须", "进群后看公告")
-    InfoTab:AddParagraph("您的ID", tostring(player.UserId))
-    InfoTab:AddParagraph("警告", "↑为你的ID")
-    OrionLib:Init()
-    return
-end
 
 -- 工具函数：创建圆角
 local function makeRound(obj, radius)
@@ -171,7 +103,7 @@ PlayerTab:AddParagraph("用户名", player.Name)
 PlayerTab:AddParagraph("用户ID", tostring(player.UserId))
 PlayerTab:AddParagraph("注入器", executorName)
 PlayerTab:AddParagraph("服务器ID", tostring(game.GameId))
-PlayerTab:AddParagraph("白名单状态", "💎VIP💎用户")
+PlayerTab:AddParagraph("白名单状态", "已授权用户")
 
 -- 玩家功能标签页（含飞行功能）
 local FunctionTab = Window:MakeTab({Name = "玩家功能", Icon = "rbxassetid://4483345998"})
