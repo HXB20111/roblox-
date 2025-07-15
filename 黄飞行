@@ -138,7 +138,7 @@ nowe = false
 game:GetService("StarterGui"):SetCore("SendNotification", { 
 	Title = "黄脚本用户 专属";
 	Text = "脚本作者：Hfh916 ";
-	Icon = "rbxthumb://type=Asset&id=5107182114&w=150&h=150"})
+	Icon = "rbxthumb://type=Asset&id=117263802735480&w=150&h=150"})
 Duration = 5;
 
 Frame.Active = true -- main = gui
