@@ -52,13 +52,13 @@ if not WHITELIST[player.UserId] then
             Title = "未授权访问",
             Text = "您的ID不在白名单中",
             Duration = 5,
-            Icon = "rbxassetid://9108657181"
+            Icon = "rbxassetid://118894209472715"
         })
     end)
     local RestrictWindow = OrionLib:MakeWindow({
         Name = "访问受限",
         Theme = "Dark",
-        Icon = "rbxassetid://9108657181"
+        Icon = "rbxassetid://118894209472715"
     })
     local InfoTab = RestrictWindow:MakeTab({Name = "权限不足"})
     InfoTab:AddParagraph("提示", "请加入群联系管理员添加白名单")
@@ -353,8 +353,7 @@ FunctionTab:AddToggle({
 })
 
 -- 脚本中心标签页
-local ScriptCenterTab = Window:MakeTab({Name = "脚本中心", Icon = "rbxassetid://4483346000"})
-
+local ScriptCenterTab = Window:MakeTab({Name = "脚本中心", Icon = "rbxassetid://4483345998"})
 -- 皮脚本
 addRoundButton(ScriptCenterTab, {
     Name = "加载皮脚本",
