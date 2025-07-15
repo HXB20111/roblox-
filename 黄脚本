@@ -94,7 +94,7 @@ pcall(function()
         Title = "新黄脚本",
         Text = "欢迎使用，功能已就绪",
         Duration = 4,
-        Icon = "rbxassetid://4483345998"
+        Icon = "rbxassetid://118894209472715"
     })
 end)
 
