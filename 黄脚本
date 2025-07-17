@@ -1,4 +1,4 @@
-：-- 加载OrionLib库
+-- 加载OrionLib库
 local OrionLib
 local success, err = pcall(function()
     OrionLib = loadstring(game:HttpGet("https://pastebin.com/raw/FUEx0f3G"))()
@@ -490,4 +490,5 @@ local function cleanUp()
         Window.Instance:Destroy()
     end
     Lighting.Ambient = Color3.new(0, 0, 0)
-    
+    Lighting.Brightness = 1
+end
