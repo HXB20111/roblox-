@@ -8,46 +8,42 @@ if not success or not OrionLib then
     return
 end
 
--- 白名单配置
-local whitelist = {    
-    "HXB201111",    
-    "cn_bxf01",    
-    "FengY3",
-
+-- 新白名单系统配置
+local StarterGui = game:GetService("StarterGui")
+local Players = game:GetService("Players")
+local WhitelistedPlayers = {
+    ["玩家用户名1"] = true,
+    ["玩家用户名2"] = true,
+    ["玩家用户名3"] = true,
+    -- 可继续添加白名单玩家
 }
 
--- 检查是否在白名单中
-local function isPlayerWhitelisted(playerName)    
-    for _, player in pairs(whitelist) do        
-        if player == playerName then            
-            return true        
-        end    
-    end    
-    return false
+-- 白名单检查函数
+local function IsWhitelisted(player)
+    return WhitelistedPlayers[player.Name] or false
+end
+
+-- 本地玩家验证
+local localPlayer = Players.LocalPlayer
+local isLocalPlayerWhitelisted = IsWhitelisted(localPlayer)
+
+-- 白名单验证结果处理
+if isLocalPlayerWhitelisted then
+    pcall(function()  -- 包裹SetCore调用，避免因游戏限制导致报错
+        StarterGui:SetCore("SendNotification", {
+            Title = "白名单认证",
+            Text = "玩家:" .. localPlayer.Name .. "，检测完毕白名单玩家，稍后会加载脚本",
+            Duration = 7,
+        })
+    end)
+else
+    localPlayer:Kick("你没有被加入白名单，请加群543121803")
+    return  -- 非白名单玩家直接退出，不加载后续内容
 end
 
 -- 服务与变量初始化
-local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
-local player = Players.LocalPlayer
-
--- 玩家进入游戏时的白名单处理（仅验证，不踢人）
-local function onPlayerAdded(player)    
-    local playerName = player.Name    
-    if isPlayerWhitelisted(playerName) then        
-        print(playerName .. " 在白名单中")                
-        -- 白名单玩家专属逻辑
-        local function executeScriptOnJoin(player)            
-            workspace.CurrentCamera.CameraSubject = player.Character or player        
-        end        
-        executeScriptOnJoin(player)    
-    else        
-        print(playerName .. " 不在白名单中")  -- 仅日志提示，不执行踢人
-    end
-end
-
--- 监听玩家加入事件
-game.Players.PlayerAdded:Connect(onPlayerAdded)
+local player = localPlayer  -- 已验证的本地玩家
 
 -- 工具函数：创建圆角
 local function makeRound(obj, radius)
@@ -69,7 +65,7 @@ local Window = OrionLib:MakeWindow({
 
 -- 欢迎通知
 pcall(function()
-    game:GetService("StarterGui"):SetCore("SendNotification", {
+    StarterGui:SetCore("SendNotification", {
         Title = "新黄脚本",
         Text = "欢迎使用，功能已就绪",
         Duration = 4,
@@ -142,7 +138,7 @@ PlayerTab:AddParagraph("用户ID", tostring(player.UserId))
 PlayerTab:AddParagraph("注入器", executorName)
 PlayerTab:AddParagraph("服务器ID", tostring(game.GameId))
 -- 显示当前玩家白名单状态
-PlayerTab:AddParagraph("白名单状态", isPlayerWhitelisted(player.Name) and "已授权" or "普通玩家")
+PlayerTab:AddParagraph("白名单状态", isLocalPlayerWhitelisted and "已授权" or "未授权")
 
 -- 玩家功能标签页（含飞行功能）
 local FunctionTab = Window:MakeTab({Name = "玩家功能", Icon = "rbxassetid://4483345998"})
