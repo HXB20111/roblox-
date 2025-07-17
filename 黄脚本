@@ -46,6 +46,8 @@ local AuthorTab = Window:MakeTab({Name = "作者信息", Icon = "rbxassetid://44
 AuthorTab:AddParagraph("作者", "Hfh916")
 AuthorTab:AddParagraph("作者QQ", "1357377308")
 AuthorTab:AddParagraph("QQ群", "543121803")
+AuthorTab:AddParagraph("帮助者", "风御 X")
+AuthorTab:AddParagraph("帮助者", "真的guiwow")
 
 -- 圆形按钮生成器
 local function addRoundButton(tab, config)
