@@ -17,6 +17,8 @@ local WhitelistedPlayers = {
     ["aaaadjdat"] = true,
     ["11451yuh"] = true,
     ["yesnopvp5"] = true,
+    ["lzq261"] = true,
+    ["HXB201111"] = true,
 }
 
 -- 白名单检查函数
