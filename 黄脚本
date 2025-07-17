@@ -1,4 +1,4 @@
--- 加载Orion库
+：-- 加载OrionLib库
 local OrionLib
 local success, err = pcall(function()
     OrionLib = loadstring(game:HttpGet("https://pastebin.com/raw/FUEx0f3G"))()
@@ -8,10 +8,45 @@ if not success or not OrionLib then
     return
 end
 
+-- 白名单配置
+local whitelist = {    
+    "HXB201111",    
+    "Player2",    
+    "Player3"
+}
+
+-- 检查是否在白名单中
+local function isPlayerWhitelisted(playerName)    
+    for _, player in pairs(whitelist) do        
+        if player == playerName then            
+            return true        
+        end    
+    end    
+    return false
+end
+
 -- 服务与变量初始化
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
 local player = Players.LocalPlayer
+
+-- 玩家进入游戏时的白名单处理（仅验证，不踢人）
+local function onPlayerAdded(player)    
+    local playerName = player.Name    
+    if isPlayerWhitelisted(playerName) then        
+        print(playerName .. " 在白名单中")                
+        -- 白名单玩家专属逻辑
+        local function executeScriptOnJoin(player)            
+            workspace.CurrentCamera.CameraSubject = player.Character or player        
+        end        
+        executeScriptOnJoin(player)    
+    else        
+        print(playerName .. " 不在白名单中")  -- 仅日志提示，不执行踢人
+    end
+end
+
+-- 监听玩家加入事件
+game.Players.PlayerAdded:Connect(onPlayerAdded)
 
 -- 工具函数：创建圆角
 local function makeRound(obj, radius)
@@ -105,7 +140,8 @@ PlayerTab:AddParagraph("用户名", player.Name)
 PlayerTab:AddParagraph("用户ID", tostring(player.UserId))
 PlayerTab:AddParagraph("注入器", executorName)
 PlayerTab:AddParagraph("服务器ID", tostring(game.GameId))
-PlayerTab:AddParagraph("白名单状态", "普通玩家")
+-- 显示当前玩家白名单状态
+PlayerTab:AddParagraph("白名单状态", isPlayerWhitelisted(player.Name) and "已授权" or "普通玩家")
 
 -- 玩家功能标签页（含飞行功能）
 local FunctionTab = Window:MakeTab({Name = "玩家功能", Icon = "rbxassetid://4483345998"})
@@ -181,7 +217,7 @@ local function addCameraTextbox(tab, config)
                 Content = config.SuccessText .. num, 
                 Time = 1.5
             })
-            -- 清空输入框（利用延迟确保设置完成后再清空）
+            -- 清空输入框
             task.delay(0.1, function()
                 if textboxObj and textboxObj.Instance then
                     local inputField = textboxObj.Instance:FindFirstChildOfClass("TextBox")
@@ -259,13 +295,13 @@ FunctionTab:AddToggle({
         local Workspace = game:GetService("Workspace")
         local Players = game:GetService("Players")
         
-        -- 断开已有连接，避免重复运行
+        -- 断开已有连接
         if Stepped then
             Stepped:Disconnect()
         end
         
         if enabled then
-            -- 开启穿墙：循环禁用角色所有部件的碰撞
+            -- 开启穿墙：禁用角色碰撞
             Stepped = game:GetService("RunService").Stepped:Connect(function()
                 if Clipon then
                     local playerChar = Workspace:FindFirstChild(Players.LocalPlayer.Name)
@@ -282,7 +318,7 @@ FunctionTab:AddToggle({
             end)
             OrionLib:MakeNotification({Name = "成功", Content = "穿墙模式已开启", Time = 2})
         else
-            -- 关闭穿墙：恢复角色部件碰撞
+            -- 关闭穿墙：恢复碰撞
             local playerChar = Workspace:FindFirstChild(Players.LocalPlayer.Name)
             if playerChar then
                 for _, part in pairs(playerChar:GetChildren()) do
@@ -454,5 +490,4 @@ local function cleanUp()
         Window.Instance:Destroy()
     end
     Lighting.Ambient = Color3.new(0, 0, 0)
-    Lighting.Brightness = 1
-end
+    
