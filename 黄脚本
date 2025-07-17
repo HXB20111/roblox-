@@ -15,7 +15,8 @@ local WhitelistedPlayers = {
     ["FengY3"] = true,
     ["cn_bxf01"] = true,
     ["aaaadjdat"] = true,
-    -- 可继续添加白名单玩家
+    ["11451yuh"] = true,
+    ["yesnopvp5"] = true,
 }
 
 -- 白名单检查函数
