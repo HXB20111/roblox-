@@ -12,8 +12,8 @@ end
 local StarterGui = game:GetService("StarterGui")
 local Players = game:GetService("Players")
 local WhitelistedPlayers = {
-    ["玩家用户名1"] = true,
-    ["玩家用户名2"] = true,
+    ["FengY3"] = true,
+    ["cn_bxf01"] = true,
     ["玩家用户名3"] = true,
     -- 可继续添加白名单玩家
 }
