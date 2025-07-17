@@ -11,8 +11,9 @@ end
 -- 白名单配置
 local whitelist = {    
     "HXB201111",    
-    "Player2",    
-    "Player3"
+    "cn_bxf01",    
+    "FengY3",
+
 }
 
 -- 检查是否在白名单中
