@@ -8,7 +8,7 @@ if not success or not OrionLib then
     return
 end
 
--- 新白名单系统配置
+-- 新黄名单系统配置
 local StarterGui = game:GetService("StarterGui")
 local Players = game:GetService("Players")
 local WhitelistedPlayers = {
@@ -20,9 +20,10 @@ local WhitelistedPlayers = {
     ["lzq261"] = true,
     ["HXB201111"] = true,
     ["123qwf658"] = true,
+    ["zaqxswedc71"] = true,
 }
 
--- 白名单检查函数
+-- 黄名单检查函数
 local function IsWhitelisted(player)
     return WhitelistedPlayers[player.Name] or false
 end
@@ -31,18 +32,18 @@ end
 local localPlayer = Players.LocalPlayer
 local isLocalPlayerWhitelisted = IsWhitelisted(localPlayer)
 
--- 白名单验证结果处理
+-- 黄名单验证结果处理
 if isLocalPlayerWhitelisted then
     pcall(function()  -- 包裹SetCore调用，避免因游戏限制导致报错
         StarterGui:SetCore("SendNotification", {
-            Title = "白名单认证",
-            Text = "玩家:" .. localPlayer.Name .. "，检测完毕白名单玩家，稍后会加载脚本",
+            Title = "黄名单认证",
+            Text = "玩家:" .. localPlayer.Name .. "，检测完毕黄名单玩家，稍后会加载脚本",
             Duration = 7,
         })
     end)
 else
-    localPlayer:Kick("你没有被加入白名单，请加群543121803")
-    return  -- 非白名单玩家直接退出，不加载后续内容
+    localPlayer:Kick("你没有被加入黄名单，请加群543121803")
+    return  -- 非黄名单玩家直接退出，不加载后续内容
 end
 
 -- 服务与变量初始化
@@ -333,6 +334,8 @@ FunctionTab:AddToggle({
     end,
     Color = Color3.fromRGB(100, 149, 237)
 })
+
+local LocalizationTab = Window:MakeTab({Name = "汉化脚本",Icon = "rbxassetid://4483345998"
 
 -- 脚本中心标签页
 local ScriptCenterTab = Window:MakeTab({Name = "脚本中心", Icon = "rbxassetid://4483345998"})
