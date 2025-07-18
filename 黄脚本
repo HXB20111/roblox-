@@ -335,9 +335,9 @@ FunctionTab:AddToggle({
     Color = Color3.fromRGB(100, 149, 237)
 })
 
-local LocalizationTab = Window:MakeTab({
+local ScriptCenterTab = Window:MakeTab({
     Name = "汉化脚本",
-    Icon = "rbxassetid://4483345998"
+    Icon = "rbxassetid://4483345998"})
 
 -- 脚本中心标签页
 local ScriptCenterTab = Window:MakeTab({Name = "脚本中心", Icon = "rbxassetid://4483345998"})
