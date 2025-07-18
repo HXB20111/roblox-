@@ -21,6 +21,13 @@ local WhitelistedPlayers = {
     ["HXB201111"] = true,
     ["123qwf658"] = true,
     ["zaqxswedc71"] = true,
+    ["HPCEIAILUODIN"] = true,
+    ["qwaszx123667"] = true,
+    ["123456789wc91"] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
 }
 
 -- 黄名单检查函数
