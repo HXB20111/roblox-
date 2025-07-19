@@ -32,6 +32,7 @@ local WhitelistedPlayers = {
     ["91VIP11451411"] = true,
     ["Kicking881"] = true,
     ["131xne"] = true,
+    ["KSTWGF_1"] = true,
 }
 
 -- 黄名单检查函数
