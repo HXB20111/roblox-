@@ -350,7 +350,7 @@ FunctionTab:AddToggle({
 })
 
 local ScriptCenterTab = Window:MakeTab({
-    Name = "汉化脚本",
+    Name = "脚本",
     Icon = "rbxassetid://4483345998"})
 
 -- 脚本中心标签页
