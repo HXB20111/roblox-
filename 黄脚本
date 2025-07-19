@@ -26,8 +26,8 @@ local WhitelistedPlayers = {
     ["123456789wc91"] = true,
     ["SYTAAYY9178"] = true,
     ["wec524"] = true,
-    ["1111"] = true,
-    ["4"] = true,
+    ["sjjsensnje"] = true,
+    ["years453"] = true,
 }
 
 -- 黄名单检查函数
