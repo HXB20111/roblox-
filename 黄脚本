@@ -376,8 +376,29 @@ local ScriptCenterTab = Window:MakeTab({
     Name = "脚本区",
     Icon = "rbxassetid://4483345998"})
 
+ScriptCenterTab:AddButton({
+    Name = "背上只因剑",
+    Callback = function()
+        loadstring(game:HttpGet(('https://gist.githubusercontent.com/blox-hub-roblox/021bad62bbc6a0adc4ba4e625f9ad7df/raw/c89af6e1acf587d09e4ce4bc7510e7100e0c0065/swordWarrior.lua'),true))()
+    end
+})
+
+ScriptCenterTab:AddButton({
+    Name = "最强战场",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Nicuse/RobloxScripts/main/SaitamaBattlegrounds.lua"))()
+    end
+})
+
+ScriptCenterTab:AddButton({
+    Name = "战斗勇士",
+    Callback = function()
+        loadstring(game:HttpGet("https://projecthook.xyz/scripts/free.lua"))()
+    end
+})
+
 local ScriptCenterTab = Window:MakeTab({Name = "脚本中心", Icon = "rbxassetid://4483345998"})
--- 皮脚本
+
 addRoundButton(ScriptCenterTab, {
     Name = "加载皮脚本",
     Callback = function()
