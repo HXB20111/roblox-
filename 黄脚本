@@ -412,7 +412,6 @@ loadstring(game:HttpGet("https://projecthook.xyz/scripts/free.lua"))()
 
 })
 
--- 脚本中心标签页
 local ScriptCenterTab = Window:MakeTab({Name = "脚本中心", Icon = "rbxassetid://4483345998"})
 -- 皮脚本
 addRoundButton(ScriptCenterTab, {
