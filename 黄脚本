@@ -34,6 +34,7 @@ local WhitelistedPlayers = {
     ["131xne"] = true,
     ["KSTWGF_1"] = true,
     ["w64015"] = true,
+    ["BRDDAAC"] = true,
 }
 
 -- 黄名单检查函数
