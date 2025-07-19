@@ -377,23 +377,23 @@ local ScriptCenterTab = Window:MakeTab({
     Icon = "rbxassetid://4483345998"})
 
 ScriptCenterTab:AddButton({
-    Name = "未知",
+    Name = "彩虹朋友",
     Callback = function()
-        loadstring(game:HttpGet(('https://gist.githubusercontent.com/blox-hub-roblox/021bad62bbc6a0adc4ba4e625f9ad7df/raw/c89af6e1acf587d09e4ce4bc7510e7100e0c0065/swordWarrior.lua'),true))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/JNHHGaming/Rainbow-Friends/main/Rainbow%20Friends"))()
     end
 })
 
 ScriptCenterTab:AddButton({
-    Name = "未知",
+    Name = "力量传奇",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Nicuse/RobloxScripts/main/SaitamaBattlegrounds.lua"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/harisiskandar178/Roblox-Script/main/Muscle%20Legend"))()
     end
 })
 
 ScriptCenterTab:AddButton({
-    Name = "未知",
+    Name = "自动刷金条(造船寻宝)",
     Callback = function()
-        loadstring(game:HttpGet("https://projecthook.xyz/scripts/free.lua"))()
+        loadstring(game:HttpGet("https://pastebin.com/raw/Lyy77rnr",true))()
     end
 })
 
