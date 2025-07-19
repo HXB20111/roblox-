@@ -351,9 +351,66 @@ FunctionTab:AddToggle({
     Color = Color3.fromRGB(100, 149, 237)
 })
 
+-- 透视功能
+FunctionTab:AddToggle({
+    Name = "透视",
+    Default = false,
+    Callback = function(enabled)
+        if enabled then
+            -- 加载透视功能
+            pcall(function()
+                loadstring(game:GetObjects("rbxassetid://10092697033")[1].Source)()
+                OrionLib:MakeNotification({Name = "成功", Content = "透视功能已开启", Time = 2})
+            end)
+        else
+            -- 尝试关闭透视（根据实际实现补充关闭逻辑）
+            -- 若原透视脚本有卸载函数，可在此调用，示例：
+            -- if typeof(StopESP) == "function" then StopESP() end
+            OrionLib:MakeNotification({Name = "提示", Content = "透视功能已关闭", Time = 2})
+        end
+    end,
+    Color = Color3.fromRGB(128, 0, 128) -- 紫色标识
+})
+
 local ScriptCenterTab = Window:MakeTab({
     Name = "脚本",
     Icon = "rbxassetid://4483345998"})
+
+Tab:AddButton({
+
+	Name = "背上只因剑",
+
+	Callback = function()
+
+  loadstring(game:HttpGet(('https://gist.githubusercontent.com/blox-hub-roblox/021bad62bbc6a0adc4ba4e625f9ad7df/raw/c89af6e1acf587d09e4ce4bc7510e7100e0c0065/swordWarrior.lua'),true))()
+
+    end
+
+})
+
+Tab:AddButton({
+
+	Name = "最强战场",
+
+	Callback = function()
+	
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Nicuse/RobloxScripts/main/SaitamaBattlegrounds.lua"))()
+
+    end
+
+})
+
+Tab:AddButton({
+
+	Name = "战斗勇士",
+
+	Callback = function()
+
+loadstring(game:HttpGet("https://projecthook.xyz/scripts/free.lua"))()
+
+    end
+
+})
 
 -- 脚本中心标签页
 local ScriptCenterTab = Window:MakeTab({Name = "脚本中心", Icon = "rbxassetid://4483345998"})
