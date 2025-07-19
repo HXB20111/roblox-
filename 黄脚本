@@ -359,7 +359,7 @@ FunctionTab:AddToggle({
         if enabled then
             -- 加载透视功能
             pcall(function()
-                loadstring(game:GetObjects("rbxassetid://10092697033")[1].Source)()
+            loadstring(game:HttpGet('https://raw.githubusercontent.com/Lucasfin000/SpaceHub/main/UESP'))()
                 OrionLib:MakeNotification({Name = "成功", Content = "透视功能已开启", Time = 2})
             end)
         else
