@@ -377,21 +377,21 @@ local ScriptCenterTab = Window:MakeTab({
     Icon = "rbxassetid://4483345998"})
 
 ScriptCenterTab:AddButton({
-    Name = "背上只因剑",
+    Name = "未知",
     Callback = function()
         loadstring(game:HttpGet(('https://gist.githubusercontent.com/blox-hub-roblox/021bad62bbc6a0adc4ba4e625f9ad7df/raw/c89af6e1acf587d09e4ce4bc7510e7100e0c0065/swordWarrior.lua'),true))()
     end
 })
 
 ScriptCenterTab:AddButton({
-    Name = "最强战场",
+    Name = "未知",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Nicuse/RobloxScripts/main/SaitamaBattlegrounds.lua"))()
     end
 })
 
 ScriptCenterTab:AddButton({
-    Name = "战斗勇士",
+    Name = "未知",
     Callback = function()
         loadstring(game:HttpGet("https://projecthook.xyz/scripts/free.lua"))()
     end
@@ -535,6 +535,26 @@ addRoundButton(ScriptCenterTab, {
     end,
     Color = Color3.fromRGB(105, 105, 105)
 })
+
+addRoundButton(ScriptCenterTab, {
+    Name = "汉化🇨🇳脚本",
+    Callback = function()
+        OrionLib:MakeNotification({Name = "提示", Content = "正在加载汉化🇨🇳脚本...", Time = 3})
+        task.spawn(function()
+            local success, err = pcall(function()
+                getgenv().GHOST_SCRIPT = "QQ群654441319"
+                loadstring(game:HttpGet('https://raw.githubusercontent.com/S-WTB/-/refs/heads/main/ISIS加载器'))()
+            end)
+            if success then
+                OrionLib:MakeNotification({Name = "成功", Content = "汉化🇨🇳脚本加载完成", Time = 3})
+            else
+                OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
+            end
+        end)
+    end,
+    Color = Color3.fromRGB(255, 78, 91)
+})
+
 
 -- 初始化界面
 OrionLib:Init()
