@@ -623,7 +623,6 @@ addRoundButton(ScriptCenterTab, {
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载汉化脚本...", Time = 3})
         task.spawn(function()
             local success, err = pcall(function()
-                getgenv().GHOST_SCRIPT = "QQ群654441319"
                 loadstring(game:HttpGet('https://raw.githubusercontent.com/S-WTB/-/refs/heads/main/ISIS加载器'))()
             end)
             if success then
@@ -642,7 +641,7 @@ addRoundButton(ScriptCenterTab, {
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载KG脚本...", Time = 3})
         task.spawn(function()
             local success, err = pcall(function()
-                getgenv().GHOST_SCRIPT = "鬼和风御制作"
+                KG_SCRIPT = "鬼和风御制作"
                 loadstring(game:HttpGet("https://raw.githubusercontent.com/520-Ghost/-/refs/heads/main/KG.lua"))()
             end)
             if success then
