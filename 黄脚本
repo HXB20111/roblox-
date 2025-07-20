@@ -654,6 +654,24 @@ addRoundButton(ScriptCenterTab, {
     Color = Color3.fromRGB(255, 78, 91)
 })
 
+addRoundButton(ScriptCenterTab, {
+    Name = "加载TX脚本",
+    Callback = function()
+        OrionLib:MakeNotification({Name = "提示", Content = "正在加载TX脚本...", Time = 3})
+        task.spawn(function()
+            local success, err = pcall(function()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/JsYb666/TX-Free-YYDS/refs/heads/main/FREE-TX-TEAM"))()
+            end)
+            if success then
+                OrionLib:MakeNotification({Name = "成功", Content = "TX脚本加载完成", Time = 3})
+            else
+                OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
+            end
+        end)
+    end,
+    Color = Color3.fromRGB(255, 91, 78)
+})
+
 -- 初始化界面
 OrionLib:Init()
 
