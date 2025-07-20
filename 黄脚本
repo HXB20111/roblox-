@@ -376,6 +376,40 @@ FunctionTab:AddToggle({
     Color = Color3.fromRGB(128, 0, 128) -- 紫色标识
 })
 
+credits:Textbox("旋转速度", "SpinSpeed", "输入", function(Value)
+    local speed = tonumber(Value)
+    local plr = game:GetService("Players").LocalPlayer
+    repeat task.wait() until plr.Character
+    local humRoot = plr.Character:WaitForChild("HumanoidRootPart")
+    local humanoid = plr.Character:WaitForChild("Humanoid")
+    humanoid.AutoRotate = false
+
+    if not spinVelocity then
+        spinVelocity = Instance.new("AngularVelocity")
+        spinVelocity.Attachment0 = humRoot:WaitForChild("RootAttachment")
+        spinVelocity.MaxTorque = math.huge
+        spinVelocity.AngularVelocity = Vector3.new(0, speed, 0)
+        spinVelocity.Parent = humRoot
+        spinVelocity.Name = "Spinbot"
+    else
+        spinVelocity.AngularVelocity = Vector3.new(0, speed, 0)
+    end
+end)
+
+credits:Button("停止旋转", function()
+    local plr = game:GetService("Players").LocalPlayer
+    repeat task.wait() until plr.Character
+    local humRoot = plr.Character:WaitForChild("HumanoidRootPart")
+    local humanoid = plr.Character:WaitForChild("Humanoid")
+
+    local spinbot = humRoot:FindFirstChild("Spinbot")
+    if spinbot then
+        spinbot:Destroy()
+        spinVelocity = nil
+    end
+    humanoid.AutoRotate = true 
+end)
+  
 local ScriptCenterTab = Window:MakeTab({
     Name = "脚本区",
     Icon = "rbxassetid://4483345998"})
@@ -395,7 +429,7 @@ ScriptCenterTab:AddButton({
 })
 
 ScriptCenterTab:AddButton({
-    Name = "自动刷金条(造船寻宝)",
+    Name = "造船寻宝",
     Callback = function()
         loadstring(game:HttpGet("https://pastebin.com/raw/Lyy77rnr",true))()
     end
@@ -404,7 +438,7 @@ ScriptCenterTab:AddButton({
 local ScriptCenterTab = Window:MakeTab({Name = "优秀脚本", Icon = "rbxassetid://4483345998"})
 
 addRoundButton(ScriptCenterTab, {
-    Name = "加载皮🍊脚本",
+    Name = "加载皮脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载...", Time = 3})
         task.spawn(function()
@@ -424,7 +458,7 @@ addRoundButton(ScriptCenterTab, {
 
 -- 导管中心
 addRoundButton(ScriptCenterTab, {
-    Name = "加载导管🔩脚本",
+    Name = "加载导管脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载导管中心...", Time = 3})
         task.spawn(function()
@@ -443,7 +477,7 @@ addRoundButton(ScriptCenterTab, {
 
 -- 落叶中心
 addRoundButton(ScriptCenterTab, {
-    Name = "加载落叶🍃脚本",
+    Name = "加载落叶脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载落叶脚本...", Time = 3})
         task.spawn(function()
@@ -481,17 +515,17 @@ addRoundButton(ScriptCenterTab, {
     Color = Color3.fromRGB(70, 200, 200)
 })
 
--- 叶☘️脚本
+-- 叶脚本
 addRoundButton(ScriptCenterTab, {
-    Name = "加载叶☘️脚本",
+    Name = "加载叶脚本",
     Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载叶☘️脚本...", Time = 3})
+        OrionLib:MakeNotification({Name = "提示", Content = "正在加载叶脚本...", Time = 3})
         task.spawn(function()
             local success, err = pcall(function()
                 loadstring(game:HttpGet("https://raw.githubusercontent.com/roblox-ye/QQ515966991/refs/heads/main/ROBLOX-CNVIP-XIAOYE.lua"))()
             end)
             if success then
-                OrionLib:MakeNotification({Name = "成功", Content = "叶☘️脚本加载完成", Time = 3})
+                OrionLib:MakeNotification({Name = "成功", Content = "叶脚本加载完成", Time = 3})
             else
                 OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
             end
@@ -500,9 +534,9 @@ addRoundButton(ScriptCenterTab, {
     Color = Color3.fromRGB(123, 200, 91)
 })
 
--- 刹🗡脚本
+-- 刹脚本
 addRoundButton(ScriptCenterTab, {
-    Name = "加载刹🗡脚本",
+    Name = "加载刹脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载刹🗡脚本...", Time = 3})
         task.spawn(function()
@@ -522,7 +556,7 @@ addRoundButton(ScriptCenterTab, {
 
 -- 鬼脚本
 addRoundButton(ScriptCenterTab, {
-    Name = "加载鬼👻脚本",
+    Name = "加载鬼脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载鬼脚本...", Time = 3})
         task.spawn(function()
@@ -541,16 +575,16 @@ addRoundButton(ScriptCenterTab, {
 })
 
 addRoundButton(ScriptCenterTab, {
-    Name = "加载汉化🇨🇳脚本",
+    Name = "加载汉化脚本",
     Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载汉化🇨🇳脚本...", Time = 3})
+        OrionLib:MakeNotification({Name = "提示", Content = "正在加载汉化脚本...", Time = 3})
         task.spawn(function()
             local success, err = pcall(function()
                 getgenv().GHOST_SCRIPT = "QQ群654441319"
                 loadstring(game:HttpGet('https://raw.githubusercontent.com/S-WTB/-/refs/heads/main/ISIS加载器'))()
             end)
             if success then
-                OrionLib:MakeNotification({Name = "成功", Content = "汉化🇨🇳脚本加载完成", Time = 3})
+                OrionLib:MakeNotification({Name = "成功", Content = "汉化脚本加载完成", Time = 3})
             else
                 OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
             end
@@ -559,6 +593,24 @@ addRoundButton(ScriptCenterTab, {
     Color = Color3.fromRGB(255, 78, 91)
 })
 
+addRoundButton(ScriptCenterTab, {
+    Name = "加载KG脚本",
+    Callback = function()
+        OrionLib:MakeNotification({Name = "提示", Content = "正在加载KG脚本...", Time = 3})
+        task.spawn(function()
+            local success, err = pcall(function()
+                getgenv().GHOST_SCRIPT = "鬼和风御制作"
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/520-Ghost/-/refs/heads/main/KG.lua"))()
+            end)
+            if success then
+                OrionLib:MakeNotification({Name = "成功", Content = "KG脚本加载完成", Time = 3})
+            else
+                OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
+            end
+        end)
+    end,
+    Color = Color3.fromRGB(255, 78, 91)
+})
 
 -- 初始化界面
 OrionLib:Init()
