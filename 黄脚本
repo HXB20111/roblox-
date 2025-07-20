@@ -43,6 +43,7 @@ local WhitelistedPlayers = {
     ["78917891wc"] = true,
     ["asxxxiod"] = true,
     ["jioeud52"] = true,
+    ["zhb1523"] = true,
 }
 
 -- 黄名单检查函数
