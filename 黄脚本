@@ -397,10 +397,10 @@ ScriptCenterTab:AddButton({
     end
 })
 
-local ScriptCenterTab = Window:MakeTab({Name = "脚本中心", Icon = "rbxassetid://4483345998"})
+local ScriptCenterTab = Window:MakeTab({Name = "优秀脚本", Icon = "rbxassetid://4483345998"})
 
 addRoundButton(ScriptCenterTab, {
-    Name = "加载皮脚本",
+    Name = "加载皮🍊脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载...", Time = 3})
         task.spawn(function()
@@ -420,7 +420,7 @@ addRoundButton(ScriptCenterTab, {
 
 -- 导管中心
 addRoundButton(ScriptCenterTab, {
-    Name = "加载导管中心",
+    Name = "加载导管🔩脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载导管中心...", Time = 3})
         task.spawn(function()
@@ -439,16 +439,16 @@ addRoundButton(ScriptCenterTab, {
 
 -- 落叶中心
 addRoundButton(ScriptCenterTab, {
-    Name = "加载落叶中心",
+    Name = "加载落叶🍃脚本",
     Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载落叶中心...", Time = 3})
+        OrionLib:MakeNotification({Name = "提示", Content = "正在加载落叶脚本...", Time = 3})
         task.spawn(function()
             local success, err = pcall(function()
-                getgenv().LS = "落叶中心"
+                getgenv().LS = "落叶脚本"
                 loadstring(game:HttpGet("https://raw.githubusercontent.com/krlpl/Deciduous-center-LS/main/%E8%90%BD%E5%8F%B6%E4%B8%AD%E5%BF%83%E6%B7%B7%E6%B7%86.txt"))()
             end)
             if success then
-                OrionLib:MakeNotification({Name = "成功", Content = "落叶中心加载完成", Time = 3})
+                OrionLib:MakeNotification({Name = "成功", Content = "落叶脚本加载完成", Time = 3})
             else
                 OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
             end
@@ -537,7 +537,7 @@ addRoundButton(ScriptCenterTab, {
 })
 
 addRoundButton(ScriptCenterTab, {
-    Name = "汉化🇨🇳脚本",
+    Name = "加载汉化🇨🇳脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载汉化🇨🇳脚本...", Time = 3})
         task.spawn(function()
