@@ -618,7 +618,7 @@ addRoundButton(ScriptCenterTab, {
 })
 
 addRoundButton(ScriptCenterTab, {
-    Name = "加载汉化脚本",
+    Name = "加载汉化脚本--卡密:ISIS-KEY-2025",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载汉化脚本...", Time = 3})
         task.spawn(function()
@@ -633,17 +633,6 @@ addRoundButton(ScriptCenterTab, {
         end)
     end,
     Color = Color3.fromRGB(255, 78, 91)
-})
-
-addRoundButton(AuthorTab, {
-    Name = "卡密ANOTHER-SECRET-KEY",
-    Callback = function()
-        if setclipboard then
-            setclipboard("ANOTHER-SECRET-KEY")
-            OrionLib:MakeNotification({Name = "成功", Content = "卡密已复制", Time = 2})
-        end
-    end,
-    Color = Color3.fromRGB(255, 110, 255)
 })
 
 addRoundButton(ScriptCenterTab, {
