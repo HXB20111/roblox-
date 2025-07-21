@@ -634,6 +634,7 @@ addRoundButton(ScriptCenterTab, {
     end,
     Color = Color3.fromRGB(255, 78, 91)
 })
+
 addRoundButton(AuthorTab, {
     Name = "卡密ANOTHER-SECRET-KEY",
     Callback = function()
@@ -642,9 +643,8 @@ addRoundButton(AuthorTab, {
             OrionLib:MakeNotification({Name = "成功", Content = "卡密已复制", Time = 2})
         end
     end,
-    Color = Color3.fromRGB(70, 130, 255)
+    Color = Color3.fromRGB(255, 110, 255)
 })
-
 
 addRoundButton(ScriptCenterTab, {
     Name = "加载KG脚本",
