@@ -49,6 +49,20 @@ local WhitelistedPlayers = {
     ["qvgg2"] = true,
     ["aodiA62"] = true,
     ["dddd363636"] = true,
+    ["wujie997"] = true,
+    ["Jemiloft"] = true,
+    ["ftft_425"] = true,
+    ["cn_54sB666"] = true,
+    ["djubddxhdn"] = true,
+    ["Yungengxin"] = true,
+    ["qaz123456789qazjk"] = true,
+    ["a"] = true,
+    ["b"] = true,
+    ["c"] = true,
+    ["d"] = true,
+    ["e"] = true,
+    ["f"] = true,
+    ["g"] = true,
 }
 
 -- 黄名单检查函数
