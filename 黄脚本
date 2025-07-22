@@ -59,10 +59,12 @@ local WhitelistedPlayers = {
     ["XiaoAn35"] = true,
     ["plmnb3697"] = true,
     ["HXB20111"] = true,
-    ["d"] = true,
-    ["e"] = true,
-    ["f"] = true,
-    ["g"] = true,
+    ["bgm9178"] = true,
+    ["fair_jiba"] = true,
+    ["kkobs3"] = true,
+    ["HGLHeLHGL"] = true,
+    ["Kdksjkdo"] = true,
+    ["AIPOPSCAT"] = true,
 }
 
 -- 黄名单检查函数
