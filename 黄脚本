@@ -67,6 +67,7 @@ local WhitelistedPlayers = {
     ["AIPOPSCAT"] = true,
     ["hwjwjaaj1818"] = true,
     ["xgcjayzbfajgcjh"] = true,
+    ["AK74N_5"] = true,
 }
 
 -- 黄名单检查函数
