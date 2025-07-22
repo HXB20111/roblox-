@@ -57,7 +57,7 @@ local WhitelistedPlayers = {
     ["Yungengxin"] = true,
     ["qaz123456789qazjj"] = true,
     ["XiaoAn35"] = true,
-    ["b"] = true,
+    ["plmnb3697"] = true,
     ["c"] = true,
     ["d"] = true,
     ["e"] = true,
@@ -84,7 +84,7 @@ if isLocalPlayerWhitelisted then
         })
     end)
 else
-    localPlayer:Kick("你没有被加入黄名单，请加群543121803")
+    localPlayer:Kick("你没有被加入黄名单，请加群1057766561")
     return  -- 非黄名单玩家直接退出，不加载后续内容
 end
 
