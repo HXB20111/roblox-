@@ -634,7 +634,7 @@ addRoundButton(ScriptCenterTab, {
 })
 
 addRoundButton(ScriptCenterTab, {
-    Name = "加载汉化脚本--卡密:ISIS-KEY-2025",
+    Name = "加载汉化脚本--卡密:ISIS-KEY-2024",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载汉化脚本...", Time = 3})
         task.spawn(function()
