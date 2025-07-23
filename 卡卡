@@ -7,6 +7,25 @@ if not success then
     return
 end
 
+-- 创建主窗口
+local Window = OrionLib:MakeWindow({
+    Name = "卡卡脚本",
+    SaveConfig = true,
+    IntroText = "卡卡脚本 - 功能加载完成",
+    Theme = "FlatBlue",
+    Icon = "rbxassetid://118894209472715"
+})
+
+-- 欢迎通知
+pcall(function()
+    StarterGui:SetCore("SendNotification", {
+        Title = "卡卡脚本",
+        Text = "欢迎使用，功能已就绪",
+        Duration = 4,
+        Icon = "rbxassetid://118894209472715"
+    })
+end)
+
 local Window = OrionLib:MakeWindow({
     Name = "Your Window Name",
     HidePremium = true,
