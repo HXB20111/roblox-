@@ -117,9 +117,9 @@ end
 
 -- 创建主窗口
 local Window = OrionLib:MakeWindow({
-    Name = "新黄脚本",
+    Name = "黄脚本",
     SaveConfig = true,
-    IntroText = "新黄脚本 - 功能加载完成",
+    IntroText = "黄脚本 - 功能加载完成",
     Theme = "FlatBlue",
     Icon = "rbxassetid://118894209472715"
 })
@@ -127,7 +127,7 @@ local Window = OrionLib:MakeWindow({
 -- 欢迎通知
 pcall(function()
     StarterGui:SetCore("SendNotification", {
-        Title = "新黄脚本",
+        Title = "黄脚本",
         Text = "欢迎使用，功能已就绪",
         Duration = 4,
         Icon = "rbxassetid://118894209472715"
@@ -506,7 +506,7 @@ ScriptCenterTab:AddButton({
     end
 })
 
-local ScriptCenterTab = Window:MakeTab({Name = "优秀脚本", Icon = "rbxassetid://4483345998"})
+local ScriptCenterTab = Window:MakeTab({Name = "其他脚本", Icon = "rbxassetid://4483345998"})
 
 addRoundButton(ScriptCenterTab, {
     Name = "加载皮脚本",
@@ -573,7 +573,6 @@ addRoundButton(ScriptCenterTab, {
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载霖溺-免费版加载器...", Time = 3})
         task.spawn(function()
             local success, err = pcall(function()
-                getgenv().LnScript = "霖溺-免费版加载器"
                 loadstring(game:HttpGet("https://raw.githubusercontent.com/ShenJiaoBen/ScriptLoader/refs/heads/main/Linni_FreeLoader.lua"))()
             end)
             if success then
