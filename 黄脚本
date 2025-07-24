@@ -77,7 +77,7 @@ local WhitelistedPlayers = {
     ["clone58698"] = true,
     ["tzx10998"] = true,
     ["zzxkuyz"] = true,
-    ["123"] = true,
+    ["Coolbyeqwq"] = true,
 }
 
 -- 黄名单检查函数
