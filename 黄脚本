@@ -82,6 +82,7 @@ local WhitelistedPlayers = {
     ["woaichishi13"] = true,
     ["makeqiq"] = true,
     ["sp250113"] = true,
+    ["CN_Krnl"] = true,
 }
 
 -- 黄名单检查函数
