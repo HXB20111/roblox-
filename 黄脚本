@@ -681,13 +681,12 @@ addRoundButton(ScriptCenterTab, {
 })
 
 addRoundButton(ScriptCenterTab, {
-    Name = "加载KG脚本",
+    Name = "加载大司马脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载KG脚本...", Time = 3})
         task.spawn(function()
             local success, err = pcall(function()
-                KG_SCRIPT = "鬼和风御制作"
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/520-Ghost/-/refs/heads/main/KG.lua"))()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/whenheer/gfop/refs/heads/main/Protected_4687541665942703.lua"))()
             end)
             if success then
                 OrionLib:MakeNotification({Name = "成功", Content = "KG脚本加载完成", Time = 3})
