@@ -84,6 +84,7 @@ local WhitelistedPlayers = {
     ["sp250113"] = true,
     ["CN_Krnl"] = true,
     ["FengY4"] = true,
+    ["PUBG5292"] = true,
 }
 
 -- 黄名单检查函数
