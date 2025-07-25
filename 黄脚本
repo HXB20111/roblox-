@@ -86,6 +86,7 @@ local WhitelistedPlayers = {
     ["FengY4"] = true,
     ["PUBG5292"] = true,
     ["wsho556"] = true,
+    ["Fezezen314"] = true,
 }
 
 -- 黄名单检查函数
@@ -560,7 +561,6 @@ addRoundButton(ScriptCenterTab, {
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载RB脚本...", Time = 3})
         task.spawn(function()
             local success, err = pcall(function()
-                -- 注意：删除此行开头的隐藏特殊字符
                 loadstring(game:HttpGet("https://raw.githubusercontent.com/Yungengxin/roblox/refs/heads/main/Rb-Hub"))()
             end)
         end)
