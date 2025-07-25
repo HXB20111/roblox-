@@ -556,15 +556,15 @@ addRoundButton(ScriptCenterTab, {
 
 -- AL中心
 addRoundButton(ScriptCenterTab, {
-    Name = "加载剑客脚本",
+    Name = "加载RB脚本",
     Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载剑客脚本...", Time = 3})
+        OrionLib:MakeNotification({Name = "提示", Content = "正在加载RB脚本...", Time = 3})
         task.spawn(function()
             local success, err = pcall(function()
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaopi77/xiaopi77/main/QQ1002100032-Roblox-Pi-script.lua"))()
+                ﻿loadstring(game:HttpGet("https://raw.githubusercontent.com/Yungengxin/roblox/refs/heads/main/Rb-Hub"))()
             end)
             if success then
-                OrionLib:MakeNotification({Name = "成功", Content = "剑客脚本加载完成", Time = 3})
+                OrionLib:MakeNotification({Name = "成功", Content = "RB脚本加载完成", Time = 3})
             else
                 OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
             end
@@ -691,13 +691,13 @@ addRoundButton(ScriptCenterTab, {
 addRoundButton(ScriptCenterTab, {
     Name = "加载大司马脚本",
     Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载KG脚本...", Time = 3})
+        OrionLib:MakeNotification({Name = "提示", Content = "正在加载大司马脚本...", Time = 3})
         task.spawn(function()
             local success, err = pcall(function()
                 loadstring(game:HttpGet("https://raw.githubusercontent.com/whenheer/gfop/refs/heads/main/Protected_4687541665942703.lua"))()
             end)
             if success then
-                OrionLib:MakeNotification({Name = "成功", Content = "KG脚本加载完成", Time = 3})
+                OrionLib:MakeNotification({Name = "成功", Content = "大司马脚本加载完成", Time = 3})
             else
                 OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
             end
