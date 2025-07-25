@@ -483,6 +483,24 @@ addRoundButton(FunctionTab, {
 })
 
 local ScriptCenterTab = Window:MakeTab({
+    Name = "开发者",
+    Icon = "rbxassetid://4483345998"})
+
+ScriptCenterTab:AddButton({
+    Name = "dex",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Focuslol666/RbxScripts/refs/heads/main/Other/DexPlusPlus%20(ZH-CN).lua"))()
+    end
+})
+
+ScriptCenterTab:AddButton({
+    Name = "IY",
+    Callback = function()
+       loadstring(game:HttpGet(('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'),true))() 
+   end
+})
+
+local ScriptCenterTab = Window:MakeTab({
     Name = "脚本区",
     Icon = "rbxassetid://4483345998"})
 
