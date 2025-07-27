@@ -514,14 +514,14 @@ local ScriptCenterTab = Window:MakeTab({
     Icon = "rbxassetid://4483345998"})
 
 ScriptCenterTab:AddButton({
-    Name = "彩虹朋友",
+    Name = "超级大力士模拟器",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/JNHHGaming/Rainbow-Friends/main/Rainbow%20Friends"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/%E8%B6%85%E7%BA%A7%E5%A4%A7%E5%8A%9B%E5%A3%AB%E6%A8%A1%E6%8B%9F%E5%99%A8.lua"))()
     end
 })
 
 ScriptCenterTab:AddButton({
-    Name = "力量传奇",
+    Name = "doors",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/harisiskandar178/Roblox-Script/main/Muscle%20Legend"))()
     end
@@ -531,6 +531,27 @@ ScriptCenterTab:AddButton({
     Name = "造船寻宝",
     Callback = function()
         loadstring(game:HttpGet("https://pastebin.com/raw/Lyy77rnr",true))()
+    end
+})
+
+ScriptCenterTab:AddButton({
+    Name = "巴掌大战",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/harisiskandar178/Roblox-Script/main/Muscle%20Legend"))()
+    end
+})
+
+ScriptCenterTab:AddButton({
+    Name = "兵工厂",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/harisiskandar178/Roblox-Script/main/Muscle%20Legend"))()
+    end
+})
+
+ScriptCenterTab:AddButton({
+    Name = "彩虹朋友",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/harisiskandar178/Roblox-Script/main/Muscle%20Legend"))()
     end
 })
 
