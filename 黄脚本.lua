@@ -33,7 +33,7 @@ TextLabel_1.BackgroundColor3 = Color3.fromRGB(134,94,255)
 TextLabel_1.BorderColor3 = Color3.fromRGB(0,0,0)
 TextLabel_1.BorderSizePixel = 0
 TextLabel_1.Position = UDim2.new(0.276892424, 0,0.0896414369, 0)
-TextLabel_1.Size = UDim2.new(0, 300,0, 10)
+TextLabel_1.Size = UDim2.new(0, 300,0, 100)
 TextLabel_1.Font = Enum.Font.SourceSans
 TextLabel_1.Text = ScriptName.."卡密系统"
 TextLabel_1.TextColor3 = Color3.fromRGB(255,200,102)
@@ -51,7 +51,7 @@ TextBox_1.Font = Enum.Font.SourceSans
 TextBox_1.PlaceholderColor3 = Color3.fromRGB(178,178,178)
 TextBox_1.PlaceholderText = "请输入卡密"
 TextBox_1.Text = ""
-TextBox_1.TextSize = 13
+TextBox_1.TextSize = 14
 
 TextLabel_2.Parent = ScreenGui
 TextLabel_2.BackgroundColor3 = Color3.fromRGB(170,170,255)
