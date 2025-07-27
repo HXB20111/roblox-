@@ -513,21 +513,15 @@ local ScriptCenterTab = Window:MakeTab({
     Name = "脚本区",
     Icon = "rbxassetid://4483345998"})
 
-local Section = Tab:AddSection({
-
-	Name = "造船寻宝"
-
-})
-
 ScriptCenterTab:AddButton({
-    Name = "刷钱",
+    Name = "造船寻宝刷钱",
     Callback = function()
         loadstring(game:HttpGet("raw.githubusercontent.com/cbhlyy/lyycbh/main/zaochuan1",true))()
     end
 })
 
 ScriptCenterTab:AddButton({
-    Name = "无限格子",
+    Name = "造船寻宝无限格子",
     Callback = function()
         loadstring(game:HttpGet("https://rawscripts.net/raw/Build-A-Boat-For-Treasure-INFINITE-SAVE-SLOTS-39627",true))()
     end
