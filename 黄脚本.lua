@@ -1,97 +1,83 @@
-local ScriptName = "黄脚本-" 
-local Key = "Hfh916"
-local QQ = "1057766561"
-local NoKey = "请加入群聊，获得卡密" -- 如果玩家的卡密错误 踢出游戏的提示
-function o()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/MIAN57/main/refs/heads/main/hi"))()
+-- 模拟UI元素
+local uiElements = {
+    isOpen = true,
+    closeBtn = { text = "X", tip = "输入X关闭窗口" }
+}
+
+-- 有效卡密列表（数字+字母组合）
+local validCards = {
+    ["Abc12345"] = { status = "valid", expire = "2025-12-31" },
+    ["Xy789Z01"] = { status = "valid", expire = "2025-10-01" },
+    ["987QwEr"] = { status = "expired", expire = "2024-06-30" }
+}
+
+-- 卡密格式验证
+local function checkFormat(cardKey)
+    if #cardKey < 6 or #cardKey > 12 then
+        return false, "长度需为6-12位"
+    end
+    local hasDigit = string.match(cardKey, "%d")
+    local hasAlpha = string.match(cardKey, "%a")
+    if not hasDigit or not hasAlpha then
+        return false, "必须包含数字和字母"
+    end
+    return true
 end
 
-local Info = ""
-
-local ScreenGui = Instance.new("ScreenGui")
-local Frame_1 = Instance.new("Frame")
-local TextLabel_1 = Instance.new("TextLabel")
-local TextBox_1 = Instance.new("TextBox")
-local TextLabel_2 = Instance.new("TextLabel")
-local TextLabel_3 = Instance.new("TextLabel")
-local TextButton_1 = Instance.new("TextButton")
-local TextButton_2 = Instance.new("TextButton")
-local TextButton_3 = Instance.new("TextButton")
-
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
-
-Frame_1.Parent = ScreenGui
-Frame_1.BackgroundColor3 = Color3.fromRGB(255,190,10)
-Frame_1.BorderColor3 = Color3.fromRGB(0,0,0)
-Frame_1.BorderSizePixel = 0
-Frame_1.Position = UDim2.new(0.277888447, 0,0.0896414369, 0)
-Frame_1.Size = UDim2.new(0, 300,0, 200)
-
-TextLabel_1.Parent = ScreenGui
-TextLabel_1.BackgroundColor3 = Color3.fromRGB(134,94,255)
-TextLabel_1.BorderColor3 = Color3.fromRGB(0,0,0)
-TextLabel_1.BorderSizePixel = 0
-TextLabel_1.Position = UDim2.new(0.276892424, 0,0.0896414369, 0)
-TextLabel_1.Size = UDim2.new(0, 300,0, 100)
-TextLabel_1.Font = Enum.Font.SourceSans
-TextLabel_1.Text = ScriptName.."卡密系统"
-TextLabel_1.TextColor3 = Color3.fromRGB(255,200,102)
-TextLabel_1.TextSize = 30
-
-TextBox_1.Parent = ScreenGui
-TextBox_1.Active = true
-TextBox_1.BackgroundColor3 = Color3.fromRGB(113,110,156)
-TextBox_1.BorderColor3 = Color3.fromRGB(0,0,0)
-TextBox_1.BorderSizePixel = 0
-TextBox_1.CursorPosition = -1
-TextBox_1.Position = UDim2.new(0.3, 0,0.334661365, 0)
-TextBox_1.Size = UDim2.new(0, 158,0, 41)
-TextBox_1.Font = Enum.Font.SourceSans
-TextBox_1.PlaceholderColor3 = Color3.fromRGB(178,178,178)
-TextBox_1.PlaceholderText = "请输入卡密"
-TextBox_1.Text = ""
-TextBox_1.TextSize = 14
-
-TextLabel_2.Parent = ScreenGui
-TextLabel_2.BackgroundColor3 = Color3.fromRGB(170,170,255)
-TextLabel_2.BorderColor3 = Color3.fromRGB(0,0,0)
-TextLabel_2.BorderSizePixel = 0
-TextLabel_2.Position = UDim2.new(0.3, 0,0.416334659, 0)
-TextLabel_2.Size = UDim2.new(0, 158,0, 18)
-TextLabel_2.Font = Enum.Font.SourceSans
-TextLabel_2.Text = "加入群聊1057766561，获得卡密"
-TextLabel_2.TextSize = 15
-
-TextButton_1.Parent = ScreenGui
-TextButton_1.Active = true
-TextButton_1.BackgroundColor3 = Color3.fromRGB(255,215,0)
-TextButton_1.BorderColor3 = Color3.fromRGB(0,0,0)
-TextButton_1.BorderSizePixel = 0
-TextButton_1.Position = UDim2.new(2.5., 0,0.539840639, 0)
-TextButton_1.Size = UDim2.new(0, 88,0, 30)
-TextButton_1.Font = Enum.Font.SourceSans
-TextButton_1.Text = "确认"
-TextButton_1.TextSize = 19
-TextButton_1.MouseButton1Click:Connect(function()
-if TextBox_1.Text == Key then
-o() -- bad 
-ScreenGui:Destroy()
-else
-game.Players.LocalPlayer:Kick(NoKey)
+-- 卡密验证主逻辑
+local function verifyCard(cardKey)
+    if not cardKey or cardKey == "" then
+        return false, "请输入卡密"
+    end
+    local formatOk, formatMsg = checkFormat(cardKey)
+    if not formatOk then
+        return false, "格式错误：" .. formatMsg
+    end
+    local cardInfo = validCards[cardKey]
+    if not cardInfo then
+        return false, "卡密不存在"
+    end
+    if cardInfo.status == "expired" then
+        return false, "卡密已过期（到期日：" .. cardInfo.expire .. "）"
+    end
+    -- 验证成功后执行指定脚本
+    local success, result = pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/MIAN57/main/refs/heads/main/hi"))()
+    end)
+    if not success then
+        return true, "验证成功，但脚本执行失败：" .. result
+    end
+    return true, "验证成功！已执行指定脚本（到期日：" .. cardInfo.expire .. "）"
 end
-end)
 
-TextButton_2.Parent = ScreenGui
-TextButton_2.Active = true
-TextButton_2.BackgroundColor3 = Color3.fromRGB(255,215,0)
-TextButton_2.BorderColor3 = Color3.fromRGB(0,0,0)
-TextButton_2.BorderSizePixel = 0
-TextButton_2.Position = UDim2.new(0.4.5, 0,0.539840639, 0)
-TextButton_2.Size = UDim2.new(0, 88,0, 30)
-TextButton_2.Font = Enum.Font.SourceSans
-TextButton_2.Text = "关闭"
-TextButton_2.TextSize = 19
-TextButton_2.MouseButton1Click:Connect(function()
-ScreenGui:Destroy()
-end)
+-- 关闭窗口函数
+local function closeUI()
+    uiElements.isOpen = false
+    print("\n窗口已关闭")
+end
+
+-- 渲染UI与交互
+local function renderUI()
+    -- 标题栏显示（右上角关闭按钮）
+    print("\n==========================")
+    print("      卡密验证系统      " .. uiElements.closeBtn.text)
+    print("==========================")
+    print("提示：加入QQ群1057766561获得卡密 | " .. uiElements.closeBtn.tip)
+    io.write("请输入卡密：")
+    local input = io.read()
+    
+    -- 检测关闭指令
+    if input == uiElements.closeBtn.text then
+        closeUI()
+        return
+    end
+    
+    -- 执行验证
+    local success, msg = verifyCard(input)
+    print("\n" .. msg)
+end
+
+-- 启动程序
+while uiElements.isOpen do
+    renderUI()
+end
