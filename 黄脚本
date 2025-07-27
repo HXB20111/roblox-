@@ -4,13 +4,14 @@ local success, err = pcall(function()
     OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/%E9%BB%84%E8%84%9A%E6%9C%ACUI.lua"))()
 end)
 if not success or not OrionLib then
-    warn("Orion库加载失败: ".. (err or "未知错误"))
+    warn("Orion库加载失败: " .. (err or "未知错误"))
     return
 end
 
 -- 服务与变量初始化
 local Lighting = game:GetService("Lighting")
-local player = game:GetService("Players").LocalPlayer
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer  -- 直接获取本地玩家
 
 -- 工具函数：创建圆角
 local function makeRound(obj, radius)
