@@ -7,132 +7,91 @@ if not success or not OrionLib then
     warn("Orion库加载失败: " .. (err or "未知错误"))
     return
 end
--- 新黄名单系统配置
-local StarterGui = game:GetService("StarterGui")
-local Players = game:GetService("Players")
-local WhitelistedPlayers = {
-    ["wujie997"] = true,
-    ["cn_bxf01"] = true,
-    ["aaaadjdat"] = true,
-    ["11451yuh"] = true,
-    ["yesnopvp5"] = true,
-    ["lzq261"] = true,
-    ["HXB201111"] = true,
-    ["123qwf658"] = true,
-    ["zaqxswedc71"] = true,
-    ["HPCEIAILUODIN"] = true,
-    ["qwaszx123667"] = true,
-    ["123456789wc91"] = true,
-    ["SYTAAYY9178"] = true,
-    ["wec524"] = true,
-    ["sjjsensnje"] = true,
-    ["years453"] = true,
-    ["qaz123456789qazjk"] = true,
-    ["91VIP11451411"] = true,
-    ["Kicking881"] = true,
-    ["131xne"] = true,
-    ["KSTWGF_1"] = true,
-    ["w64015"] = true,
-    ["BRDDAAC"] = true,
-    ["ggshsgg17"] = true,
-    ["3166cs"] = true,
-    ["sjwuxnshi"] = true,
-    ["QLI_183a"] = true,
-    ["Geburah_1"] = true,
-    ["78917891wc"] = true,
-    ["asxxxiod"] = true,
-    ["jioeud52"] = true,
-    ["zhb1523"] = true,
-    ["poiuytr10993"] = true,
-    ["789113t"] = true,
-    ["qvgg2"] = true,
-    ["aodiA62"] = true,
-    ["dddd363636"] = true,
-    ["wujie997"] = true,
-    ["Jemiloft"] = true,
-    ["ftft_425"] = true,
-    ["cn_54sB666"] = true,
-    ["djubddxhdn"] = true,
-    ["Yungengxin"] = true,
-    ["qaz123456789qazjj"] = true,
-    ["XiaoAn35"] = true,
-    ["plmnb3697"] = true,
-    ["HXB20111"] = true,
-    ["bgm9178"] = true,
-    ["fair_jiba"] = true,
-    ["kkobs3"] = true,
-    ["HGLHeLHGL"] = true,
-    ["Kdksjkdo"] = true,
-    ["AIPOPSCAT"] = true,
-    ["hwjwjaaj1818"] = true,
-    ["xgcjayzbfajgcjh"] = true,
-    ["AK74N_5"] = true,
-    ["sjhsnus"] = true,
-    ["Zero"] = true,
-    ["LuChuan7878"] = true,
-    ["fyfindskfj"] = true,
-    ["XM_HHM5201314"] = true,
-    ["haofengyyds"] = true,
-    ["guwei88"] = true,
-    ["clone58698"] = true,
-    ["tzx10998"] = true,
-    ["zzxkuyz"] = true,
-    ["Coolbyeqwq"] = true,
-    ["Camelliavvv"] = true,
-    ["woaichishi13"] = true,
-    ["makeqiq"] = true,
-    ["sp250113"] = true,
-    ["CN_Krnl"] = true,
-    ["FengY4"] = true,
-    ["PUBG5292"] = true,
-    ["wsho556"] = true,
-    ["Fezezen314"] = true,
-}
 
--- 黄名单检查函数
-local function IsWhitelisted(player)
-    return WhitelistedPlayers[player.Name] or false
-end
+-- 加载WindUI库
+local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
--- 本地玩家验证
-local localPlayer = Players.LocalPlayer
-local isLocalPlayerWhitelisted = IsWhitelisted(localPlayer)
-
--- 黄名单验证结果处理
-if isLocalPlayerWhitelisted then
-    pcall(function()  -- 包裹SetCore调用，避免因游戏限制导致报错
-        StarterGui:SetCore("SendNotification", {
-            Title = "黄名单认证",
-            Text = "玩家:" .. localPlayer.Name .. "，检测完毕黄名单玩家，稍后会加载脚本",
-            Duration = 7,
-        })
-    end)
-else
-    localPlayer:Kick("你没有被加入黄名单，请加群1057766561")
-    return  -- 非黄名单玩家直接退出，不加载后续内容
-end
-
--- 服务与变量初始化
-local Lighting = game:GetService("Lighting")
-local player = localPlayer  -- 已验证的本地玩家
-
--- 工具函数：创建圆角
-local function makeRound(obj, radius)
-    if obj and obj:IsA("GuiObject") then
-        local corner = Instance.new("UICorner")
-        corner.CornerRadius = radius or UDim.new(0.5, 0)
-        corner.Parent = obj
-    end
-end
-
--- 创建主窗口
-local Window = OrionLib:MakeWindow({
-    Name = "黄脚本",
-    SaveConfig = true,
-    IntroText = "黄脚本 - 功能加载完成",
-    Theme = "FlatBlue",
-    Icon = "rbxassetid://118894209472715"
+-- 添加WindUI欢迎弹窗
+WindUI:Popup({
+    Title = "欢迎使用黄脚本",
+    Icon = "rbxassetid://129260712070622",
+    IconThemed = true,
+    Content = "This is an Example UI for the " .. gradient("Hfh916", Color3.fromHex("#00FF87"), Color3.fromHex("#60EFFF")) .. " Lib",
+    Buttons = {
+        {
+            Title = "退出",
+            Callback = function() end,
+            Variant = "Secondary",
+        },
+        {
+            Title = "使用",
+            Icon = "arrow-right",
+            Callback = function() Confirmed = true end,
+            Variant = "Primary",
+        }
+    }
 })
+
+-- 等待用户确认
+repeat wait() until Confirmed
+
+-- 创建WindUI主窗口
+local Window = WindUI:CreateWindow({
+    Title = "Hfh916",
+    Icon = "rbxassetid://129260712070622",
+    IconThemed = true,
+    Author = "黄脚本",
+    Folder = "CloudHub",
+    Size = UDim2.fromOffset(580, 460),
+    Transparent = true,
+    Theme = "Dark",
+    User = {
+        Enabled = true,
+        Callback = function() print("clicked") end,
+        Anonymous = true
+    },
+    SideBarWidth = 200,
+    ScrollBarEnabled = true,
+    KeySystem = {
+        Key = { "Hfh916" },
+        Note = "Example Key System. \n\nThe Key is '请加入群聊获取卡密",
+        URL = "link-to-linkvertise-or-discord-or-idk",
+        SaveKey = true,
+    },
+})
+
+-- 添加顶部按钮
+Window:CreateTopbarButton("MyCustomButton1", "bird", function() print("clicked 1!") end, 990)
+Window:CreateTopbarButton("MyCustomButton3", "battery-plus", function() Window:ToggleFullscreen() end, 989)
+
+-- 编辑打开按钮样式
+Window:EditOpenButton({
+    Title = "黄脚本",
+    Icon = "monitor",
+    CornerRadius = UDim.new(0,16),
+    StrokeThickness = 2,
+    Color = ColorSequence.new(Color3.fromHex("FF0F7B"), Color3.fromHex("F89B29")),
+    Draggable = true,
+})
+
+local Tabs = {}
+
+do
+    -- 服务与变量初始化
+    local StarterGui = game:GetService("StarterGui")
+    local Players = game:GetService("Players")
+    local Lighting = game:GetService("Lighting")
+    local localPlayer = Players.LocalPlayer
+    local player = localPlayer
+
+    -- 工具函数：创建圆角
+    local function makeRound(obj, radius)
+        if obj and obj:IsA("GuiObject") then
+            local corner = Instance.new("UICorner")
+            corner.CornerRadius = radius or UDim.new(0.5, 0)
+            corner.Parent = obj
+        end
+    end
 
 -- 欢迎通知
 pcall(function()
