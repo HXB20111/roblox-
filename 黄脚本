@@ -1,40 +1,16 @@
 -- 加载OrionLib库
 local OrionLib
 local success, err = pcall(function()
-    OrionLib = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+    OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/%E9%BB%84%E8%84%9A%E6%9C%ACUI.lua"))()
 end)
 if not success or not OrionLib then
     warn("Orion库加载失败: ".. (err or "未知错误"))
     return
 end
 
--- 存储有效卡密的表
-local validKeys = {
-    ["Hfh916"] = true,
-}
-
-local player = game:GetService("Players").LocalPlayer
-local inputDialog = OrionLib:MakeInput({
-    Name = "请输入卡密",
-    Placeholder = "请加入群聊1057766561，获得卡密",
-    Callback = function(input)
-        if validKeys[input] then
-            pcall(function()
-                local StarterGui = game:GetService("StarterGui")
-                StarterGui:SetCore("SendNotification", {
-                    Title = "卡密验证",
-                    Text = "验证成功，脚本即将加载",
-                    Duration = 5
-                })
-            end)
-        else
-            player:Kick("验证失败，请加入群聊1057766561获得卡密")
-        end
-    end
-})
-
 -- 服务与变量初始化
 local Lighting = game:GetService("Lighting")
+local player = game:GetService("Players").LocalPlayer
 
 -- 工具函数：创建圆角
 local function makeRound(obj, radius)
