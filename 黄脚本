@@ -523,35 +523,35 @@ ScriptCenterTab:AddButton({
 ScriptCenterTab:AddButton({
     Name = "doors",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/harisiskandar178/Roblox-Script/main/Muscle%20Legend"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/-/refs/heads/main/doors.lua"))()
     end
 })
 
 ScriptCenterTab:AddButton({
     Name = "造船寻宝",
     Callback = function()
-        loadstring(game:HttpGet("https://pastebin.com/raw/Lyy77rnr",true))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/-/refs/heads/main/%E9%80%A0%E8%88%B9%E5%AF%BB%E5%AE%9D.lua",true))()
     end
 })
 
 ScriptCenterTab:AddButton({
     Name = "巴掌大战",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/harisiskandar178/Roblox-Script/main/Muscle%20Legend"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/-/refs/heads/main/%E5%B7%B4%E6%8E%8C%E5%A4%A7%E6%88%98.lua"))()
     end
 })
 
 ScriptCenterTab:AddButton({
     Name = "兵工厂",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/harisiskandar178/Roblox-Script/main/Muscle%20Legend"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/-/refs/heads/main/%E5%85%B5%E5%B7%A5%E5%8E%82.lua"))()
     end
 })
 
 ScriptCenterTab:AddButton({
     Name = "彩虹朋友",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/harisiskandar178/Roblox-Script/main/Muscle%20Legend"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/-/refs/heads/main/%E5%BD%A9%E8%99%B9%E6%9C%8B%E5%8F%8B.lua"))()
     end
 })
 
