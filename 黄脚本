@@ -1,105 +1,49 @@
-WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
-
-function gradient(text, startColor, endColor)
-    local result = ""
-    local length = #text
-
-    for i = 1, length do
-        local t = (i - 1) / math.max(length - 1, 1)
-        local r = math.floor((startColor.R + (endColor.R - startColor.R) * t) * 255)
-        local g = math.floor((startColor.G + (endColor.G - startColor.G) * t) * 255)
-        local b = math.floor((startColor.B + (endColor.B - startColor.B) * t) * 255)
-
-        local char = text:sub(i, i)
-        result = result .. "<font color=\"rgb(" .. r ..", " .. g .. ", " .. b .. ")\">" .. char .. "</font>"
-    end
-
-    return result
+-- 加载OrionLib库
+local OrionLib
+local success, err = pcall(function()
+    OrionLib = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+end)
+if not success or not OrionLib then
+    warn("Orion库加载失败: ".. (err or "未知错误"))
+    return
 end
 
-local Confirmed = false
+-- 存储有效卡密的表
+local validKeys = {
+    ["Hfh916"] = true,
+}
 
--- 添加WindUI欢迎弹窗
-WindUI:Popup({
-    Title = "欢迎使用黄脚本",
-    Icon = "rbxassetid://129260712070622",
-    IconThemed = true,
-    Content = "This is an Example UI for the " .. gradient("Hfh916", Color3.fromHex("#00FF87"), Color3.fromHex("#60EFFF")) .. " Lib",
-    Buttons = {
-        {
-            Title = "退出",
-            Callback = function() end,
-            Variant = "Secondary",
-        },
-        {
-            Title = "使用",
-            Icon = "arrow-right",
-            Callback = function() Confirmed = true end,
-            Variant = "Primary",
-        }
-    }
-})
-
--- 等待用户确认
-repeat wait() until Confirmed
-
--- 创建WindUI主窗口
-local Window = WindUI:CreateWindow({
-    Title = "Hfh916",
-    Icon = "rbxassetid://129260712070622",
-    IconThemed = true,
-    Author = "黄脚本",
-    Folder = "CloudHub",
-    Size = UDim2.fromOffset(580, 460),
-    Transparent = true,
-    Theme = "Dark",
-    User = {
-        Enabled = true,
-        Callback = function() print("clicked") end,
-        Anonymous = true
-    },
-    SideBarWidth = 200,
-    ScrollBarEnabled = true,
-    KeySystem = {
-        Key = { "Hfh916" },
-        Note = "Example Key System. \n\nThe Key is '请加入群聊获取卡密",
-        URL = "link-to-linkvertise-or-discord-or-idk",
-        SaveKey = true,
-    },
-})
-
--- 添加顶部按钮
-Window:CreateTopbarButton("MyCustomButton1", "bird", function() print("clicked 1!") end, 990)
-Window:CreateTopbarButton("MyCustomButton3", "battery-plus", function() Window:ToggleFullscreen() end, 989)
-
--- 编辑打开按钮样式
-Window:EditOpenButton({
-    Title = "黄脚本",
-    Icon = "monitor",
-    CornerRadius = UDim.new(0,16),
-    StrokeThickness = 2,
-    Color = ColorSequence.new(Color3.fromHex("FF0F7B"), Color3.fromHex("F89B29")),
-    Draggable = true,
-})
-
-local Tabs = {}
-
-do
-    -- 服务与变量初始化
-    local StarterGui = game:GetService("StarterGui")
-    local Players = game:GetService("Players")
-    local Lighting = game:GetService("Lighting")
-    local localPlayer = Players.LocalPlayer
-    local player = localPlayer
-
-    -- 工具函数：创建圆角
-    local function makeRound(obj, radius)
-        if obj and obj:IsA("GuiObject") then
-            local corner = Instance.new("UICorner")
-            corner.CornerRadius = radius or UDim.new(0.5, 0)
-            corner.Parent = obj
+local player = game:GetService("Players").LocalPlayer
+local inputDialog = OrionLib:MakeInput({
+    Name = "请输入卡密",
+    Placeholder = "请加入群聊1057766561，获得卡密",
+    Callback = function(input)
+        if validKeys[input] then
+            pcall(function()
+                local StarterGui = game:GetService("StarterGui")
+                StarterGui:SetCore("SendNotification", {
+                    Title = "卡密验证",
+                    Text = "验证成功，脚本即将加载",
+                    Duration = 5
+                })
+            end)
+        else
+            player:Kick("验证失败，请加入群聊1057766561获得卡密")
         end
     end
+})
+
+-- 服务与变量初始化
+local Lighting = game:GetService("Lighting")
+
+-- 工具函数：创建圆角
+local function makeRound(obj, radius)
+    if obj and obj:IsA("GuiObject") then
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = radius or UDim.new(0.5, 0)
+        corner.Parent = obj
+    end
+end
 
 -- 欢迎通知
 pcall(function()
