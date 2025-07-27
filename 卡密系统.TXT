@@ -1,11 +1,9 @@
-local ByWho = "◊˜’ﬂ≤ª÷™µ¿ µ´ «Õ≈∂” «HL"
- 
-local ScriptName = "›º--"
+local ScriptName = "ËèÅ--"
 local Key = "HYJBB"
 local QQ = "1051242470"
-local NoKey = "Ω¯»∫1051242470ªÒµ√ø®√‹"
+local NoKey = "ËøõÁæ§1051242470Ëé∑ÂæóÂç°ÂØÜ"
 function o()
--- Ω≈±æ:?loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/%E8%8F%81%E8%84%9A%E6%9C%AC.lua"))()
+-- ËÑöÊú¨:?loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/%E8%8F%81%E8%84%9A%E6%9C%AC.lua"))()
 
 end
 
@@ -36,7 +34,7 @@ TextLabel_1.BorderSizePixel = 0
 TextLabel_1.Position = UDim2.new(0.276892424, 0,0.0896414369, 0)
 TextLabel_1.Size = UDim2.new(0, 554,0, 29)
 TextLabel_1.Font = Enum.Font.SourceSans
-TextLabel_1.Text = ScriptName.."ø®√‹œµÕ≥"
+TextLabel_1.Text = ScriptName.."Âç°ÂØÜÁ≥ªÁªü"
 TextLabel_1.TextColor3 = Color3.fromRGB(215,219,255)
 TextLabel_1.TextSize = 30
 
@@ -50,7 +48,7 @@ TextBox_1.Position = UDim2.new(0.4741036, 0,0.334661365, 0)
 TextBox_1.Size = UDim2.new(0, 158,0, 41)
 TextBox_1.Font = Enum.Font.SourceSans
 TextBox_1.PlaceholderColor3 = Color3.fromRGB(178,178,178)
-TextBox_1.PlaceholderText = "«Î ‰»Îø®√‹"
+TextBox_1.PlaceholderText = "ËØ∑ËæìÂÖ•Âç°ÂØÜ"
 TextBox_1.Text = ""
 TextBox_1.TextSize = 14
 
@@ -61,7 +59,7 @@ TextLabel_2.BorderSizePixel = 0
 TextLabel_2.Position = UDim2.new(0.4741036, 0,0.416334659, 0)
 TextLabel_2.Size = UDim2.new(0, 158,0, 18)
 TextLabel_2.Font = Enum.Font.SourceSans
-TextLabel_2.Text = "º”»∫1051242470"
+TextLabel_2.Text = "Âä†Áæ§1051242470"
 TextLabel_2.TextSize = 15
 
 TextLabel_3.Parent = ScreenGui
@@ -85,7 +83,7 @@ TextButton_1.BorderSizePixel = 0
 TextButton_1.Position = UDim2.new(0.375497997, 0,0.539840639, 0)
 TextButton_1.Size = UDim2.new(0, 99,0, 37)
 TextButton_1.Font = Enum.Font.SourceSans
-TextButton_1.Text = "»∑»œ"
+TextButton_1.Text = "Á°ÆËÆ§"
 TextButton_1.TextSize = 20
 TextButton_1.MouseButton1Click:Connect(function()
 if TextBox_1.Text == Key then
@@ -104,7 +102,7 @@ TextButton_2.BorderSizePixel = 0
 TextButton_2.Position = UDim2.new(0.631474078, 0,0.539840639, 0)
 TextButton_2.Size = UDim2.new(0, 99,0, 37)
 TextButton_2.Font = Enum.Font.SourceSans
-TextButton_2.Text = "ÕÀ≥ˆ"
+TextButton_2.Text = "ÈÄÄÂá∫"
 TextButton_2.TextSize = 20
 TextButton_2.MouseButton1Click:Connect(function()
 ScreenGui:Destroy()
