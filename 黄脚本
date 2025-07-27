@@ -496,7 +496,7 @@ addRoundButton(ScriptCenterTab, {
         task.spawn(function()
             local success, err = pcall(function()
                 getgenv().FwngYu = "殺脚本 QQ群819104139"
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/FengYu-3/FengY4/refs/heads/main/shascript.lua"))()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/FengYu-3/FengYu/refs/heads/main/shascript.lua"))()
             end)
             if success then
                 OrionLib:MakeNotification({Name = "成功", Content = "刹🗡脚本加载完成", Time = 3})
