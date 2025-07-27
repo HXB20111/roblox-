@@ -114,19 +114,19 @@ local NotificationHolder = loadstring(game:HttpGet("https://raw.githubuserconten
  local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()
  wait(1) 
  Notification:Notify( 
-     {Title = "猫王", Description = "正在加载"}, 
+     {Title = "Hfh916", Description = "正在加载"}, 
      {OutlineColor = Color3.fromRGB(80, 80, 80),Time = 5, Type = "image"}, 
      {Image = "http://www.roblox.com/asset/?id=4483345998", ImageColor = Color3.fromRGB(255, 84, 84)} 
  ) 
  wait(2) 
  Notification:Notify( 
-     {Title = "猫王", Description = "准备好了！"}, 
+     {Title = "Hfh916", Description = "准备好了！"}, 
      {OutlineColor = Color3.fromRGB(80, 80, 80),Time = 5, Type = "image"}, 
      {Image = "http://www.roblox.com/asset/?id=4483345998", ImageColor = Color3.fromRGB(255, 84, 84)} 
  )
  wait(0.2)
  Notification:Notify( 
-     {Title = "猫王", Description = "支持作者猫王和小天"}, 
+     {Title = "Hfh916", Description = "支持者风御"}, 
      {OutlineColor = Color3.fromRGB(80, 80, 80),Time = 10, Type = "image"}, 
      {Image = "http://www.roblox.com/asset/?id=4483345998", ImageColor = Color3.fromRGB(255, 84, 84)} 
  )
