@@ -42,7 +42,6 @@ local function loadRemoteScript(url)
     return loadFunc
 end
 
--- 玩家功能 Tab（原 Tab）
 local Tab = Window:MakeTab({
     Name = "玩家功能",
     Icon = "rbxassetid://4483345998",
@@ -429,193 +428,138 @@ InkGameTab:AddButton({
 })
 
 local ScriptCenterTab = Window:MakeTab({
-     Name = "其他脚本", 
-     Icon = "rbxassetid://4483345998"})
+    Name = "其他脚本",
+    Icon = "rbxassetid://4483345998"
+})
 
-addRoundButton(ScriptCenterTab, {
+OrionLib:AddButton(ScriptCenterTab, {
     Name = "加载皮脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载...", Time = 3})
         task.spawn(function()
-            local success, err = pcall(function()
-                getgenv().XiaoPi = "皮脚本QQ群1002100032"
-                local loadFunc = loadRemoteScript("https://raw.githubusercontent.com/xiaopi77/xiaopi77/main/QQ1002100032-Roblox-Pi-script.lua")
-                if loadFunc then
-                    local executeSuccess, executeResult = pcall(loadFunc)
-                    if executeSuccess then
-                        OrionLib:MakeNotification({Name = "成功", Content = "加载完成", Time = 3})
-                    else
-                        OrionLib:MakeNotification({Name = "失败", Content = "错误: ".. tostring(executeResult), Time = 3})
-                    end
-                end
-            end)
+            getgenv().XiaoPi = "皮脚本QQ群1002100032"
+            loadRemoteScript("https://raw.githubusercontent.com/xiaopi77/xiaopi77/main/QQ1002100032 - Roblox - Pi - script.lua",
+                             "皮脚本加载完成",
+                             "皮脚本加载失败")
         end)
     end,
     Color = Color3.fromRGB(123, 104, 238)
 })
 
-addRoundButton(ScriptCenterTab, {
+OrionLib:AddButton(ScriptCenterTab, {
     Name = "安脚本",
     Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载安客脚本...", Time = 3})
+        OrionLib:MakeNotification({Name = "提示", Content = "正在加载安脚本...", Time = 3})
         task.spawn(function()
-            local success, err = pcall(function()
-                local loadFunc = loadRemoteScript('https://raw.githubusercontent.com/wucan114514/gegeyxjb/refs/heads/main/%E5%AE%89%E8%84%9A%E6%9C%AC.lua')
-                if loadFunc then
-                    local executeSuccess, executeResult = pcall(loadFunc)
-                    if executeSuccess then
-                        OrionLib:MakeNotification({Name = "成功", Content = "安脚本加载完成", Time = 3})
-                    else
-                        OrionLib:MakeNotification({Name = "失败", Content = "错误: ".. tostring(executeResult), Time = 3})
-                    end
-                end
-            end)
+            loadRemoteScript('https://raw.githubusercontent.com/wucan114514/gegeyxjb/refs/heads/main/%E5%AE%89%E8%84%9A%E6%9C%AC.lua',
+                             "安脚本加载完成",
+                             "安脚本加载失败")
         end)
     end,
     Color = Color3.fromRGB(255, 99, 71)
 })
 
-addRoundButton(ScriptCenterTab, {
+OrionLib:AddButton(ScriptCenterTab, {
     Name = "落叶脚本",
-   Callback = function()
+    Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载落叶脚本...", Time = 3})
         task.spawn(function()
-            local success, err = pcall(function()
-                getgenv().LS = "落叶脚本"
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/krlpl/Deciduous-center-LS/main/%E8%90%BD%E5%8F%B6%E4%B8%AD%E5%BF%83%E6%B7%B7%E6%B7%86.txt"))()
-            end)
-            if success then
-                OrionLib:MakeNotification({Name = "成功", Content = "落叶脚本加载完成", Time = 3})
-            else
-                OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
-            end
+            getgenv().LS = "落叶脚本"
+            loadRemoteScript("https://raw.githubusercontent.com/krlpl/Deciduous - center - LS/main/%E8%90%BD%E5%8F%B6%E4%B8%AD%E5%BF%83%E6%B7%B7%E6%B7%86.txt",
+                             "落叶脚本加载完成",
+                             "落叶脚本加载失败")
         end)
     end,
     Color = Color3.fromRGB(139, 69, 19)
 })
 
-addRoundButton(ScriptCenterTab, {
+OrionLib:AddButton(ScriptCenterTab, {
     Name = "霖溺脚本",
     Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载霖溺-免费版加载器...", Time = 3})
+        OrionLib:MakeNotification({Name = "提示", Content = "正在加载霖溺 - 免费版加载器...", Time = 3})
         task.spawn(function()
-            local success, err = pcall(function()
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/ShenJiaoBen/ScriptLoader/refs/heads/main/Linni_FreeLoader.lua"))()
-            end)
-            if success then
-                OrionLib:MakeNotification({Name = "成功", Content = "霖溺-免费版加载器加载完成", Time = 3})
-            else
-                OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
-            end
+            loadRemoteScript("https://raw.githubusercontent.com/ShenJiaoBen/ScriptLoader/refs/heads/main/Linni_FreeLoader.lua",
+                             "霖溺 - 免费版加载器加载完成",
+                             "霖溺 - 免费版加载器加载失败")
         end)
     end,
     Color = Color3.fromRGB(70, 200, 200)
 })
 
-addRoundButton(ScriptCenterTab, {
+OrionLib:AddButton(ScriptCenterTab, {
     Name = "叶脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载叶脚本...", Time = 3})
         task.spawn(function()
-            local success, err = pcall(function()
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/roblox-ye/QQ515966991/refs/heads/main/ROBLOX-CNVIP-XIAOYE.lua"))()
-            end)
-            if success then
-                OrionLib:MakeNotification({Name = "成功", Content = "叶脚本加载完成", Time = 3})
-            else
-                OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
-            end
+            loadRemoteScript("https://raw.githubusercontent.com/roblox - ye/QQ515966991/refs/heads/main/ROBLOX - CNVIP - XIAOYE.lua",
+                             "叶脚本加载完成",
+                             "叶脚本加载失败")
         end)
     end,
     Color = Color3.fromRGB(123, 200, 91)
 })
 
-addRoundButton(ScriptCenterTab, {
+OrionLib:AddButton(ScriptCenterTab, {
     Name = "刹脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载刹脚本...", Time = 3})
         task.spawn(function()
-            local success, err = pcall(function()
-                SHA_SCRIPT = "殺脚本"
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/FengYu-3/FengYu/refs/heads/main/shascript.lua"))()
-            end)
-            if success then
-                OrionLib:MakeNotification({Name = "成功", Content = "刹脚本加载完成", Time = 3})
-            else
-                OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
-            end
+            SHA_SCRIPT = "殺脚本"
+            loadRemoteScript("https://raw.githubusercontent.com/FengYu - 3/FengYu/refs/heads/main/shascript.lua",
+                             "刹脚本加载完成",
+                             "刹脚本加载失败")
         end)
     end,
     Color = Color3.fromRGB(200, 70, 70)
 })
 
-addRoundButton(ScriptCenterTab, {
+OrionLib:AddButton(ScriptCenterTab, {
     Name = "泷脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载泷脚本...", Time = 3})
         task.spawn(function()
-            local success, err = pcall(function()
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/2012long/long/refs/heads/main/%E6%B3%B7%E6%AD%BB%E9%93%81.lua",true))()
-            end)
-            if success then
-                OrionLib:MakeNotification({Name = "成功", Content = "泷脚本加载完成", Time = 3})
-            else
-                OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
-            end
+            loadRemoteScript("https://raw.githubusercontent.com/2012long/long/refs/heads/main/%E6%B3%B7%E6%AD%BB%E9%93%81.lua",
+                             "泷脚本加载完成",
+                             "泷脚本加载失败")
         end)
     end,
     Color = Color3.fromRGB(105, 105, 105)
 })
 
-addRoundButton(ScriptCenterTab, {
+OrionLib:AddButton(ScriptCenterTab, {
     Name = "汉化脚本--卡密:",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载汉化脚本...", Time = 3})
         task.spawn(function()
-            local success, err = pcall(function()
-                loadstring(game:HttpGet('https://raw.githubusercontent.com/S-WTB/-/refs/heads/main/ISIS加载器'))()
-            end)
-            if success then
-                OrionLib:MakeNotification({Name = "成功", Content = "汉化脚本加载完成", Time = 3})
-            else
-                OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
-            end
+            loadRemoteScript('https://raw.githubusercontent.com/S - WTB/-/refs/heads/main/ISIS加载器',
+                             "汉化脚本加载完成",
+                             "汉化脚本加载失败")
         end)
     end,
     Color = Color3.fromRGB(255, 78, 91)
 })
 
-addRoundButton(ScriptCenterTab, {
+OrionLib:AddButton(ScriptCenterTab, {
     Name = "RB脚本",
     Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载KG脚本...", Time = 3})
+        OrionLib:MakeNotification({Name = "提示", Content = "正在加载RB脚本...", Time = 3})
         task.spawn(function()
-            local success, err = pcall(function()
-               loadstring(game:HttpGet("https://raw.githubusercontent.com/Yungengxin/roblox/refs/heads/main/Rb-Hub"))()
-            end)
-            if success then
-                OrionLib:MakeNotification({Name = "成功", Content = "RB脚本加载完成", Time = 3})
-            else
-                OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
-            end
+            loadRemoteScript("https://raw.githubusercontent.com/Yungengxin/roblox/refs/heads/main/Rb - Hub",
+                             "RB脚本加载完成",
+                             "RB脚本加载失败")
         end)
     end,
     Color = Color3.fromRGB(255, 78, 91)
 })
 
-addRoundButton(ScriptCenterTab, {
+OrionLib:AddButton(ScriptCenterTab, {
     Name = "TX脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载TX脚本...", Time = 3})
         task.spawn(function()
-            local success, err = pcall(function()
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/JsYb666/TX-Free-YYDS/refs/heads/main/FREE-TX-TEAM"))()
-            end)
-            if success then
-                OrionLib:MakeNotification({Name = "成功", Content = "TX脚本加载完成", Time = 3})
-            else
-                OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
-            end
+            loadRemoteScript("https://raw.githubusercontent.com/JsYb666/TX - Free - YYDS/refs/heads/main/FREE - TX - TEAM",
+                             "TX脚本加载完成",
+                             "TX脚本加载失败")
         end)
     end,
     Color = Color3.fromRGB(255, 91, 78)
