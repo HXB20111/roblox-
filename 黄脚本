@@ -307,6 +307,18 @@ Tab:AddButton({
     end
 })
 
+Tab:AddButton({
+    Name = "关闭透视",
+    Callback = function()
+        for _, plr in pairs(game:GetService("Players"):GetPlayers()) do
+            if plr.Character then
+                local h = plr.Character:FindFirstChild("StyledHighlight")
+                if h then h:Destroy() end
+            end
+        end
+    end
+})
+
 -- 作者信息
 local AuthorTab = Window:MakeTab({
     Name = "作者信息",
