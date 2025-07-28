@@ -462,7 +462,7 @@ addScriptButton(ScriptCenterTab,
     "https://raw.githubusercontent.com/Yungengxin/roblox/refs/heads/main/Rb-Hub",
     "RB脚本加载成功",
     "RB脚本加载失败",
-    Color3.fromRGB(255, 78, 91)
+    Color3.fromRGB(245, 70, 90)
 )
 
 addScriptButton(ScriptCenterTab,
