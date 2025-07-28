@@ -1,121 +1,142 @@
-local OrionLib =loadstring(game:HttpGet("https://pastebin.com/raw/FUEx0f3G"))()
-local LBLG = Instance.new("ScreenGui", getParent)
-local LBL = Instance.new("TextLabel", getParent)
-local player = game.Players.LocalPlayer
-
-LBLG.Name = "LBLG"
-LBLG.Parent = game.CoreGui
-LBLG.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-LBLG.Enabled = true
-LBL.Name = "LBL"
-LBL.Parent = LBLG
-LBL.BackgroundColor3 = Color3.new(1, 1, 1)
-LBL.BackgroundTransparency = 1
-LBL.BorderColor3 = Color3.new(0, 0, 0)
-LBL.Position = UDim2.new(0.75,0,0.010,0)
-LBL.Size = UDim2.new(0, 133, 0, 30)
-LBL.Font = Enum.Font.GothamSemibold
-LBL.Text = "TextLabel"
-LBL.TextColor3 = Color3.new(1, 1, 1)
-LBL.TextScaled = true
-LBL.TextSize = 14
-LBL.TextWrapped = true
-LBL.Visible = true
-
-local FpsLabel = LBL
-local Heartbeat = game:GetService("RunService").Heartbeat
-local LastIteration, Start
-local FrameUpdateTable = { }
-
-local function HeartbeatUpdate()
-	LastIteration = tick()
-	for Index = #FrameUpdateTable, 1, -1 do
-		FrameUpdateTable[Index + 1] = (FrameUpdateTable[Index] >= LastIteration - 1) and FrameUpdateTable[Index] or nil
-	end
-	FrameUpdateTable[1] = LastIteration
-	local CurrentFPS = (tick() - Start >= 1 and #FrameUpdateTable) or (#FrameUpdateTable / (tick() - Start))
-	CurrentFPS = CurrentFPS - CurrentFPS % 1
-	FpsLabel.Text = ("北京时间:"..os.date("%H").."时"..os.date("%M").."分"..os.date("%S"))
+-- 加载OrionLib库
+local OrionLib
+local success, err = pcall(function()
+    OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/%E9%BB%84%E8%84%9A%E6%9C%ACUI.lua"))()
+end)
+if not success or not OrionLib then
+    warn("Orion库加载失败: " .. (err or "未知错误"))
+    return
 end
-Start = tick()
-Heartbeat:Connect(HeartbeatUpdate)
-local Window = OrionLib:MakeWindow({Name = "菁脚本", HidePremium = false, SaveConfig = true,IntroText = "菁脚本", ConfigFolder = "菁脚本"})
+-- 新黄名单系统配置
+local StarterGui = game:GetService("StarterGui")
+local Players = game:GetService("Players")
+local WhitelistedPlayers = {
+    ["HXB20111"] = true,
+}
 
-game:GetService("StarterGui"):SetCore("SendNotification",{ Title = "菁脚本"; Text ="欢迎使用菁脚本"; Duration = 4; })
+-- 黄名单检查函数
+local function IsWhitelisted(player)
+    return WhitelistedPlayers[player.Name] or false
+end
 
-local about = Window:MakeTab({
-    Name = "作者信息",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
+-- 本地玩家验证
+local localPlayer = Players.LocalPlayer
+local isLocalPlayerWhitelisted = IsWhitelisted(localPlayer)
 
+-- 黄名单验证结果处理
+if isLocalPlayerWhitelisted then
+    pcall(function()  -- 包裹SetCore调用，避免因游戏限制导致报错
+        StarterGui:SetCore("SendNotification", {
+            Title = "黄名单认证",
+            Text = "玩家:" .. localPlayer.Name .. "，检测完毕黄名单玩家，稍后会加载脚本",
+            Duration = 7,
+        })
+    end)
+else
+    localPlayer:Kick("你没有被加入黄名单，请加群1057766561")
+    return  -- 非黄名单玩家直接退出，不加载后续内容
+end
+
+-- 服务与变量初始化
+local Lighting = game:GetService("Lighting")
+local player = localPlayer  -- 已验证的本地玩家
+
+-- 工具函数：创建圆角
+local function makeRound(obj, radius)
+    if obj and obj:IsA("GuiObject") then
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = radius or UDim.new(0.5, 0)
+        corner.Parent = obj
+    end
+end
+
+-- 创建主窗口
+local Window = OrionLib:MakeWindow({
+    Name = "黄脚本",
+    SaveConfig = true,
+    IntroText = "黄脚本 - 功能加载完成",
+    Theme = "FlatBlue",
+    Icon = "rbxassetid://118894209472715"
 })
 
-about:AddParagraph("作者: Hfh916")
-about:AddParagraph("作者qq: 1357377308")
-about:AddParagraph("qq群: 没有")
+-- 欢迎通知
+pcall(function()
+    StarterGui:SetCore("SendNotification", {
+        Title = "黄脚本",
+        Text = "欢迎使用，功能已就绪",
+        Duration = 4,
+        Icon = "rbxassetid://118894209472715"
+    })
+end)
 
-local about = Window:MakeTab({
-    Name = "玩家信息",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
+-- 作者信息标签页
+local AuthorTab = Window:MakeTab({Name = "作者信息", Icon = "rbxassetid://4483345998"})
+AuthorTab:AddParagraph("作者", "Hfh916")
+AuthorTab:AddParagraph("作者QQ", "1357377308")
+AuthorTab:AddParagraph("QQ群", "543121803")
+AuthorTab:AddParagraph("副作者", "风御 X")
 
+-- 圆形按钮生成器
+local function addRoundButton(tab, config)
+    local btn = tab:AddButton(config)
+    if btn.Instance and btn.Instance:IsA("GuiButton") then
+        btn.Instance.Size = UDim2.new(0, 120, 0, 36)
+        makeRound(btn.Instance)
+        
+        local hover = Instance.new("UIScale")
+        hover.Scale = 1
+        hover.Parent = btn.Instance
+        
+        local enterConn = btn.Instance.MouseEnter:Connect(function() hover.Scale = 1.05 end)
+        local leaveConn = btn.Instance.MouseLeave:Connect(function() hover.Scale = 1 end)
+        
+        btn.Instance.AncestryChanged:Connect(function(_, parent)
+            if not parent then
+                enterConn:Disconnect()
+                leaveConn:Disconnect()
+            end
+        end)
+    end
+    return btn
+end
+
+-- 作者信息页按钮
+addRoundButton(AuthorTab, {
+    Name = "复制作者QQ",
+    Callback = function()
+        if setclipboard then
+            setclipboard("1357377308")
+            OrionLib:MakeNotification({Name = "成功", Content = "QQ已复制", Time = 2})
+        end
+    end,
+    Color = Color3.fromRGB(70, 130, 255)
 })
 
-about:AddParagraph("您的用户名:"," "..game.Players.LocalPlayer.Name.."")
-about:AddParagraph("您的注入器:"," "..identifyexecutor().."")
-about:AddParagraph("您当前服务器的ID"," "..game.GameId.."")
-
-local Tab =Window:MakeTab({
-
-	Name = "复制作者信息",
-
-	Icon = "rbxassetid://4483345998",
-
-	PremiumOnly = false
-
+addRoundButton(AuthorTab, {
+    Name = "复制QQ群",
+    Callback = function()
+        if setclipboard then
+            setclipboard("543121803")
+            OrionLib:MakeNotification({Name = "成功", Content = "QQ群已复制", Time = 2})
+        end
+    end,
+    Color = Color3.fromRGB(100, 200, 100)
 })
 
-Tab:AddButton({
+-- 玩家信息标签页
+local PlayerTab = Window:MakeTab({Name = "玩家信息", Icon = "rbxassetid://4483345998"})
+local executorName = "未知"
+pcall(function() executorName = identifyexecutor() or "未知" end)
 
-	Name = "复制作者QQ",
+PlayerTab:AddParagraph("用户名", player.Name)
+PlayerTab:AddParagraph("用户ID", tostring(player.UserId))
+PlayerTab:AddParagraph("注入器", executorName)
+PlayerTab:AddParagraph("服务器ID", tostring(game.GameId))
+-- 显示当前玩家白名单状态
+PlayerTab:AddParagraph("白名单状态", isLocalPlayerWhitelisted and "已授权" or "未授权")
 
-	Callback = function()
-
-     setclipboard("1357377308")
-
-  	end
-
-})
-
-Tab:AddButton({
-
-	Name = "复制QQ群",
-
-	Callback = function()
-
-     setclipboard("没有")
-
-  	end
-
-})
-
-OrionLib:MakeNotification({
-	Name = "菁脚本",
-	Content = "欢迎使用菁脚本",
-	Image = "rbxassetid://4483345998",
-	Time = 2
-
-})
-
-local Tab = Window:MakeTab({
-
-    Name = "通用",
-
-    Icon = "rbxassetid://4483345998",
-
-    PremiumOnly = false
-
-})
+-- 玩家功能标签页（含飞行功能）
+local FunctionTab = Window:MakeTab({Name = "玩家功能", Icon = "rbxassetid://4483345998"})
 
 -- 文本框配置函数
 local function addSettingTextbox(tab, config)
@@ -135,7 +156,7 @@ local function addSettingTextbox(tab, config)
 end
 
 -- 移动设置
-Tab:AddButton({
+addSettingTextbox(FunctionTab, {
     Name = "跳跃高度",
     Callback = function(num)
         if not player.Character then
@@ -150,8 +171,7 @@ Tab:AddButton({
     end
 })
 
-
-Tab:AddButton({
+addSettingTextbox(FunctionTab, {
     Name = "移动速度",
     Callback = function(num)
         if not player.Character then
@@ -245,7 +265,7 @@ addRoundButton(FunctionTab, {
 })
 
 -- 夜视模式
-Tab:AddButton({
+FunctionTab:AddToggle({
     Name = "夜视模式",
     Default = false,
     Callback = function(enabled)
@@ -259,7 +279,7 @@ Tab:AddButton({
 local Clipon = false
 local Stepped
 
-Tab:AddButton({
+FunctionTab:AddToggle({
     Name = "穿墙模式",
     Default = false,
     Callback = function(enabled)
@@ -306,7 +326,7 @@ Tab:AddButton({
 })
 
 -- 透视功能
-Tab:AddButton({
+FunctionTab:AddToggle({
     Name = "透视",
     Default = false,
     Callback = function(enabled)
@@ -327,7 +347,7 @@ Tab:AddButton({
 })
 
 -- 旋转速度调节
-Tab:AddButton({
+addSettingTextbox(FunctionTab, {
     Name = "旋转速度",
     Placeholder = "输入旋转速度值",
     Callback = function(Value)
@@ -366,7 +386,7 @@ Tab:AddButton({
 })
 
 -- 停止旋转按钮
-Tab:AddButton({
+addRoundButton(FunctionTab, {
     Name = "停止旋转",
     Callback = function()
         local plr = game:GetService("Players").LocalPlayer
@@ -395,10 +415,36 @@ Tab:AddButton({
     Color = Color3.fromRGB(255, 99, 71)
 })
 
-local Tab = Window:MakeTab({Name = "其他脚本", Icon = "rbxassetid://4483345998"})
+ScriptCenterTab:AddButton({
+    Name = "自瞄",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/AZYsGithub/chillz-workshop/main/Arceus%20Aimbot.lua"))()
+    end
+})
 
-Tab:AddButton({
-    Name = "皮脚本",
+local ScriptCenterTab = Window:MakeTab({
+    Name = "开发者",
+    Icon = "rbxassetid://4483345998"})
+
+ScriptCenterTab:AddButton({
+    Name = "IY",
+    Callback = function()
+        loadstring(game:HttpGet(('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'),true))()
+    end
+})
+
+ScriptCenterTab:AddButton({
+    Name = "dex",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Focuslol666/RbxScripts/refs/heads/main/Other/DexPlusPlus%20(ZH-CN).lua"))()
+    end
+})
+
+
+local ScriptCenterTab = Window:MakeTab({Name = "其他脚本", Icon = "rbxassetid://4483345998"})
+
+addRoundButton(ScriptCenterTab, {
+    Name = "加载皮脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载...", Time = 3})
         task.spawn(function()
@@ -416,17 +462,16 @@ Tab:AddButton({
     Color = Color3.fromRGB(123, 104, 238)
 })
 
--- AL中心
-Tab:AddButton({
-    Name = "大司马脚本",
+addRoundButton(ScriptCenterTab, {
+    Name = "安脚本",
     Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载大司马脚本...", Time = 3})
+        OrionLib:MakeNotification({Name = "提示", Content = "正在加载安客脚本...", Time = 3})
         task.spawn(function()
             local success, err = pcall(function()
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/whenheer/gfop/refs/heads/main/Protected_4687541665942703.lua"))()
+                loadstring(game:HttpGet(('https://raw.githubusercontent.com/wucan114514/gegeyxjb/refs/heads/main/%E5%AE%89%E8%84%9A%E6%9C%AC.lua')))()
             end)
             if success then
-                OrionLib:MakeNotification({Name = "成功", Content = "大司马脚本加载完成", Time = 3})
+                OrionLib:MakeNotification({Name = "成功", Content = "安脚本加载完成", Time = 3})
             else
                 OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
             end
@@ -435,7 +480,7 @@ Tab:AddButton({
     Color = Color3.fromRGB(255, 99, 71)
 })
 
-Tab:AddButton({
+addRoundButton(ScriptCenterTab, {
     Name = "落叶脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载落叶脚本...", Time = 3})
@@ -454,7 +499,7 @@ Tab:AddButton({
     Color = Color3.fromRGB(139, 69, 19)
 })
 
-Tab:AddButton({
+addRoundButton(ScriptCenterTab, {
     Name = "霖溺脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载霖溺-免费版加载器...", Time = 3})
@@ -472,8 +517,7 @@ Tab:AddButton({
     Color = Color3.fromRGB(70, 200, 200)
 })
 
--- 叶脚本
-Tab:AddButton({
+addRoundButton(ScriptCenterTab, {
     Name = "叶脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载叶脚本...", Time = 3})
@@ -491,8 +535,7 @@ Tab:AddButton({
     Color = Color3.fromRGB(123, 200, 91)
 })
 
--- 刹脚本
-Tab:AddButton({
+addRoundButton(ScriptCenterTab, {
     Name = "刹脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载刹脚本...", Time = 3})
@@ -511,17 +554,16 @@ Tab:AddButton({
     Color = Color3.fromRGB(200, 70, 70)
 })
 
--- xk脚本
-Tab:AddButton({
-    Name = "RB脚本",
+addRoundButton(ScriptCenterTab, {
+    Name = "xk脚本",
     Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载RB脚本...", Time = 3})
+        OrionLib:MakeNotification({Name = "提示", Content = "正在加载xk脚本...", Time = 3})
         task.spawn(function()
             local success, err = pcall(function()
-                ﻿loadstring(game:HttpGet("https://raw.githubusercontent.com/Yungengxin/roblox/refs/heads/main/Rb-Hub"))()
+                loadstring("\108\111\97\100\115\116\114\105\110\103\40\103\97\109\101\58\72\116\116\112\71\101\116\40\34\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\66\73\78\106\105\97\111\98\122\120\54\47\66\73\78\106\105\97\111\47\109\97\105\110\47\88\75\46\84\88\84\34\41\41\40\41\10")()
             end)
             if success then
-                OrionLib:MakeNotification({Name = "成功", Content = "RB脚本加载完成", Time = 3})
+                OrionLib:MakeNotification({Name = "成功", Content = "xk脚本加载完成", Time = 3})
             else
                 OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
             end
@@ -530,8 +572,8 @@ Tab:AddButton({
     Color = Color3.fromRGB(105, 105, 105)
 })
 
-Tab:AddButton({
-    Name = "汉化脚本",
+addRoundButton(ScriptCenterTab, {
+    Name = "汉化脚本--卡密:",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载汉化脚本...", Time = 3})
         task.spawn(function()
@@ -548,16 +590,16 @@ Tab:AddButton({
     Color = Color3.fromRGB(255, 78, 91)
 })
 
-Tab:AddButton({
-    Name = "泷脚本",
+addRoundButton(ScriptCenterTab, {
+    Name = "RB脚本",
     Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载泷脚本...", Time = 3})
+        OrionLib:MakeNotification({Name = "提示", Content = "正在加载KG脚本...", Time = 3})
         task.spawn(function()
             local success, err = pcall(function()
-                loadstring(game:HttpGet("https://tika-team.xyz/authorization-protection/tika-script/index",true))()
+                ﻿loadstring(game:HttpGet("https://raw.githubusercontent.com/Yungengxin/roblox/refs/heads/main/Rb-Hub"))()
             end)
             if success then
-                OrionLib:MakeNotification({Name = "成功", Content = "泷脚本加载完成", Time = 3})
+                OrionLib:MakeNotification({Name = "成功", Content = "RB脚本加载完成", Time = 3})
             else
                 OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
             end
@@ -566,7 +608,7 @@ Tab:AddButton({
     Color = Color3.fromRGB(255, 78, 91)
 })
 
-Tab:AddButton({
+addRoundButton(ScriptCenterTab, {
     Name = "TX脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载TX脚本...", Time = 3})
