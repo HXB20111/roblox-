@@ -164,7 +164,8 @@ Tab:AddToggle({
     Color = Color3.fromRGB(100, 149, 237)
 })
 
-Tab:AddToggle({
+-- 旋转速度设置
+Tab:AddTextbox({
     Name = "旋转速度",
     Placeholder = "输入旋转速度值",
     Callback = function(Value)
@@ -183,6 +184,7 @@ Tab:AddToggle({
         local humanoid = plr.Character:WaitForChild("Humanoid")
         humanoid.AutoRotate = false
 
+        local spinVelocity = humRoot:FindFirstChild("Spinbot")
         if not spinVelocity then
             spinVelocity = Instance.new("AngularVelocity")
             spinVelocity.Attachment0 = humRoot:WaitForChild("RootAttachment")
@@ -203,7 +205,7 @@ Tab:AddToggle({
 })
 
 -- 停止旋转按钮
-Tab:AddToggle({
+Tab:AddButton({
     Name = "停止旋转",
     Callback = function()
         local plr = game:GetService("Players").LocalPlayer
@@ -214,7 +216,6 @@ Tab:AddToggle({
         local spinbot = humRoot:FindFirstChild("Spinbot")
         if spinbot then
             spinbot:Destroy()
-            spinVelocity = nil
             humanoid.AutoRotate = true
             OrionLib:MakeNotification({
                 Name = "已停止",
