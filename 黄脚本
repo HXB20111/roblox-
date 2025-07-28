@@ -17,8 +17,8 @@ pcall(function()
     })
 end)
 
--- 辅助函数：处理脚本加载
-local function loadRemoteScript(url)
+-- 辅助函数：处理脚本加载（包含完整错误处理和成功提示）
+local function loadRemoteScript(url, successMsg, failMsg)
     local success, httpResult = pcall(game.HttpGet, game, url)
     if not success then
         OrionLib:MakeNotification({
@@ -27,7 +27,7 @@ local function loadRemoteScript(url)
             Time = 3
         })
         warn("脚本网络请求失败: ".. tostring(httpResult))
-        return nil
+        return
     end
     local loadSuccess, loadFunc = pcall(loadstring, httpResult)
     if not loadSuccess then
@@ -37,17 +37,33 @@ local function loadRemoteScript(url)
             Time = 3
         })
         warn("脚本加载失败: ".. tostring(loadFunc))
-        return nil
+        return
     end
-    return loadFunc
+    local executeSuccess, executeResult = pcall(loadFunc)
+    if not executeSuccess then
+        OrionLib:MakeNotification({
+            Name = "加载失败",
+            Content = "脚本执行失败: ".. tostring(executeResult),
+            Time = 3
+        })
+        warn("脚本执行失败: ".. tostring(executeResult))
+        return
+    end
+    OrionLib:MakeNotification({
+        Name = "加载成功",
+        Content = successMsg,
+        Time = 3
+    })
 end
 
+-- 玩家功能 Tab
 local Tab = Window:MakeTab({
     Name = "玩家功能",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
+-- 基础属性设置
 Tab:AddTextbox({
     Name = "跳跃高度",
     Default = "",
@@ -84,6 +100,7 @@ Tab:AddTextbox({
     end
 })
 
+-- 视觉增强功能
 Tab:AddToggle({
     Name = "夜视",
     Default = false,
@@ -97,26 +114,16 @@ Tab:AddToggle({
     Default = false,
     Callback = function(Value)
         if Value then
-            local loadFunc = loadRemoteScript("https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/%E9%BB%84%E9%A3%9E%E8%A1%8C")
-            if loadFunc then
-                local executeSuccess, executeResult = pcall(loadFunc)
-                if not executeSuccess then
-                    OrionLib:MakeNotification({
-                        Name = "飞行功能失败",
-                        Content = "脚本执行失败: ".. tostring(executeResult),
-                        Time = 3
-                    })
-                    warn("飞行功能脚本执行失败: ".. tostring(executeResult))
-                end
-            end
+            loadRemoteScript("https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/%E9%BB%84%E9%A3%9E%E8%A1%8C",
+                            "飞行功能已启用",
+                            "飞行功能加载失败")
         end
     end
 })
 
--- 穿墙模式
+-- 物理操控功能
 local Clipon = false
 local Stepped
-local spinVelocity
 
 Tab:AddToggle({
     Name = "穿墙",
@@ -126,18 +133,12 @@ Tab:AddToggle({
         local Workspace = game:GetService("Workspace")
         local Players = game:GetService("Players")
 
-        -- 断开已有连接
-        if Stepped then
-            Stepped:Disconnect()
-        end
-
         if enabled then
-            -- 开启穿墙：禁用角色碰撞
             Stepped = game:GetService("RunService").Stepped:Connect(function()
                 if Clipon then
-                    local playerChar = Workspace:FindFirstChild(Players.LocalPlayer.Name)
-                    if playerChar then
-                        for _, part in pairs(playerChar:GetChildren()) do
+                    local char = Players.LocalPlayer.Character
+                    if char then
+                        for _, part in pairs(char:GetDescendants()) do
                             if part:IsA("BasePart") then
                                 part.CanCollide = false
                             end
@@ -147,85 +148,86 @@ Tab:AddToggle({
                     Stepped:Disconnect()
                 end
             end)
-            OrionLib:MakeNotification({Name = "成功", Content = "穿墙模式已开启", Time = 2})
+            OrionLib:MakeNotification({Name = "状态", Content = "穿墙已开启", Time = 2})
         else
-            -- 关闭穿墙：恢复碰撞
-            local playerChar = Workspace:FindFirstChild(Players.LocalPlayer.Name)
-            if playerChar then
-                for _, part in pairs(playerChar:GetChildren()) do
+            local char = Players.LocalPlayer.Character
+            if char then
+                for _, part in pairs(char:GetDescendants()) do
                     if part:IsA("BasePart") then
                         part.CanCollide = true
                     end
                 end
             end
-            OrionLib:MakeNotification({Name = "提示", Content = "穿墙模式已关闭", Time = 2})
+            OrionLib:MakeNotification({Name = "状态", Content = "穿墙已关闭", Time = 2})
+            if Stepped then Stepped:Disconnect() end
         end
     end,
     Color = Color3.fromRGB(100, 149, 237)
 })
 
--- 旋转速度设置
+-- 旋转控制功能
 Tab:AddTextbox({
     Name = "旋转速度",
-    Placeholder = "输入旋转速度值",
+    Placeholder = "数值范围: 1-1000",
     Callback = function(Value)
         local speed = tonumber(Value)
-        if not speed then
+        if not speed or speed < 1 or speed > 1000 then
             return OrionLib:MakeNotification({
                 Name = "错误",
-                Content = "请输入有效的数字",
+                Content = "请输入1-1000之间的数字",
                 Time = 2
             })
         end
 
-        local plr = game:GetService("Players").LocalPlayer
-        repeat task.wait() until plr.Character
-        local humRoot = plr.Character:WaitForChild("HumanoidRootPart")
-        local humanoid = plr.Character:WaitForChild("Humanoid")
+        local char = game.Players.LocalPlayer.Character
+        if not char then return end
+
+        local humRoot = char:WaitForChild("HumanoidRootPart")
+        local humanoid = char:WaitForChild("Humanoid")
         humanoid.AutoRotate = false
 
         local spinVelocity = humRoot:FindFirstChild("Spinbot")
         if not spinVelocity then
             spinVelocity = Instance.new("AngularVelocity")
             spinVelocity.Attachment0 = humRoot:WaitForChild("RootAttachment")
-            spinVelocity.MaxTorque = math.huge
+            spinVelocity.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
             spinVelocity.AngularVelocity = Vector3.new(0, speed, 0)
-            spinVelocity.Parent = humRoot
             spinVelocity.Name = "Spinbot"
+            spinVelocity.Parent = humRoot
         else
             spinVelocity.AngularVelocity = Vector3.new(0, speed, 0)
         end
 
         OrionLib:MakeNotification({
-            Name = "已设置",
-            Content = "旋转速度已调整为: ".. speed,
-            Time = 1.5
+            Name = "设置成功",
+            Content = string.format("旋转速度: %d°/s", speed),
+            Time = 2
         })
     end
 })
 
--- 停止旋转按钮
 Tab:AddButton({
     Name = "停止旋转",
     Callback = function()
-        local plr = game:GetService("Players").LocalPlayer
-        repeat task.wait() until plr.Character
-        local humRoot = plr.Character:WaitForChild("HumanoidRootPart")
-        local humanoid = plr.Character:WaitForChild("Humanoid")
+        local char = game.Players.LocalPlayer.Character
+        if not char then return end
 
+        local humRoot = char:WaitForChild("HumanoidRootPart")
+        local humanoid = char:WaitForChild("Humanoid")
+        
         local spinbot = humRoot:FindFirstChild("Spinbot")
         if spinbot then
             spinbot:Destroy()
             humanoid.AutoRotate = true
             OrionLib:MakeNotification({
-                Name = "已停止",
+                Name = "状态",
                 Content = "旋转已停止",
                 Time = 1.5
             })
         else
             OrionLib:MakeNotification({
                 Name = "提示",
-                Content = "未处于旋转状态",
+                Content = "未检测到旋转",
                 Time = 1.5
             })
         end
@@ -233,23 +235,15 @@ Tab:AddButton({
     Color = Color3.fromRGB(255, 99, 71)
 })
 
+-- 特殊功能
 Tab:AddToggle({
     Name = "踏空",
     Default = false,
     Callback = function(Value)
         if Value then
-            local loadFunc = loadRemoteScript('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/Float')
-            if loadFunc then
-                local executeSuccess, executeResult = pcall(loadFunc)
-                if not executeSuccess then
-                    OrionLib:MakeNotification({
-                        Name = "踏空功能失败",
-                        Content = "脚本执行失败: ".. tostring(executeResult),
-                        Time = 3
-                    })
-                    warn("踏空功能脚本执行失败: ".. tostring(executeResult))
-                end
-            end
+            loadRemoteScript('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/Float',
+                            "踏空功能已启用",
+                            "踏空功能加载失败")
         end
     end
 })
@@ -257,47 +251,23 @@ Tab:AddToggle({
 Tab:AddButton({
     Name = "自瞄",
     Callback = function()
-        local loadFunc = loadRemoteScript("https://raw.githubusercontent.com/AZYsGithub/chillz-workshop/main/Arceus%20Aimbot.lua")
-        if loadFunc then
-            local executeSuccess, executeResult = pcall(loadFunc)
-            if not executeSuccess then
-                OrionLib:MakeNotification({
-                    Name = "自瞄功能失败",
-                    Content = "脚本执行失败: ".. tostring(executeResult),
-                    Time = 3
-                })
-                warn("自瞄功能脚本执行失败: ".. tostring(executeResult))
-            end
-        end
+        loadRemoteScript("https://raw.githubusercontent.com/AZYsGithub/chillz-workshop/main/Arceus%20Aimbot.lua",
+                        "自瞄功能已加载",
+                        "自瞄功能加载失败")
     end
 })
 
+-- 透视功能
 Tab:AddButton({
     Name = "透视",
     Callback = function()
         local Players = game:GetService("Players")
-        local RunService = game:GetService("RunService")
-        local LP = Players.LocalPlayer
         local Teams = game:GetService("Teams")
-
-        local function IsGunGame()
-            return #Teams:GetTeams() >= 2
-        end
+        local LP = Players.LocalPlayer
 
         local function IsEnemy(plr)
-            if not IsGunGame() then return false end
             if not plr.Team or not LP.Team then return false end
             return plr.Team ~= LP.Team
-        end
-
-        local function GetHighlightColor(plr)
-            if not IsGunGame() then
-                return Color3.fromRGB(255, 255, 255)
-            elseif IsEnemy(plr) then
-                return Color3.fromRGB(180, 0, 0)
-            else
-                return Color3.fromRGB(0, 150, 255)
-            end
         end
 
         local function CreateHighlight(target, color)
@@ -305,7 +275,7 @@ Tab:AddButton({
             h.Name = "StyledHighlight"
             h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
             h.FillColor = color
-            h.FillTransparency = 0.75
+            h.FillTransparency = 0.7
             h.OutlineColor = color
             h.OutlineTransparency = 0.3
             h.Adornee = target
@@ -313,30 +283,30 @@ Tab:AddButton({
         end
 
         local function SetupVisuals(plr)
-            if not plr.Character or plr == LP then return end
+            if plr == LP or not plr.Character then return end
             local char = plr.Character
             if char:FindFirstChild("StyledHighlight") then return end
 
-            local color = GetHighlightColor(plr)
+            local color = IsEnemy(plr) and Color3.new(1, 0, 0) or Color3.new(0, 1, 1)
             CreateHighlight(char, color)
         end
 
+        -- 初始化已存在的玩家
         for _, plr in ipairs(Players:GetPlayers()) do
-            if plr ~= LP then
-                SetupVisuals(plr)
-            end
+            SetupVisuals(plr)
         end
 
+        -- 处理新加入的玩家
         Players.PlayerAdded:Connect(function(plr)
-            if plr == LP then return end
             plr.CharacterAdded:Connect(function()
                 task.wait(0.2)
                 SetupVisuals(plr)
             end)
         end)
 
-        LP.CharacterAdded:Connect(function(myChar)
-            local h = myChar:FindFirstChild("StyledHighlight")
+        -- 移除自身高亮
+        LP.CharacterAdded:Connect(function(char)
+            local h = char:FindFirstChild("StyledHighlight")
             if h then h:Destroy() end
         end)
     end
@@ -346,14 +316,15 @@ Tab:AddButton({
     Name = "关闭透视",
     Callback = function()
         for _, plr in pairs(game:GetService("Players"):GetPlayers()) do
-            if plr.Character and plr.Character:FindFirstChild("StyledHighlight") then
-                plr.Character.StyledHighlight:Destroy()
+            if plr.Character then
+                local h = plr.Character:FindFirstChild("StyledHighlight")
+                if h then h:Destroy() end
             end
         end
     end
 })
 
--- 作者信息标签页
+-- 作者信息
 local AuthorTab = Window:MakeTab({
     Name = "作者信息",
     Icon = "rbxassetid://4483345998"
@@ -368,7 +339,7 @@ AuthorTab:AddButton({
     Callback = function()
         if setclipboard then
             setclipboard("1357377308")
-            OrionLib:MakeNotification({Name = "成功", Content = "QQ已复制", Time = 2})
+            OrionLib:MakeNotification({Name = "成功", Content = "已复制作者QQ", Time = 2})
         end
     end,
     Color = Color3.fromRGB(70, 130, 255)
@@ -379,13 +350,13 @@ AuthorTab:AddButton({
     Callback = function()
         if setclipboard then
             setclipboard("110")
-            OrionLib:MakeNotification({Name = "成功", Content = "QQ群已复制", Time = 2})
+            OrionLib:MakeNotification({Name = "成功", Content = "已复制QQ群", Time = 2})
         end
     end,
     Color = Color3.fromRGB(100, 200, 100)
 })
 
--- 墨水游戏 Tab
+-- 开发者工具
 local InkGameTab = Window:MakeTab({
     Name = "开发者",
     Icon = "rbxassetid://4483345998",
@@ -393,178 +364,119 @@ local InkGameTab = Window:MakeTab({
 })
 
 InkGameTab:AddButton({
-    Name = "dex",
+    Name = "Dex",
     Callback = function()
-        local loadFunc = loadRemoteScript("https://raw.githubusercontent.com/Focuslol666/RbxScripts/refs/heads/main/Other/DexPlusPlus%20(ZH-CN).lua")
-        if loadFunc then
-            local executeSuccess, executeResult = pcall(loadFunc)
-            if not executeSuccess then
-                OrionLib:MakeNotification({
-                    Name = "dex加载失败",
-                    Content = "脚本执行失败: ".. tostring(executeResult),
-                    Time = 3
-                })
-                warn("dex加载脚本执行失败: ".. tostring(executeResult))
-            end
-        end
+        loadRemoteScript("https://raw.githubusercontent.com/Focuslol666/RbxScripts/refs/heads/main/Other/DexPlusPlus%20(ZH-CN).lua",
+                        "Dex加载成功",
+                        "Dex加载失败")
     end
 })
 
 InkGameTab:AddButton({
     Name = "IY",
     Callback = function()
-        local loadFunc = loadRemoteScript('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source')
-        if loadFunc then
-            local executeSuccess, executeResult = pcall(loadFunc)
-            if not executeSuccess then
-                OrionLib:MakeNotification({
-                    Name = "IY加载失败",
-                    Content = "脚本执行失败: ".. tostring(executeResult),
-                    Time = 3
-                })
-                warn("IY加载脚本执行失败: ".. tostring(executeResult))
-            end
-        end
+        loadRemoteScript('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source',
+                        "IY加载成功",
+                        "IY加载失败")
     end
 })
 
+-- 其他脚本加载中心
 local ScriptCenterTab = Window:MakeTab({
-    Name = "其他脚本",
+    Name = "脚本中心",
     Icon = "rbxassetid://4483345998"
 })
 
-OrionLib:AddButton(ScriptCenterTab, {
-    Name = "加载皮脚本",
-    Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载...", Time = 3})
-        task.spawn(function()
-            getgenv().XiaoPi = "皮脚本QQ群1002100032"
-            loadRemoteScript("https://raw.githubusercontent.com/xiaopi77/xiaopi77/main/QQ1002100032 - Roblox - Pi - script.lua",
-                             "皮脚本加载完成",
-                             "皮脚本加载失败")
-        end)
-    end,
-    Color = Color3.fromRGB(123, 104, 238)
-})
+-- 通用脚本加载模板
+local function addScriptButton(tab, name, url, successMsg, failMsg, color)
+    tab:AddButton({
+        Name = name,
+        Callback = function()
+            loadRemoteScript(url, successMsg, failMsg)
+        end,
+        Color = color
+    })
+end
 
-OrionLib:AddButton(ScriptCenterTab, {
-    Name = "安脚本",
-    Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载安脚本...", Time = 3})
-        task.spawn(function()
-            loadRemoteScript('https://raw.githubusercontent.com/wucan114514/gegeyxjb/refs/heads/main/%E5%AE%89%E8%84%9A%E6%9C%AC.lua',
-                             "安脚本加载完成",
-                             "安脚本加载失败")
-        end)
-    end,
-    Color = Color3.fromRGB(255, 99, 71)
-})
+addScriptButton(ScriptCenterTab,
+    "加载皮脚本",
+    "https://raw.githubusercontent.com/xiaopi77/xiaopi77/main/QQ1002100032-Roblox-Pi-script.lua",
+    "皮脚本加载成功",
+    "皮脚本加载失败",
+    Color3.fromRGB(123, 104, 238)
+)
 
-OrionLib:AddButton(ScriptCenterTab, {
-    Name = "落叶脚本",
-    Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载落叶脚本...", Time = 3})
-        task.spawn(function()
-            getgenv().LS = "落叶脚本"
-            loadRemoteScript("https://raw.githubusercontent.com/krlpl/Deciduous - center - LS/main/%E8%90%BD%E5%8F%B6%E4%B8%AD%E5%BF%83%E6%B7%B7%E6%B7%86.txt",
-                             "落叶脚本加载完成",
-                             "落叶脚本加载失败")
-        end)
-    end,
-    Color = Color3.fromRGB(139, 69, 19)
-})
+addScriptButton(ScriptCenterTab,
+    "安脚本",
+    'https://raw.githubusercontent.com/wucan114514/gegeyxjb/refs/heads/main/%E5%AE%89%E8%84%9A%E6%9C%AC.lua',
+    "安脚本加载成功",
+    "安脚本加载失败",
+    Color3.fromRGB(255, 99, 71)
+)
 
-OrionLib:AddButton(ScriptCenterTab, {
-    Name = "霖溺脚本",
-    Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载霖溺 - 免费版加载器...", Time = 3})
-        task.spawn(function()
-            loadRemoteScript("https://raw.githubusercontent.com/ShenJiaoBen/ScriptLoader/refs/heads/main/Linni_FreeLoader.lua",
-                             "霖溺 - 免费版加载器加载完成",
-                             "霖溺 - 免费版加载器加载失败")
-        end)
-    end,
-    Color = Color3.fromRGB(70, 200, 200)
-})
+addScriptButton(ScriptCenterTab,
+    "落叶脚本",
+    "https://raw.githubusercontent.com/krlpl/Deciduous-center-LS/main/%E8%90%BD%E5%8F%B6%E4%B8%AD%E5%BF%83%E6%B7%B7%E6%B7%86.txt",
+    "落叶脚本加载成功",
+    "落叶脚本加载失败",
+    Color3.fromRGB(139, 69, 19)
+)
 
-OrionLib:AddButton(ScriptCenterTab, {
-    Name = "叶脚本",
-    Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载叶脚本...", Time = 3})
-        task.spawn(function()
-            loadRemoteScript("https://raw.githubusercontent.com/roblox - ye/QQ515966991/refs/heads/main/ROBLOX - CNVIP - XIAOYE.lua",
-                             "叶脚本加载完成",
-                             "叶脚本加载失败")
-        end)
-    end,
-    Color = Color3.fromRGB(123, 200, 91)
-})
+addScriptButton(ScriptCenterTab,
+    "霖溺脚本",
+    "https://raw.githubusercontent.com/ShenJiaoBen/ScriptLoader/refs/heads/main/Linni_FreeLoader.lua",
+    "霖溺加载成功",
+    "霖溺加载失败",
+    Color3.fromRGB(70, 200, 200)
+)
 
-OrionLib:AddButton(ScriptCenterTab, {
-    Name = "刹脚本",
-    Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载刹脚本...", Time = 3})
-        task.spawn(function()
-            SHA_SCRIPT = "殺脚本"
-            loadRemoteScript("https://raw.githubusercontent.com/FengYu - 3/FengYu/refs/heads/main/shascript.lua",
-                             "刹脚本加载完成",
-                             "刹脚本加载失败")
-        end)
-    end,
-    Color = Color3.fromRGB(200, 70, 70)
-})
+addScriptButton(ScriptCenterTab,
+    "叶脚本",
+    "https://raw.githubusercontent.com/roblox-ye/QQ515966991/refs/heads/main/ROBLOX-CNVIP-XIAOYE.lua",
+    "叶脚本加载成功",
+    "叶脚本加载失败",
+    Color3.fromRGB(123, 200, 91)
+)
 
-OrionLib:AddButton(ScriptCenterTab, {
-    Name = "泷脚本",
-    Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载泷脚本...", Time = 3})
-        task.spawn(function()
-            loadRemoteScript("https://raw.githubusercontent.com/2012long/long/refs/heads/main/%E6%B3%B7%E6%AD%BB%E9%93%81.lua",
-                             "泷脚本加载完成",
-                             "泷脚本加载失败")
-        end)
-    end,
-    Color = Color3.fromRGB(105, 105, 105)
-})
+addScriptButton(ScriptCenterTab,
+    "刹脚本",
+    "https://raw.githubusercontent.com/FengYu-3/FengYu/refs/heads/main/shascript.lua",
+    "刹脚本加载成功",
+    "刹脚本加载失败",
+    Color3.fromRGB(200, 70, 70)
+)
 
-OrionLib:AddButton(ScriptCenterTab, {
-    Name = "汉化脚本--卡密:",
-    Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载汉化脚本...", Time = 3})
-        task.spawn(function()
-            loadRemoteScript('https://raw.githubusercontent.com/S - WTB/-/refs/heads/main/ISIS加载器',
-                             "汉化脚本加载完成",
-                             "汉化脚本加载失败")
-        end)
-    end,
-    Color = Color3.fromRGB(255, 78, 91)
-})
+addScriptButton(ScriptCenterTab,
+    "泷脚本",
+    "https://raw.githubusercontent.com/2012long/long/refs/heads/main/%E6%B3%B7%E6%AD%BB%E9%93%81.lua",
+    "泷脚本加载成功",
+    "泷脚本加载失败",
+    Color3.fromRGB(105, 105, 105)
+)
 
-OrionLib:AddButton(ScriptCenterTab, {
-    Name = "RB脚本",
-    Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载RB脚本...", Time = 3})
-        task.spawn(function()
-            loadRemoteScript("https://raw.githubusercontent.com/Yungengxin/roblox/refs/heads/main/Rb - Hub",
-                             "RB脚本加载完成",
-                             "RB脚本加载失败")
-        end)
-    end,
-    Color = Color3.fromRGB(255, 78, 91)
-})
+addScriptButton(ScriptCenterTab,
+    "汉化脚本",
+    'https://raw.githubusercontent.com/S-WTB/-/refs/heads/main/ISIS加载器',
+    "汉化脚本加载成功",
+    "汉化脚本加载失败",
+    Color3.fromRGB(255, 78, 91)
+)
 
-OrionLib:AddButton(ScriptCenterTab, {
-    Name = "TX脚本",
-    Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载TX脚本...", Time = 3})
-        task.spawn(function()
-            loadRemoteScript("https://raw.githubusercontent.com/JsYb666/TX - Free - YYDS/refs/heads/main/FREE - TX - TEAM",
-                             "TX脚本加载完成",
-                             "TX脚本加载失败")
-        end)
-    end,
-    Color = Color3.fromRGB(255, 91, 78)
-})
+addScriptButton(ScriptCenterTab,
+    "RB脚本",
+    "https://raw.githubusercontent.com/Yungengxin/roblox/refs/heads/main/Rb-Hub",
+    "RB脚本加载成功",
+    "RB脚本加载失败",
+    Color3.fromRGB(255, 78, 91)
+)
+
+addScriptButton(ScriptCenterTab,
+    "TX脚本",
+    "https://raw.githubusercontent.com/JsYb666/TX-Free-YYDS/refs/heads/main/FREE-TX-TEAM",
+    "TX脚本加载成功",
+    "TX脚本加载失败",
+    Color3.fromRGB(255, 91, 78)
+)
 
 -- 初始化界面
 OrionLib:Init()
