@@ -1,57 +1,4 @@
--- 加载OrionLib库
-local OrionLib
-local success, err = pcall(function()
-    OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/gui_modified_with_toggle.txt"))()
-end)
-if not success or not OrionLib then
-    warn("Orion库加载失败: " .. (err or "未知错误"))
-    return
-end
-
--- 新黄名单系统配置
-local StarterGui = game:GetService("StarterGui")
-local Players = game:GetService("Players")
-local WhitelistedPlayers = {
-    ["HXB20111"] = true,
-}
-
--- 黄名单检查函数
-local function IsWhitelisted(player)
-    return WhitelistedPlayers[player.Name] or false
-end
-
--- 本地玩家验证
-local localPlayer = Players.LocalPlayer
-local isLocalPlayerWhitelisted = IsWhitelisted(localPlayer)
-
--- 黄名单验证结果处理
-if isLocalPlayerWhitelisted then
-    pcall(function()  -- 包裹SetCore调用，避免因游戏限制导致报错
-        StarterGui:SetCore("SendNotification", {
-            Title = "黄名单认证",
-            Text = "玩家:" .. localPlayer.Name .. "，检测完毕黄名单玩家，稍后会加载脚本",
-            Duration = 7,
-        })
-    end)
-else
-    localPlayer:Kick("你没有被加入黄名单，请加群1057766561")
-    return  -- 非黄名单玩家直接退出，不加载后续内容
-end
-
--- 服务与变量初始化
-local Lighting = game:GetService("Lighting")
-local player = localPlayer  -- 已验证的本地玩家
-
--- 工具函数：创建圆角
-local function makeRound(obj, radius)
-    if obj and obj:IsA("GuiObject") then
-        local corner = Instance.new("UICorner")
-        corner.CornerRadius = radius or UDim.new(0.5, 0)
-        corner.Parent = obj
-    end
-end
-
--- 创建主窗口
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/gui_modified_with_toggle.txt"))()
 local Window = OrionLib:MakeWindow({
     Name = "黄脚本",
     SaveConfig = true,
@@ -62,7 +9,7 @@ local Window = OrionLib:MakeWindow({
 
 -- 欢迎通知
 pcall(function()
-    StarterGui:SetCore("SendNotification", {
+    game:GetService("StarterGui"):SetCore("SendNotification", {
         Title = "黄脚本",
         Text = "欢迎使用，功能已就绪",
         Duration = 4,
@@ -70,220 +17,84 @@ pcall(function()
     })
 end)
 
--- 作者信息标签页
-local AuthorTab = Window:MakeTab({Name = "作者信息", Icon = "rbxassetid://4483345998"})
-AuthorTab:AddParagraph("作者", "Hfh916")
-AuthorTab:AddParagraph("作者QQ", "1357377308")
-AuthorTab:AddParagraph("QQ群", "543121803")
-AuthorTab:AddParagraph("副作者", "风御 X")
-
--- 圆形按钮生成器
-local function addRoundButton(tab, config)
-    local btn = tab:AddButton(config)
-    if btn.Instance and btn.Instance:IsA("GuiButton") then
-        btn.Instance.Size = UDim2.new(0, 120, 0, 36)
-        makeRound(btn.Instance)
-        
-        local hover = Instance.new("UIScale")
-        hover.Scale = 1
-        hover.Parent = btn.Instance
-        
-        local enterConn = btn.Instance.MouseEnter:Connect(function() hover.Scale = 1.05 end)
-        local leaveConn = btn.Instance.MouseLeave:Connect(function() hover.Scale = 1 end)
-        
-        btn.Instance.AncestryChanged:Connect(function(_, parent)
-            if not parent then
-                enterConn:Disconnect()
-                leaveConn:Disconnect()
-            end
-        end)
-    end
-    return btn
-end
-
--- 作者信息页按钮
-addRoundButton(AuthorTab, {
-    Name = "复制作者QQ",
-    Callback = function()
-        if setclipboard then
-            setclipboard("1357377308")
-            OrionLib:MakeNotification({Name = "成功", Content = "QQ已复制", Time = 2})
-        end
-    end,
-    Color = Color3.fromRGB(70, 130, 255)
+-- 玩家功能 Tab（原 Tab）
+local Tab = Window:MakeTab({
+    Name = "玩家功能",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
 })
 
-addRoundButton(AuthorTab, {
-    Name = "复制QQ群",
-    Callback = function()
-        if setclipboard then
-            setclipboard("543121803")
-            OrionLib:MakeNotification({Name = "成功", Content = "QQ群已复制", Time = 2})
-        end
-    end,
-    Color = Color3.fromRGB(100, 200, 100)
-})
-
--- 玩家信息标签页
-local PlayerTab = Window:MakeTab({Name = "玩家信息", Icon = "rbxassetid://4483345998"})
-local executorName = "未知"
-pcall(function() executorName = identifyexecutor() or "未知" end)
-
-PlayerTab:AddParagraph("用户名", player.Name)
-PlayerTab:AddParagraph("用户ID", tostring(player.UserId))
-PlayerTab:AddParagraph("注入器", executorName)
-PlayerTab:AddParagraph("服务器ID", tostring(game.GameId))
-PlayerTab:AddParagraph("白名单状态", isLocalPlayerWhitelisted and "已授权" or "未授权")
-
--- 玩家功能标签页（含飞行功能）
-local FunctionTab = Window:MakeTab({Name = "玩家功能", Icon = "rbxassetid://4483345998"})
-
--- 文本框配置函数
-local function addSettingTextbox(tab, config)
-    tab:AddTextbox({
-        Name = config.Name,
-        Callback = function(Value)
-            local num = tonumber(Value)
-            if not num or num <= 0 then
-                return OrionLib:MakeNotification({Name = "错误", Content = "请输入正数", Time = 2})
-            end
-            local success, err = pcall(config.Callback, num)
-            if not success then
-                OrionLib:MakeNotification({Name = "错误", Content = "设置失败: " .. err, Time = 2})
-            end
-        end
-    })
-end
-
--- 移动设置
-addSettingTextbox(FunctionTab, {
+Tab:AddTextbox({
     Name = "跳跃高度",
-    Callback = function(num)
-        if not player.Character then
-            error("角色不存在")
-        end
-        local humanoid = player.Character:WaitForChild("Humanoid", 5)
-        if humanoid then
-            humanoid.JumpPower = num
-        else
-            error("未找到Humanoid")
+    Default = "",
+    TextDisappear = true,
+    Callback = function(Value)
+        local num = tonumber(Value)
+        if num then
+            game.Players.LocalPlayer.Character.Humanoid.JumpPower = num
         end
     end
 })
 
-addSettingTextbox(FunctionTab, {
+Tab:AddTextbox({
     Name = "移动速度",
-    Callback = function(num)
-        if not player.Character then
-            error("角色不存在")
-        end
-        local humanoid = player.Character:WaitForChild("Humanoid", 5)
-        if humanoid then
-            humanoid.WalkSpeed = num
-        else
-            error("未找到Humanoid")
+    Default = "",
+    TextDisappear = true,
+    Callback = function(Value)
+        local num = tonumber(Value)
+        if num then
+            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = num
         end
     end
 })
 
--- 相机焦距输入调节（输入后自动清空）
-local function addCameraTextbox(tab, config)
-    local textboxObj
-    textboxObj = tab:AddTextbox({
-        Name = config.Name,
-        Placeholder = config.Placeholder,
-        Callback = function(Value)
-            local num = tonumber(Value)
-            if not num or num < config.Min or num > config.Max then
-                return OrionLib:MakeNotification({
-                    Name = "错误", 
-                    Content = "请输入" .. config.Min .. "-" .. config.Max .. "之间的数值", 
-                    Time = 2
-                })
-            end
-            -- 执行设置
-            config.Callback(num)
-            -- 显示成功通知
-            OrionLib:MakeNotification({
-                Name = "已调整", 
-                Content = config.SuccessText .. num, 
-                Time = 1.5
-            })
-            -- 清空输入框
-            task.delay(0.1, function()
-                if textboxObj and textboxObj.Instance then
-                    local inputField = textboxObj.Instance:FindFirstChildOfClass("TextBox")
-                    if inputField then
-                        inputField.Text = ""
-                    end
-                end
-            end)
+Tab:AddTextbox({
+    Name = "重力",
+    Default = "",
+    TextDisappear = true,
+    Callback = function(Value)
+        local num = tonumber(Value)
+        if num then
+            game.Workspace.Gravity = num
         end
-    })
-end
-
--- 添加相机调节功能
-addCameraTextbox(FunctionTab, {
-    Name = "相机最大缩放距离",
-    Placeholder = "输入数值（1-200000）",
-    Min = 1,
-    Max = 200000,
-    SuccessText = "最大缩放距离: ",
-    Callback = function(num)
-        game.Players.LocalPlayer.CameraMaxZoomDistance = num
     end
 })
 
-addCameraTextbox(FunctionTab, {
-    Name = "相机视野角度【正常70】",
-    Placeholder = "输入数值（10-120）",
-    Min = 10,
-    Max = 120,
-    SuccessText = "视野角度: ",
-    Callback = function(num)
-        workspace.CurrentCamera.FieldOfView = num
-    end
-})
-
--- 飞行功能
-addRoundButton(FunctionTab, {
-    Name = "飞行功能",
-    Callback = function()
-        OrionLib:MakeNotification({Name = "提示", Content = "正在加载飞行功能...", Time = 3})
-        task.spawn(function()
-            local success, err = pcall(function()
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/%E9%BB%84%E9%A3%9E%E8%A1%8C"))()
-            end)
-            if success then
-                OrionLib:MakeNotification({Name = "成功", Content = "飞行功能加载完成", Time = 3})
-            else
-                OrionLib:MakeNotification({Name = "失败", Content = "加载错误: " .. err, Time = 3})
-            end
-        end)
-    end,
-    Color = Color3.fromRGB(135, 206, 235)
-})
-
--- 夜视模式
-FunctionTab:AddToggle({
-    Name = "夜视模式",
+Tab:AddToggle({
+    Name = "夜视",
     Default = false,
-    Callback = function(enabled)
-        Lighting.Ambient = enabled and Color3.new(0.5, 0.5, 0.5) or Color3.new(0, 0, 0)
-        Lighting.Brightness = enabled and 2 or 1
-    end,
-    Color = Color3.fromRGB(255, 165, 0)
+    Callback = function(Value)
+        game.Lighting.Ambient = Value and Color3.new(1, 1, 1) or Color3.new(0, 0, 0)
+    end
 })
+
+Tab:AddToggle({
+    Name = "飞行",
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            local success, err = pcall(function()
+             loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/%E9%BB%84%E9%A3%9E%E8%A1%8C"))()    
+            end)
+            if not success then
+                warn("飞行功能脚本加载失败: ".. (err or "未知错误"))
+            end
+        end
+    end
+})
+
 
 -- 穿墙模式
 local Clipon = false
 local Stepped
 
 FunctionTab:AddToggle({
-    Name = "穿墙模式",
+    Name = "穿墙",
     Default = false,
     Callback = function(enabled)
         Clipon = enabled
+        local Workspace = game:GetService("Workspace")
+        local Players = game:GetService("Players")
         
         -- 断开已有连接
         if Stepped then
@@ -294,7 +105,7 @@ FunctionTab:AddToggle({
             -- 开启穿墙：禁用角色碰撞
             Stepped = game:GetService("RunService").Stepped:Connect(function()
                 if Clipon then
-                    local playerChar = workspace:FindFirstChild(Players.LocalPlayer.Name)
+                    local playerChar = Workspace:FindFirstChild(Players.LocalPlayer.Name)
                     if playerChar then
                         for _, part in pairs(playerChar:GetChildren()) do
                             if part:IsA("BasePart") then
@@ -309,7 +120,7 @@ FunctionTab:AddToggle({
             OrionLib:MakeNotification({Name = "成功", Content = "穿墙模式已开启", Time = 2})
         else
             -- 关闭穿墙：恢复碰撞
-            local playerChar = workspace:FindFirstChild(Players.LocalPlayer.Name)
+            local playerChar = Workspace:FindFirstChild(Players.LocalPlayer.Name)
             if playerChar then
                 for _, part in pairs(playerChar:GetChildren()) do
                     if part:IsA("BasePart") then
@@ -323,27 +134,6 @@ FunctionTab:AddToggle({
     Color = Color3.fromRGB(100, 149, 237)
 })
 
--- 透视功能
-FunctionTab:AddToggle({
-    Name = "透视",
-    Default = false,
-    Callback = function(enabled)
-        if enabled then
-            -- 加载透视功能
-            pcall(function()
-                loadstring(game:HttpGet('https://raw.githubusercontent.com/Lucasfin000/SpaceHub/main/UESP'))()
-                OrionLib:MakeNotification({Name = "成功", Content = "透视功能已开启", Time = 2})
-            end)
-        else
-            -- 尝试关闭透视
-            OrionLib:MakeNotification({Name = "提示", Content = "透视功能已关闭", Time = 2})
-        end
-    end,
-    Color = Color3.fromRGB(128, 0, 128) -- 紫色标识
-})
-
--- 旋转速度调节
-local spinVelocity -- 全局变量存储旋转实例
 addSettingTextbox(FunctionTab, {
     Name = "旋转速度",
     Placeholder = "输入旋转速度值",
@@ -412,39 +202,175 @@ addRoundButton(FunctionTab, {
     Color = Color3.fromRGB(255, 99, 71)
 })
 
--- 开发者标签页
-local ScriptCenterTab = Window:MakeTab({
-    Name = "开发者",
-    Icon = "rbxassetid://4483345998"
+Tab:AddToggle({
+    Name = "踏空",
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            local success, err = pcall(function()
+                loadstring(game:HttpGet('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/Float'))()
+            end)
+            if not success then
+                warn("踏空功能脚本加载失败: ".. (err or "未知错误"))
+            end
+        end
+    end
 })
 
--- 自瞄功能
-ScriptCenterTab:AddButton({
+Tab:AddButton({
     Name = "自瞄",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/AZYsGithub/chillz-workshop/main/Arceus%20Aimbot.lua"))()
     end
 })
 
--- 其他功能
-ScriptCenterTab:AddButton({
-    Name = "IY",
+Tab:AddButton({
+    Name = "透视",
     Callback = function()
-        loadstring(game:HttpGet(('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'),true))()
+        local Players = game:GetService("Players")
+        local RunService = game:GetService("RunService")
+        local LP = Players.LocalPlayer
+        local Teams = game:GetService("Teams")
+
+        local function IsGunGame()
+            return #Teams:GetTeams() >= 2
+        end
+
+        local function IsEnemy(plr)
+            if not IsGunGame() then return false end
+            if not plr.Team or not LP.Team then return false end
+            return plr.Team ~= LP.Team
+        end
+
+        local function GetHighlightColor(plr)
+            if not IsGunGame() then
+                return Color3.fromRGB(255, 255, 255)
+            elseif IsEnemy(plr) then
+                return Color3.fromRGB(180, 0, 0)
+            else
+                return Color3.fromRGB(0, 150, 255)
+            end
+        end
+
+        local function CreateHighlight(target, color)
+            local h = Instance.new("Highlight")
+            h.Name = "StyledHighlight"
+            h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+            h.FillColor = color
+            h.FillTransparency = 0.75
+            h.OutlineColor = color
+            h.OutlineTransparency = 0.3
+            h.Adornee = target
+            h.Parent = target
+        end
+
+        local function SetupVisuals(plr)
+            if not plr.Character or plr == LP then return end
+            local char = plr.Character
+            if char:FindFirstChild("StyledHighlight") then return end
+
+            local color = GetHighlightColor(plr)
+            CreateHighlight(char, color)
+        end
+
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr ~= LP then
+                SetupVisuals(plr)
+            end
+        end
+
+        Players.PlayerAdded:Connect(function(plr)
+            if plr == LP then return end
+            plr.CharacterAdded:Connect(function()
+                task.wait(0.2)
+                SetupVisuals(plr)
+            end)
+        end)
+
+        LP.CharacterAdded:Connect(function(myChar)
+            local h = myChar:FindFirstChild("StyledHighlight")
+            if h then h:Destroy() end
+        end)
     end
 })
 
-ScriptCenterTab:AddButton({
+Tab:AddButton({
+    Name = "关闭透视",
+    Callback = function()
+        for _, plr in pairs(game:GetService("Players"):GetPlayers()) do
+            if plr.Character and plr.Character:FindFirstChild("StyledHighlight") then
+                plr.Character.StyledHighlight:Destroy()
+            end
+        end
+    end
+})
+
+-- 作者信息标签页
+local AuthorTab = Window:MakeTab({
+    Name = "作者信息",
+    Icon = "rbxassetid://4483345998"
+})
+
+AuthorTab:AddParagraph("作者", "Hfh916")
+AuthorTab:AddParagraph("作者QQ", "135737738")
+AuthorTab:AddParagraph("QQ群", "110")
+
+AuthorTab:AddButton({
+    Name = "复制作者QQ",
+    Callback = function()
+        if setclipboard then
+            setclipboard("1357377308")
+            OrionLib:MakeNotification({Name = "成功", Content = "QQ已复制", Time = 2})
+        end
+    end,
+    Color = Color3.fromRGB(70, 130, 255)
+})
+
+AuthorTab:AddButton({
+    Name = "复制QQ群",
+    Callback = function()
+        if setclipboard then
+            setclipboard("110")
+            OrionLib:MakeNotification({Name = "成功", Content = "QQ群已复制", Time = 2})
+        end
+    end,
+    Color = Color3.fromRGB(100, 200, 100)
+})
+
+-- 墨水游戏 Tab
+local InkGameTab = Window:MakeTab({
+    Name = "开发者",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+InkGameTab:AddButton({
     Name = "dex",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Focuslol666/RbxScripts/refs/heads/main/Other/DexPlusPlus%20(ZH-CN).lua"))()
+        local success, err = pcall(function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/Focuslol666/RbxScripts/refs/heads/main/Other/DexPlusPlus%20(ZH-CN).lua"))()
+        end)
+        if not success then
+            warn("dex加载失败: ".. (err or "未知错误"))
+        end
     end
 })
 
--- 其他脚本标签页
-local OtherScriptsTab = Window:MakeTab({Name = "其他脚本", Icon = "rbxassetid://4483345998"})
+InkGameTab:AddButton({
+    Name = "IY",
+    Callback = function()
+        local success, err = pcall(function()
+            loadstring(game:HttpGet(('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'),true))()
+        end)
+        if not success then
+            warn("IY加载失败: ".. (err or "未知错误"))
+        end
+    end
+})
 
-addRoundButton(OtherScriptsTab, {
+local ScriptCenterTab = Window:MakeTab({Name = "其他脚本", Icon = "rbxassetid://4483345998"})
+
+addRoundButton(ScriptCenterTab, {
     Name = "加载皮脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载...", Time = 3})
@@ -629,20 +555,3 @@ addRoundButton(ScriptCenterTab, {
 
 -- 初始化界面
 OrionLib:Init()
-
--- 样式优化
-task.delay(0.3, function()
-    local mainFrame = Window.Instance:FindFirstChild("MainFrame", true)
-    if mainFrame then
-        makeRound(mainFrame, UDim.new(0.08, 0))
-    end
-end)
-
--- 清理函数
-local function cleanUp()
-    if Window and Window.Instance then
-        Window.Instance:Destroy()
-    end
-    Lighting.Ambient = Color3.new(0, 0, 0)
-    Lighting.Brightness = 1
-end
