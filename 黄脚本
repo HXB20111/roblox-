@@ -122,35 +122,30 @@ Tab:AddToggle({
 })
 
 -- 物理操控功能
-local Clipon = false
-local Stepped
+local isClipping = false
+local stepConnection
 
 Tab:AddToggle({
     Name = "穿墙",
     Default = false,
     Callback = function(enabled)
-        Clipon = enabled
-        local Workspace = game:GetService("Workspace")
-        local Players = game:GetService("Players")
-
+        isClipping = enabled
+        local char = game.Players.LocalPlayer.Character
+        
         if enabled then
-            Stepped = game:GetService("RunService").Stepped:Connect(function()
-                if Clipon then
-                    local char = Players.LocalPlayer.Character
-                    if char then
-                        for _, part in pairs(char:GetDescendants()) do
-                            if part:IsA("BasePart") then
-                                part.CanCollide = false
-                            end
+            stepConnection = game:GetService("RunService").Stepped:Connect(function()
+                if isClipping and char then
+                    for _, part in pairs(char:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            part.CanCollide = false
                         end
                     end
                 else
-                    Stepped:Disconnect()
+                    stepConnection:Disconnect()
                 end
             end)
             OrionLib:MakeNotification({Name = "状态", Content = "穿墙已开启", Time = 2})
         else
-            local char = Players.LocalPlayer.Character
             if char then
                 for _, part in pairs(char:GetDescendants()) do
                     if part:IsA("BasePart") then
@@ -159,7 +154,7 @@ Tab:AddToggle({
                 end
             end
             OrionLib:MakeNotification({Name = "状态", Content = "穿墙已关闭", Time = 2})
-            if Stepped then Stepped:Disconnect() end
+            if stepConnection then stepConnection:Disconnect() end
         end
     end,
     Color = Color3.fromRGB(100, 149, 237)
@@ -309,18 +304,6 @@ Tab:AddButton({
             local h = char:FindFirstChild("StyledHighlight")
             if h then h:Destroy() end
         end)
-    end
-})
-
-Tab:AddButton({
-    Name = "关闭透视",
-    Callback = function()
-        for _, plr in pairs(game:GetService("Players"):GetPlayers()) do
-            if plr.Character then
-                local h = plr.Character:FindFirstChild("StyledHighlight")
-                if h then h:Destroy() end
-            end
-        end
     end
 })
 
