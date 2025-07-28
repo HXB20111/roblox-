@@ -17,6 +17,31 @@ pcall(function()
     })
 end)
 
+-- 辅助函数：处理脚本加载
+local function loadRemoteScript(url)
+    local success, httpResult = pcall(game.HttpGet, game, url)
+    if not success then
+        OrionLib:MakeNotification({
+            Name = "加载失败",
+            Content = "网络请求失败: ".. tostring(httpResult),
+            Time = 3
+        })
+        warn("脚本网络请求失败: ".. tostring(httpResult))
+        return nil
+    end
+    local loadSuccess, loadFunc = pcall(loadstring, httpResult)
+    if not loadSuccess then
+        OrionLib:MakeNotification({
+            Name = "加载失败",
+            Content = "脚本加载失败: ".. tostring(loadFunc),
+            Time = 3
+        })
+        warn("脚本加载失败: ".. tostring(loadFunc))
+        return nil
+    end
+    return loadFunc
+end
+
 -- 玩家功能 Tab（原 Tab）
 local Tab = Window:MakeTab({
     Name = "玩家功能",
@@ -73,20 +98,26 @@ Tab:AddToggle({
     Default = false,
     Callback = function(Value)
         if Value then
-            local success, err = pcall(function()
-             loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/%E9%BB%84%E9%A3%9E%E8%A1%8C"))()    
-            end)
-            if not success then
-                warn("飞行功能脚本加载失败: ".. (err or "未知错误"))
+            local loadFunc = loadRemoteScript("https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/%E9%BB%84%E9%A3%9E%E8%A1%8C")
+            if loadFunc then
+                local executeSuccess, executeResult = pcall(loadFunc)
+                if not executeSuccess then
+                    OrionLib:MakeNotification({
+                        Name = "飞行功能失败",
+                        Content = "脚本执行失败: ".. tostring(executeResult),
+                        Time = 3
+                    })
+                    warn("飞行功能脚本执行失败: ".. tostring(executeResult))
+                end
             end
         end
     end
 })
 
-
 -- 穿墙模式
 local Clipon = false
 local Stepped
+local spinVelocity
 
 Tab:AddToggle({
     Name = "穿墙",
@@ -95,12 +126,12 @@ Tab:AddToggle({
         Clipon = enabled
         local Workspace = game:GetService("Workspace")
         local Players = game:GetService("Players")
-        
+
         -- 断开已有连接
         if Stepped then
             Stepped:Disconnect()
         end
-        
+
         if enabled then
             -- 开启穿墙：禁用角色碰撞
             Stepped = game:GetService("RunService").Stepped:Connect(function()
@@ -134,7 +165,7 @@ Tab:AddToggle({
     Color = Color3.fromRGB(100, 149, 237)
 })
 
-addSettingTextbox(FunctionTab, {
+Tab:AddToggle({
     Name = "旋转速度",
     Placeholder = "输入旋转速度值",
     Callback = function(Value)
@@ -146,7 +177,7 @@ addSettingTextbox(FunctionTab, {
                 Time = 2
             })
         end
-        
+
         local plr = game:GetService("Players").LocalPlayer
         repeat task.wait() until plr.Character
         local humRoot = plr.Character:WaitForChild("HumanoidRootPart")
@@ -163,17 +194,17 @@ addSettingTextbox(FunctionTab, {
         else
             spinVelocity.AngularVelocity = Vector3.new(0, speed, 0)
         end
-        
+
         OrionLib:MakeNotification({
             Name = "已设置",
-            Content = "旋转速度已调整为: " .. speed,
+            Content = "旋转速度已调整为: ".. speed,
             Time = 1.5
         })
     end
 })
 
 -- 停止旋转按钮
-addRoundButton(FunctionTab, {
+Tab:AddToggle({
     Name = "停止旋转",
     Callback = function()
         local plr = game:GetService("Players").LocalPlayer
@@ -207,11 +238,17 @@ Tab:AddToggle({
     Default = false,
     Callback = function(Value)
         if Value then
-            local success, err = pcall(function()
-                loadstring(game:HttpGet('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/Float'))()
-            end)
-            if not success then
-                warn("踏空功能脚本加载失败: ".. (err or "未知错误"))
+            local loadFunc = loadRemoteScript('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/Float')
+            if loadFunc then
+                local executeSuccess, executeResult = pcall(loadFunc)
+                if not executeSuccess then
+                    OrionLib:MakeNotification({
+                        Name = "踏空功能失败",
+                        Content = "脚本执行失败: ".. tostring(executeResult),
+                        Time = 3
+                    })
+                    warn("踏空功能脚本执行失败: ".. tostring(executeResult))
+                end
             end
         end
     end
@@ -220,7 +257,18 @@ Tab:AddToggle({
 Tab:AddButton({
     Name = "自瞄",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/AZYsGithub/chillz-workshop/main/Arceus%20Aimbot.lua"))()
+        local loadFunc = loadRemoteScript("https://raw.githubusercontent.com/AZYsGithub/chillz-workshop/main/Arceus%20Aimbot.lua")
+        if loadFunc then
+            local executeSuccess, executeResult = pcall(loadFunc)
+            if not executeSuccess then
+                OrionLib:MakeNotification({
+                    Name = "自瞄功能失败",
+                    Content = "脚本执行失败: ".. tostring(executeResult),
+                    Time = 3
+                })
+                warn("自瞄功能脚本执行失败: ".. tostring(executeResult))
+            end
+        end
     end
 })
 
@@ -347,11 +395,17 @@ local InkGameTab = Window:MakeTab({
 InkGameTab:AddButton({
     Name = "dex",
     Callback = function()
-        local success, err = pcall(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/Focuslol666/RbxScripts/refs/heads/main/Other/DexPlusPlus%20(ZH-CN).lua"))()
-        end)
-        if not success then
-            warn("dex加载失败: ".. (err or "未知错误"))
+        local loadFunc = loadRemoteScript("https://raw.githubusercontent.com/Focuslol666/RbxScripts/refs/heads/main/Other/DexPlusPlus%20(ZH-CN).lua")
+        if loadFunc then
+            local executeSuccess, executeResult = pcall(loadFunc)
+            if not executeSuccess then
+                OrionLib:MakeNotification({
+                    Name = "dex加载失败",
+                    Content = "脚本执行失败: ".. tostring(executeResult),
+                    Time = 3
+                })
+                warn("dex加载脚本执行失败: ".. tostring(executeResult))
+            end
         end
     end
 })
@@ -359,16 +413,24 @@ InkGameTab:AddButton({
 InkGameTab:AddButton({
     Name = "IY",
     Callback = function()
-        local success, err = pcall(function()
-            loadstring(game:HttpGet(('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'),true))()
-        end)
-        if not success then
-            warn("IY加载失败: ".. (err or "未知错误"))
+        local loadFunc = loadRemoteScript('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source')
+        if loadFunc then
+            local executeSuccess, executeResult = pcall(loadFunc)
+            if not executeSuccess then
+                OrionLib:MakeNotification({
+                    Name = "IY加载失败",
+                    Content = "脚本执行失败: ".. tostring(executeResult),
+                    Time = 3
+                })
+                warn("IY加载脚本执行失败: ".. tostring(executeResult))
+            end
         end
     end
 })
 
-local ScriptCenterTab = Window:MakeTab({Name = "其他脚本", Icon = "rbxassetid://4483345998"})
+local ScriptCenterTab = Window:MakeTab({
+     Name = "其他脚本", 
+     Icon = "rbxassetid://4483345998"})
 
 addRoundButton(ScriptCenterTab, {
     Name = "加载皮脚本",
@@ -377,13 +439,16 @@ addRoundButton(ScriptCenterTab, {
         task.spawn(function()
             local success, err = pcall(function()
                 getgenv().XiaoPi = "皮脚本QQ群1002100032"
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaopi77/xiaopi77/main/QQ1002100032-Roblox-Pi-script.lua", true))()
+                local loadFunc = loadRemoteScript("https://raw.githubusercontent.com/xiaopi77/xiaopi77/main/QQ1002100032-Roblox-Pi-script.lua")
+                if loadFunc then
+                    local executeSuccess, executeResult = pcall(loadFunc)
+                    if executeSuccess then
+                        OrionLib:MakeNotification({Name = "成功", Content = "加载完成", Time = 3})
+                    else
+                        OrionLib:MakeNotification({Name = "失败", Content = "错误: ".. tostring(executeResult), Time = 3})
+                    end
+                end
             end)
-            if success then
-                OrionLib:MakeNotification({Name = "成功", Content = "加载完成", Time = 3})
-            else
-                OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
-            end
         end)
     end,
     Color = Color3.fromRGB(123, 104, 238)
@@ -395,13 +460,16 @@ addRoundButton(ScriptCenterTab, {
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载安客脚本...", Time = 3})
         task.spawn(function()
             local success, err = pcall(function()
-                loadstring(game:HttpGet(('https://raw.githubusercontent.com/wucan114514/gegeyxjb/refs/heads/main/%E5%AE%89%E8%84%9A%E6%9C%AC.lua')))()
+                local loadFunc = loadRemoteScript('https://raw.githubusercontent.com/wucan114514/gegeyxjb/refs/heads/main/%E5%AE%89%E8%84%9A%E6%9C%AC.lua')
+                if loadFunc then
+                    local executeSuccess, executeResult = pcall(loadFunc)
+                    if executeSuccess then
+                        OrionLib:MakeNotification({Name = "成功", Content = "安脚本加载完成", Time = 3})
+                    else
+                        OrionLib:MakeNotification({Name = "失败", Content = "错误: ".. tostring(executeResult), Time = 3})
+                    end
+                end
             end)
-            if success then
-                OrionLib:MakeNotification({Name = "成功", Content = "安脚本加载完成", Time = 3})
-            else
-                OrionLib:MakeNotification({Name = "失败", Content = "错误: " .. err, Time = 3})
-            end
         end)
     end,
     Color = Color3.fromRGB(255, 99, 71)
@@ -409,7 +477,7 @@ addRoundButton(ScriptCenterTab, {
 
 addRoundButton(ScriptCenterTab, {
     Name = "落叶脚本",
-    Callback = function()
+   Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载落叶脚本...", Time = 3})
         task.spawn(function()
             local success, err = pcall(function()
