@@ -1,108 +1,37 @@
-<-- 加载OrionLib库
-local OrionLib
-local success, err = pcall(function()
-    OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/%E9%BB%84%E8%84%9A%E6%9C%ACUI.lua"))()
-end)
-if not success or not OrionLib then
-    warn("Orion库加载失败: ".. (err or "未知错误"))
-    return
-end
+    local CoreGui = game:GetService("StarterGui")
 
--- 服务与变量初始化
-local Lighting = game:GetService("Lighting")
-local player = game:GetService("Players").LocalPlayer
-
--- 工具函数：创建圆角
-local function makeRound(obj, radius)
-    if obj and obj:IsA("GuiObject") then
-        local corner = Instance.new("UICorner")
-        corner.CornerRadius = radius or UDim.new(0.5, 0)
-        corner.Parent = obj
-    end
-end
-
--- 创建主窗口
-local Window = OrionLib:MakeWindow({
-    Name = "菁脚本",
-    SaveConfig = true,
-    IntroText = "菁脚本 - 功能加载完成",
-    Theme = "FlatBlue",
-    Icon = "rbxassetid://118894209472715"
+CoreGui:SetCore("SendNotification", {
+    Title = "你的脚本名称（菁脚本）",
+    Text = "正在加载",
+    Duration = 5, 
 })
 
--- 欢迎通知
-pcall(function()
-    StarterGui:SetCore("SendNotification", {
-        Title = "菁脚本",
-        Text = "欢迎使用，功能已就绪",
-        Duration = 4,
-        Icon = "rbxassetid://118894209472715"
-    })
-end)
+print("反挂机开启")
+		local vu = game:GetService("VirtualUser")
+		game:GetService("Players").LocalPlayer.Idled:connect(function()
+		   vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+		   wait(1)
+		   vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+		end)
+		
+local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/%E9%BB%84%E8%84%9A%E6%9C%ACUI.lua'))()
+local Window = OrionLib:MakeWindow({Name = "菁脚本", HidePremium = false, SaveConfig = true,IntroText = "欢迎使用菁脚本", ConfigFolder = "欢迎菁脚本"})
 
--- 作者信息标签页
-local AuthorTab = Window:MakeTab({Name = "作者信息", Icon = "rbxassetid://4483345998"})
-AuthorTab:AddParagraph("作者", "Hfh916")
-AuthorTab:AddParagraph("作者QQ", "1357377308")
-
--- 圆形按钮生成器
-local function addRoundButton(tab, config)
-    local btn = tab:AddButton(config)
-    if btn.Instance and btn.Instance:IsA("GuiButton") then
-        btn.Instance.Size = UDim2.new(0, 120, 0, 36)
-        makeRound(btn.Instance)
-        
-        local hover = Instance.new("UIScale")
-        hover.Scale = 1
-        hover.Parent = btn.Instance
-        
-        local enterConn = btn.Instance.MouseEnter:Connect(function() hover.Scale = 1.05 end)
-        local leaveConn = btn.Instance.MouseLeave:Connect(function() hover.Scale = 1 end)
-        
-        btn.Instance.AncestryChanged:Connect(function(_, parent)
-            if not parent then
-                enterConn:Disconnect()
-                leaveConn:Disconnect()
-            end
-        end)
-    end
-    return btn
-end
-
--- 作者信息页按钮
-addRoundButton(AuthorTab, {
-    Name = "复制作者QQ",
-    Callback = function()
-        if setclipboard then
-            setclipboard("1357377308")
-            OrionLib:MakeNotification({Name = "成功", Content = "QQ已复制", Time = 2})
-        end
-    end,
-    Color = Color3.fromRGB(70, 130, 255)
+local about = Window:MakeTab({
+    Name = "玩家信息",
+    Icon = "rbxassetid://11109742737",
+    PremiumOnly = false
 })
 
-addRoundButton(AuthorTab, {
-    Name = "复制QQ群",
-    Callback = function()
-        if setclipboard then
-            setclipboard("无")
-            OrionLib:MakeNotification({Name = "成功", Content = "QQ群已复制", Time = 2})
-        end
-    end,
-    Color = Color3.fromRGB(100, 200, 100)
-})
+about:AddParagraph("您的用户名:"," "..game.Players.LocalPlayer.Name.."")
+about:AddParagraph("您的注入器:"," "..identifyexecutor().."")
+about:AddParagraph("QQ群 : ","未知")
 
--- 玩家信息标签页
-local PlayerTab = Window:MakeTab({Name = "玩家信息", Icon = "rbxassetid://4483345998"})
-local executorName = "未知"
-pcall(function() executorName = identifyexecutor() or "未知" end)
-
-PlayerTab:AddParagraph("用户名", player.Name)
-PlayerTab:AddParagraph("用户ID", tostring(player.UserId))
-PlayerTab:AddParagraph("注入器", executorName)
-PlayerTab:AddParagraph("服务器ID", tostring(game.GameId))
-
-local FunctionTab = Window:MakeTab({Name = "玩家功能", Icon = "rbxassetid://4483345998"})
+local Tab = Window:MakeTab({
+  Name = "玩家功能",
+  Icon = "rbxassetid://4483345998",
+  PremiumOnly = false
+  })
 
 -- 文本框配置函数
 local function addSettingTextbox(tab, config)
@@ -122,7 +51,7 @@ local function addSettingTextbox(tab, config)
 end
 
 -- 移动设置
-addSettingTextbox(FunctionTab, {
+Tab:AddButton({
     Name = "跳跃高度",
     Callback = function(num)
         if not player.Character then
@@ -137,7 +66,8 @@ addSettingTextbox(FunctionTab, {
     end
 })
 
-addSettingTextbox(FunctionTab, {
+
+Tab:AddButton({
     Name = "移动速度",
     Callback = function(num)
         if not player.Character then
@@ -231,7 +161,7 @@ addRoundButton(FunctionTab, {
 })
 
 -- 夜视模式
-FunctionTab:AddToggle({
+Tab:AddButton({
     Name = "夜视模式",
     Default = false,
     Callback = function(enabled)
@@ -245,7 +175,7 @@ FunctionTab:AddToggle({
 local Clipon = false
 local Stepped
 
-FunctionTab:AddToggle({
+Tab:AddButton({
     Name = "穿墙模式",
     Default = false,
     Callback = function(enabled)
@@ -292,7 +222,7 @@ FunctionTab:AddToggle({
 })
 
 -- 透视功能
-FunctionTab:AddToggle({
+Tab:AddButton({
     Name = "透视",
     Default = false,
     Callback = function(enabled)
@@ -313,7 +243,7 @@ FunctionTab:AddToggle({
 })
 
 -- 旋转速度调节
-addSettingTextbox(FunctionTab, {
+Tab:AddButton({
     Name = "旋转速度",
     Placeholder = "输入旋转速度值",
     Callback = function(Value)
@@ -352,7 +282,7 @@ addSettingTextbox(FunctionTab, {
 })
 
 -- 停止旋转按钮
-addRoundButton(FunctionTab, {
+Tab:AddButton({
     Name = "停止旋转",
     Callback = function()
         local plr = game:GetService("Players").LocalPlayer
@@ -381,9 +311,9 @@ addRoundButton(FunctionTab, {
     Color = Color3.fromRGB(255, 99, 71)
 })
 
-local ScriptCenterTab = Window:MakeTab({Name = "其他脚本", Icon = "rbxassetid://4483345998"})
+local Tab = Window:MakeTab({Name = "其他脚本", Icon = "rbxassetid://4483345998"})
 
-addRoundButton(ScriptCenterTab, {
+Tab:AddButton({
     Name = "皮脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载...", Time = 3})
@@ -403,7 +333,7 @@ addRoundButton(ScriptCenterTab, {
 })
 
 -- AL中心
-addRoundButton(ScriptCenterTab, {
+Tab:AddButton({
     Name = "大司马脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载大司马脚本...", Time = 3})
@@ -421,7 +351,7 @@ addRoundButton(ScriptCenterTab, {
     Color = Color3.fromRGB(255, 99, 71)
 })
 
-addRoundButton(ScriptCenterTab, {
+Tab:AddButton({
     Name = "落叶脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载落叶脚本...", Time = 3})
@@ -440,7 +370,7 @@ addRoundButton(ScriptCenterTab, {
     Color = Color3.fromRGB(139, 69, 19)
 })
 
-addRoundButton(ScriptCenterTab, {
+Tab:AddButton({
     Name = "霖溺脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载霖溺-免费版加载器...", Time = 3})
@@ -459,7 +389,7 @@ addRoundButton(ScriptCenterTab, {
 })
 
 -- 叶脚本
-addRoundButton(ScriptCenterTab, {
+Tab:AddButton({
     Name = "叶脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载叶脚本...", Time = 3})
@@ -478,7 +408,7 @@ addRoundButton(ScriptCenterTab, {
 })
 
 -- 刹脚本
-addRoundButton(ScriptCenterTab, {
+Tab:AddButton({
     Name = "刹脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载刹脚本...", Time = 3})
@@ -498,7 +428,7 @@ addRoundButton(ScriptCenterTab, {
 })
 
 -- xk脚本
-addRoundButton(ScriptCenterTab, {
+Tab:AddButton({
     Name = "RB脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载RB脚本...", Time = 3})
@@ -516,7 +446,7 @@ addRoundButton(ScriptCenterTab, {
     Color = Color3.fromRGB(105, 105, 105)
 })
 
-addRoundButton(ScriptCenterTab, {
+Tab:AddButton({
     Name = "汉化脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载汉化脚本...", Time = 3})
@@ -534,7 +464,7 @@ addRoundButton(ScriptCenterTab, {
     Color = Color3.fromRGB(255, 78, 91)
 })
 
-addRoundButton(ScriptCenterTab, {
+Tab:AddButton({
     Name = "泷脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载泷脚本...", Time = 3})
@@ -552,7 +482,7 @@ addRoundButton(ScriptCenterTab, {
     Color = Color3.fromRGB(255, 78, 91)
 })
 
-addRoundButton(ScriptCenterTab, {
+Tab:AddButton({
     Name = "TX脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载TX脚本...", Time = 3})
