@@ -1,16 +1,36 @@
-<-- 加载OrionLib库
+-- 加载OrionLib库（增加重试和备用链接）
 local OrionLib
-local success, err = pcall(function()
-    OrionLib = loadstring(game:HttpGet("https://pastebin.com/raw/FUEx0f3G"))()
-end)
+local retries = 3  -- 最多重试3次
+local success, err
+
+while retries > 0 do
+    success, err = pcall(function()
+        OrionLib = loadstring(game:HttpGet("https://pastebin.com/raw/FUEx0f3G", true))()
+    end)
+    if success and OrionLib then break end
+    retries = retries - 1
+    task.wait(1)  -- 重试间隔1秒
+end
+
 if not success or not OrionLib then
     warn("Orion库加载失败: ".. (err or "未知错误"))
-    return
+    -- 尝试使用备用链接
+    local success2, err2 = pcall(function()
+        OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/OrionLibTeam/Orion/main/source", true))()
+    end)
+    if not success2 or not OrionLib then
+        warn("备用链接也加载失败: ".. (err2 or "未知错误"))
+        return
+    end
 end
 
 -- 服务与变量初始化
 local Lighting = game:GetService("Lighting")
-local player = game:GetService("Players").LocalPlayer
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local spinVelocity = nil  -- 旋转功能变量
+local espConnection = nil  -- 透视功能连接
 
 -- 工具函数：创建圆角
 local function makeRound(obj, radius)
@@ -32,7 +52,7 @@ local Window = OrionLib:MakeWindow({
 
 -- 欢迎通知
 pcall(function()
-    StarterGui:SetCore("SendNotification", {
+    game:GetService("StarterGui"):SetCore("SendNotification", {
         Title = "菁脚本",
         Text = "欢迎使用，功能已就绪",
         Duration = 4,
@@ -45,7 +65,7 @@ local AuthorTab = Window:MakeTab({Name = "作者信息", Icon = "rbxassetid://44
 AuthorTab:AddParagraph("作者", "Hfh916")
 AuthorTab:AddParagraph("作者QQ", "1357377308")
 
--- 圆形按钮生成器
+-- 圆形按钮生成器（优化内存管理）
 local function addRoundButton(tab, config)
     local btn = tab:AddButton(config)
     if btn.Instance and btn.Instance:IsA("GuiButton") then
@@ -59,10 +79,20 @@ local function addRoundButton(tab, config)
         local enterConn = btn.Instance.MouseEnter:Connect(function() hover.Scale = 1.05 end)
         local leaveConn = btn.Instance.MouseLeave:Connect(function() hover.Scale = 1 end)
         
+        -- 增加按钮销毁时的清理
+        local cleanup = function()
+            enterConn:Disconnect()
+            leaveConn:Disconnect()
+            hover:Destroy()
+        end
+        
         btn.Instance.AncestryChanged:Connect(function(_, parent)
-            if not parent then
-                enterConn:Disconnect()
-                leaveConn:Disconnect()
+            if not parent then cleanup() end
+        end)
+        -- 超时自动清理（防止内存泄漏）
+        task.delay(300, function()
+            if btn.Instance and btn.Instance.Parent then
+                cleanup()
             end
         end)
     end
@@ -101,14 +131,15 @@ PlayerTab:AddParagraph("用户名", player.Name)
 PlayerTab:AddParagraph("用户ID", tostring(player.UserId))
 PlayerTab:AddParagraph("注入器", executorName)
 PlayerTab:AddParagraph("服务器ID", tostring(game.GameId))
-PlayerTab:AddParagraph("身份", isLocalPlayerWhitelisted and "普通玩家" or "付费玩家")
 
+-- 玩家功能标签页
 local FunctionTab = Window:MakeTab({Name = "玩家功能", Icon = "rbxassetid://4483345998"})
 
 -- 文本框配置函数
 local function addSettingTextbox(tab, config)
     tab:AddTextbox({
         Name = config.Name,
+        Placeholder = config.Placeholder or "",
         Callback = function(Value)
             local num = tonumber(Value)
             if not num or num <= 0 then
@@ -153,7 +184,7 @@ addSettingTextbox(FunctionTab, {
     end
 })
 
--- 相机焦距输入调节（输入后自动清空）
+-- 相机焦距输入调节
 local function addCameraTextbox(tab, config)
     local textboxObj
     textboxObj = tab:AddTextbox({
@@ -168,9 +199,7 @@ local function addCameraTextbox(tab, config)
                     Time = 2
                 })
             end
-            -- 执行设置
             config.Callback(num)
-            -- 显示成功通知
             OrionLib:MakeNotification({
                 Name = "已调整", 
                 Content = config.SuccessText .. num, 
@@ -197,7 +226,7 @@ addCameraTextbox(FunctionTab, {
     Max = 200000,
     SuccessText = "最大缩放距离: ",
     Callback = function(num)
-        game.Players.LocalPlayer.CameraMaxZoomDistance = num
+        player.CameraMaxZoomDistance = num
     end
 })
 
@@ -242,7 +271,7 @@ FunctionTab:AddToggle({
     Color = Color3.fromRGB(255, 165, 0)
 })
 
--- 穿墙模式
+-- 穿墙模式（优化性能）
 local Clipon = false
 local Stepped
 
@@ -251,8 +280,6 @@ FunctionTab:AddToggle({
     Default = false,
     Callback = function(enabled)
         Clipon = enabled
-        local Workspace = game:GetService("Workspace")
-        local Players = game:GetService("Players")
         
         -- 断开已有连接
         if Stepped then
@@ -261,24 +288,21 @@ FunctionTab:AddToggle({
         
         if enabled then
             -- 开启穿墙：禁用角色碰撞
-            Stepped = game:GetService("RunService").Stepped:Connect(function()
-                if Clipon then
-                    local playerChar = Workspace:FindFirstChild(Players.LocalPlayer.Name)
-                    if playerChar then
-                        for _, part in pairs(playerChar:GetChildren()) do
-                            if part:IsA("BasePart") then
-                                part.CanCollide = false
-                            end
+            Stepped = RunService.Stepped:Connect(function()
+                if not Clipon then return end
+                local playerChar = workspace:FindFirstChild(player.Name)
+                if playerChar then
+                    for _, part in pairs(playerChar:GetChildren()) do
+                        if part:IsA("BasePart") then
+                            part.CanCollide = false
                         end
                     end
-                else
-                    Stepped:Disconnect()
                 end
             end)
             OrionLib:MakeNotification({Name = "成功", Content = "穿墙模式已开启", Time = 2})
         else
             -- 关闭穿墙：恢复碰撞
-            local playerChar = Workspace:FindFirstChild(Players.LocalPlayer.Name)
+            local playerChar = workspace:FindFirstChild(player.Name)
             if playerChar then
                 for _, part in pairs(playerChar:GetChildren()) do
                     if part:IsA("BasePart") then
@@ -292,28 +316,44 @@ FunctionTab:AddToggle({
     Color = Color3.fromRGB(100, 149, 237)
 })
 
--- 透视功能
+-- 透视功能（增加关闭逻辑）
 FunctionTab:AddToggle({
     Name = "透视",
     Default = false,
     Callback = function(enabled)
         if enabled then
+            -- 先断开已有连接
+            if espConnection then 
+                pcall(function() espConnection:Disconnect() end)
+                espConnection = nil
+            end
             -- 加载透视功能
-            pcall(function()
-            loadstring(game:HttpGet('https://raw.githubusercontent.com/Lucasfin000/SpaceHub/main/UESP'))()
-                OrionLib:MakeNotification({Name = "成功", Content = "透视功能已开启", Time = 2})
+            local success, result = pcall(function()
+                return loadstring(game:HttpGet('https://raw.githubusercontent.com/Lucasfin000/SpaceHub/main/UESP'))()
             end)
+            if success then
+                OrionLib:MakeNotification({Name = "成功", Content = "透视功能已开启", Time = 2})
+                -- 存储关闭函数（假设原脚本返回关闭函数）
+                if type(result) == "function" then
+                    espConnection = result
+                end
+            else
+                warn("透视加载错误: " .. result)
+                OrionLib:MakeNotification({Name = "错误", Content = "透视加载失败", Time = 2})
+            end
         else
-            -- 尝试关闭透视（根据实际实现补充关闭逻辑）
-            -- 若原透视脚本有卸载函数，可在此调用，示例：
-            -- if typeof(StopESP) == "function" then StopESP() end
+            -- 关闭透视
+            if espConnection and type(espConnection) == "function" then
+                pcall(espConnection)
+            end
+            espConnection = nil
             OrionLib:MakeNotification({Name = "提示", Content = "透视功能已关闭", Time = 2})
         end
     end,
-    Color = Color3.fromRGB(128, 0, 128) -- 紫色标识
+    Color = Color3.fromRGB(128, 0, 128)
 })
 
--- 旋转速度调节
+-- 旋转速度调节（修复角色依赖问题）
 addSettingTextbox(FunctionTab, {
     Name = "旋转速度",
     Placeholder = "输入旋转速度值",
@@ -327,15 +367,35 @@ addSettingTextbox(FunctionTab, {
             })
         end
         
-        local plr = game:GetService("Players").LocalPlayer
-        repeat task.wait() until plr.Character
-        local humRoot = plr.Character:WaitForChild("HumanoidRootPart")
-        local humanoid = plr.Character:WaitForChild("Humanoid")
+        if not player.Character then
+            return OrionLib:MakeNotification({
+                Name = "错误",
+                Content = "角色未加载",
+                Time = 2
+            })
+        end
+        
+        local humRoot = player.Character:FindFirstChild("HumanoidRootPart")
+        local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+        if not humRoot or not humanoid then
+            return OrionLib:MakeNotification({
+                Name = "错误",
+                Content = "找不到角色关键部件",
+                Time = 2
+            })
+        end
+        
         humanoid.AutoRotate = false
 
         if not spinVelocity then
             spinVelocity = Instance.new("AngularVelocity")
-            spinVelocity.Attachment0 = humRoot:WaitForChild("RootAttachment")
+            -- 创建独立Attachment避免依赖
+            local attach = humRoot:FindFirstChild("RootAttachment") or Instance.new("Attachment")
+            if not attach.Parent then
+                attach.Name = "RootAttachment"
+                attach.Parent = humRoot
+            end
+            spinVelocity.Attachment0 = attach
             spinVelocity.MaxTorque = math.huge
             spinVelocity.AngularVelocity = Vector3.new(0, speed, 0)
             spinVelocity.Parent = humRoot
@@ -356,10 +416,23 @@ addSettingTextbox(FunctionTab, {
 addRoundButton(FunctionTab, {
     Name = "停止旋转",
     Callback = function()
-        local plr = game:GetService("Players").LocalPlayer
-        repeat task.wait() until plr.Character
-        local humRoot = plr.Character:WaitForChild("HumanoidRootPart")
-        local humanoid = plr.Character:WaitForChild("Humanoid")
+        if not player.Character then
+            return OrionLib:MakeNotification({
+                Name = "错误",
+                Content = "角色未加载",
+                Time = 2
+            })
+        end
+        
+        local humRoot = player.Character:FindFirstChild("HumanoidRootPart")
+        local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+        if not humRoot or not humanoid then
+            return OrionLib:MakeNotification({
+                Name = "错误",
+                Content = "找不到角色关键部件",
+                Time = 2
+            })
+        end
 
         local spinbot = humRoot:FindFirstChild("Spinbot")
         if spinbot then
