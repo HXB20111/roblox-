@@ -1,12 +1,13 @@
 -- 加载OrionLib库
 local OrionLib
 local success, err = pcall(function()
-    OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/%E9%BB%84%E8%84%9A%E6%9C%ACUI.lua"))()
+    OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/gui_modified_with_toggle.txt"))()
 end)
 if not success or not OrionLib then
     warn("Orion库加载失败: " .. (err or "未知错误"))
     return
 end
+
 -- 新黄名单系统配置
 local StarterGui = game:GetService("StarterGui")
 local Players = game:GetService("Players")
@@ -132,7 +133,6 @@ PlayerTab:AddParagraph("用户名", player.Name)
 PlayerTab:AddParagraph("用户ID", tostring(player.UserId))
 PlayerTab:AddParagraph("注入器", executorName)
 PlayerTab:AddParagraph("服务器ID", tostring(game.GameId))
--- 显示当前玩家白名单状态
 PlayerTab:AddParagraph("白名单状态", isLocalPlayerWhitelisted and "已授权" or "未授权")
 
 -- 玩家功能标签页（含飞行功能）
@@ -284,8 +284,6 @@ FunctionTab:AddToggle({
     Default = false,
     Callback = function(enabled)
         Clipon = enabled
-        local Workspace = game:GetService("Workspace")
-        local Players = game:GetService("Players")
         
         -- 断开已有连接
         if Stepped then
@@ -296,7 +294,7 @@ FunctionTab:AddToggle({
             -- 开启穿墙：禁用角色碰撞
             Stepped = game:GetService("RunService").Stepped:Connect(function()
                 if Clipon then
-                    local playerChar = Workspace:FindFirstChild(Players.LocalPlayer.Name)
+                    local playerChar = workspace:FindFirstChild(Players.LocalPlayer.Name)
                     if playerChar then
                         for _, part in pairs(playerChar:GetChildren()) do
                             if part:IsA("BasePart") then
@@ -311,7 +309,7 @@ FunctionTab:AddToggle({
             OrionLib:MakeNotification({Name = "成功", Content = "穿墙模式已开启", Time = 2})
         else
             -- 关闭穿墙：恢复碰撞
-            local playerChar = Workspace:FindFirstChild(Players.LocalPlayer.Name)
+            local playerChar = workspace:FindFirstChild(Players.LocalPlayer.Name)
             if playerChar then
                 for _, part in pairs(playerChar:GetChildren()) do
                     if part:IsA("BasePart") then
@@ -333,13 +331,11 @@ FunctionTab:AddToggle({
         if enabled then
             -- 加载透视功能
             pcall(function()
-            loadstring(game:HttpGet('https://raw.githubusercontent.com/Lucasfin000/SpaceHub/main/UESP'))()
+                loadstring(game:HttpGet('https://raw.githubusercontent.com/Lucasfin000/SpaceHub/main/UESP'))()
                 OrionLib:MakeNotification({Name = "成功", Content = "透视功能已开启", Time = 2})
             end)
         else
-            -- 尝试关闭透视（根据实际实现补充关闭逻辑）
-            -- 若原透视脚本有卸载函数，可在此调用，示例：
-            -- if typeof(StopESP) == "function" then StopESP() end
+            -- 尝试关闭透视
             OrionLib:MakeNotification({Name = "提示", Content = "透视功能已关闭", Time = 2})
         end
     end,
@@ -347,6 +343,7 @@ FunctionTab:AddToggle({
 })
 
 -- 旋转速度调节
+local spinVelocity -- 全局变量存储旋转实例
 addSettingTextbox(FunctionTab, {
     Name = "旋转速度",
     Placeholder = "输入旋转速度值",
@@ -415,6 +412,13 @@ addRoundButton(FunctionTab, {
     Color = Color3.fromRGB(255, 99, 71)
 })
 
+-- 开发者标签页
+local ScriptCenterTab = Window:MakeTab({
+    Name = "开发者",
+    Icon = "rbxassetid://4483345998"
+})
+
+-- 自瞄功能
 ScriptCenterTab:AddButton({
     Name = "自瞄",
     Callback = function()
@@ -422,10 +426,7 @@ ScriptCenterTab:AddButton({
     end
 })
 
-local ScriptCenterTab = Window:MakeTab({
-    Name = "开发者",
-    Icon = "rbxassetid://4483345998"})
-
+-- 其他功能
 ScriptCenterTab:AddButton({
     Name = "IY",
     Callback = function()
@@ -440,10 +441,10 @@ ScriptCenterTab:AddButton({
     end
 })
 
+-- 其他脚本标签页
+local OtherScriptsTab = Window:MakeTab({Name = "其他脚本", Icon = "rbxassetid://4483345998"})
 
-local ScriptCenterTab = Window:MakeTab({Name = "其他脚本", Icon = "rbxassetid://4483345998"})
-
-addRoundButton(ScriptCenterTab, {
+addRoundButton(OtherScriptsTab, {
     Name = "加载皮脚本",
     Callback = function()
         OrionLib:MakeNotification({Name = "提示", Content = "正在加载...", Time = 3})
