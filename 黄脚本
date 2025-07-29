@@ -1,13 +1,22 @@
--- 加载 OrionLib
-local orionLibUrl = "loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/gui_modified_with_toggle.txt"))()"
+-- ================ 核心修复：OrionLib 加载 ================
+local orionLibUrl = "https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/gui_modified_with_toggle.txt"
 local loadOrionSuccess, OrionLib = pcall(function()
-    return loadstring(game:HttpGet(orionLibUrl))()
+    local libContent = game:HttpGet(orionLibUrl)
+    return loadstring(libContent)()
 end)
-if not loadOrionSuccess then
-    warn("加载 OrionLib 失败: " .. tostring(OrionLib))
+
+-- 校验 OrionLib 是否加载成功，且关键函数是否可用
+if not loadOrionSuccess or type(OrionLib) ~= "table" or type(OrionLib.MakeWindow) ~= "function" then
+    warn("OrionLib 加载失败或功能异常: " .. tostring(OrionLib))
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "错误",
+        Text = "脚本核心库异常，功能无法使用",
+        Duration = 5
+    })
     return
 end
 
+-- ================ 创建主窗口 ================
 local Window = OrionLib:MakeWindow({
     Name = "黄脚本",
     SaveConfig = true,
@@ -16,7 +25,7 @@ local Window = OrionLib:MakeWindow({
     Icon = "rbxassetid://118894209472715"
 })
 
--- 欢迎通知
+-- ================ 欢迎通知（增强鲁棒性） ================
 pcall(function()
     game:GetService("StarterGui"):SetCore("SendNotification", {
         Title = "黄脚本",
@@ -26,10 +35,11 @@ pcall(function()
     })
 end)
 
--- 辅助函数：处理脚本加载（包含完整错误处理和成功提示）
+-- ================ 辅助函数：远程脚本加载（终极校验） ================
 local function loadRemoteScript(url, successMsg, failMsg)
-    local success, httpResult = pcall(game.HttpGet, game, url)
-    if not success then
+    -- 1. 网络请求校验
+    local httpSuccess, httpResult = pcall(game.HttpGet, game, url)
+    if not httpSuccess then
         local errMsg = "网络请求失败: " .. tostring(httpResult)
         OrionLib:MakeNotification({
             Name = "加载失败",
@@ -39,6 +49,8 @@ local function loadRemoteScript(url, successMsg, failMsg)
         warn(errMsg)
         return
     end
+
+    -- 2. 脚本加载校验
     local loadSuccess, loadFunc = pcall(loadstring, httpResult)
     if not loadSuccess then
         local errMsg = "脚本加载失败: " .. tostring(loadFunc)
@@ -50,8 +62,10 @@ local function loadRemoteScript(url, successMsg, failMsg)
         warn(errMsg)
         return
     end
+
+    -- 3. 确保是函数类型
     if type(loadFunc) ~= "function" then
-        local errMsg = "加载的内容不是有效的可执行函数，URL: " .. url
+        local errMsg = "远程内容不是函数: " .. url
         OrionLib:MakeNotification({
             Name = "加载失败",
             Content = errMsg,
@@ -60,6 +74,8 @@ local function loadRemoteScript(url, successMsg, failMsg)
         warn(errMsg)
         return
     end
+
+    -- 4. 执行脚本并捕获错误
     local executeSuccess, executeResult = pcall(loadFunc)
     if not executeSuccess then
         local errMsg = "脚本执行失败: " .. tostring(executeResult)
@@ -71,6 +87,8 @@ local function loadRemoteScript(url, successMsg, failMsg)
         warn(errMsg)
         return
     end
+
+    -- 5. 加载成功通知
     OrionLib:MakeNotification({
         Name = "加载成功",
         Content = successMsg,
@@ -78,60 +96,82 @@ local function loadRemoteScript(url, successMsg, failMsg)
     })
 end
 
--- 玩家功能 Tab
+-- ================ 玩家功能 Tab ================
 local Tab = Window:MakeTab({
     Name = "玩家功能",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
--- 基础属性设置
+-- 基础属性设置：跳跃高度（完整校验）
 Tab:AddTextbox({
     Name = "跳跃高度",
     Default = "",
     TextDisappear = true,
     Callback = function(Value)
         local num = tonumber(Value)
-        if num then
-            local localPlayer = game.Players.LocalPlayer
-            local character = localPlayer.Character
-            if character then
-                local humanoid = character:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    humanoid.JumpPower = num
-                else
-                    warn("角色中未找到 Humanoid，无法设置跳跃高度")
-                end
-            else
-                warn("角色尚未加载，无法设置跳跃高度")
-            end
+        if not num then return end
+
+        local localPlayer = game.Players.LocalPlayer
+        local character = localPlayer.Character
+        if not character then 
+            OrionLib:MakeNotification({
+                Name = "错误",
+                Content = "角色未加载，无法设置跳跃高度",
+                Time = 2
+            })
+            return 
         end
+
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if not humanoid then 
+            OrionLib:MakeNotification({
+                Name = "错误",
+                Content = "角色无 Humanoid，无法设置跳跃高度",
+                Time = 2
+            })
+            return 
+        end
+
+        humanoid.JumpPower = num
     end
 })
 
+-- 基础属性设置：移动速度（完整校验）
 Tab:AddTextbox({
     Name = "移动速度",
     Default = "",
     TextDisappear = true,
     Callback = function(Value)
         local num = tonumber(Value)
-        if num then
-            local localPlayer = game.Players.LocalPlayer
-            local character = localPlayer.Character
-            if character then
-                local humanoid = character:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    humanoid.WalkSpeed = num
-                else
-                    warn("角色中未找到 Humanoid，无法设置移动速度")
-                end
-            else
-                warn("角色尚未加载，无法设置移动速度")
-            end
+        if not num then return end
+
+        local localPlayer = game.Players.LocalPlayer
+        local character = localPlayer.Character
+        if not character then 
+            OrionLib:MakeNotification({
+                Name = "错误",
+                Content = "角色未加载，无法设置移动速度",
+                Time = 2
+            })
+            return 
         end
+
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if not humanoid then 
+            OrionLib:MakeNotification({
+                Name = "错误",
+                Content = "角色无 Humanoid，无法设置移动速度",
+                Time = 2
+            })
+            return 
+        end
+
+        humanoid.WalkSpeed = num
     end
 })
 
+-- 基础属性设置：重力
 Tab:AddTextbox({
     Name = "重力",
     Default = "",
@@ -144,7 +184,7 @@ Tab:AddTextbox({
     end
 })
 
--- 视觉增强功能
+-- 视觉增强：夜视
 Tab:AddToggle({
     Name = "夜视",
     Default = false,
@@ -153,22 +193,24 @@ Tab:AddToggle({
     end
 })
 
+-- 视觉增强：飞行（依赖远程脚本）
 Tab:AddToggle({
     Name = "飞行",
     Default = false,
     Callback = function(Value)
         if Value then
-            loadRemoteScript("https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/%E9%BB%84%E9%A3%9E%E8%A1%8C",
-                            "飞行功能已启用",
-                            "飞行功能加载失败")
+            loadRemoteScript(
+                "https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/%E9%BB%84%E9%A3%9E%E8%A1%8C",
+                "飞行功能已启用",
+                "飞行功能加载失败"
+            )
         end
     end
 })
 
--- 物理操控功能
+-- 物理操控：穿墙（完整校验）
 local isClipping = false
 local stepConnection
-
 Tab:AddToggle({
     Name = "穿墙",
     Default = false,
@@ -177,6 +219,15 @@ Tab:AddToggle({
         local localPlayer = game.Players.LocalPlayer
         local char = localPlayer.Character
         
+        if not char then 
+            OrionLib:MakeNotification({
+                Name = "错误",
+                Content = "角色未加载，无法开启穿墙",
+                Time = 2
+            })
+            return 
+        end
+
         if enabled then
             stepConnection = game:GetService("RunService").Stepped:Connect(function()
                 if isClipping and char then
@@ -191,11 +242,9 @@ Tab:AddToggle({
             end)
             OrionLib:MakeNotification({Name = "状态", Content = "穿墙已开启", Time = 2})
         else
-            if char then
-                for _, part in pairs(char:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.CanCollide = true
-                    end
+            for _, part in pairs(char:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = true
                 end
             end
             OrionLib:MakeNotification({Name = "状态", Content = "穿墙已关闭", Time = 2})
@@ -205,18 +254,19 @@ Tab:AddToggle({
     Color = Color3.fromRGB(100, 149, 237)
 })
 
--- 旋转控制功能
+-- 旋转控制：旋转速度
 Tab:AddTextbox({
     Name = "旋转速度",
     Placeholder = "数值范围: 1-1000",
     Callback = function(Value)
         local speed = tonumber(Value)
         if not speed or speed < 1 or speed > 1000 then
-            return OrionLib:MakeNotification({
+            OrionLib:MakeNotification({
                 Name = "错误",
                 Content = "请输入1-1000之间的数字",
                 Time = 2
             })
+            return
         end
 
         local localPlayer = game.Players.LocalPlayer
@@ -247,6 +297,7 @@ Tab:AddTextbox({
     end
 })
 
+-- 旋转控制：停止旋转
 Tab:AddButton({
     Name = "停止旋转",
     Callback = function()
@@ -277,29 +328,34 @@ Tab:AddButton({
     Color = Color3.fromRGB(255, 99, 71)
 })
 
--- 特殊功能
+-- 特殊功能：踏空（依赖远程脚本）
 Tab:AddToggle({
     Name = "踏空",
     Default = false,
     Callback = function(Value)
         if Value then
-            loadRemoteScript('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/Float',
-                            "踏空功能已启用",
-                            "踏空功能加载失败")
+            loadRemoteScript(
+                "https://raw.githubusercontent.com/GhostPlayer352/Test4/main/Float",
+                "踏空功能已启用",
+                "踏空功能加载失败"
+            )
         end
     end
 })
 
+-- 特殊功能：自瞄（依赖远程脚本）
 Tab:AddButton({
     Name = "自瞄",
     Callback = function()
-        loadRemoteScript("https://raw.githubusercontent.com/AZYsGithub/chillz-workshop/main/Arceus%20Aimbot.lua",
-                        "自瞄功能已加载",
-                        "自瞄功能加载失败")
+        loadRemoteScript(
+            "https://raw.githubusercontent.com/AZYsGithub/chillz-workshop/main/Arceus%20Aimbot.lua",
+            "自瞄功能已加载",
+            "自瞄功能加载失败"
+        )
     end
 })
 
--- 透视功能
+-- 透视功能（完整校验）
 Tab:AddButton({
     Name = "透视",
     Callback = function()
@@ -354,6 +410,7 @@ Tab:AddButton({
     end
 })
 
+-- 关闭透视
 Tab:AddButton({
     Name = "关闭透视",
     Callback = function()
@@ -366,7 +423,7 @@ Tab:AddButton({
     end
 })
 
--- 作者信息
+-- ================ 作者信息 Tab ================
 local AuthorTab = Window:MakeTab({
     Name = "作者信息",
     Icon = "rbxassetid://4483345998"
@@ -376,16 +433,27 @@ AuthorTab:AddParagraph("作者", "Hfh916")
 AuthorTab:AddParagraph("作者QQ", "135737738")
 AuthorTab:AddParagraph("QQ群", "110")
 
+-- 复制作者QQ（区分环境）
 AuthorTab:AddButton({
     Name = "复制作者QQ",
     Callback = function()
-        if setclipboard then
+        if type(setclipboard) == "function" then
             setclipboard("1357377308")
             OrionLib:MakeNotification({Name = "成功", Content = "已复制作者QQ", Time = 2})
+        else
+            OrionLib:MakeNotification({
+                Name = "提示",
+                Content = "当前环境不支持自动复制，请手动复制：1357377308",
+                Time = 5
+            })
         end
     end,
     Color = Color3.fromRGB(70, 130, 255)
 })
+
+-- 复制QQ群（区分环境）
+AuthorTab:AddButton({
+
 
 AuthorTab:AddButton({
     Name = "复制QQ群",
