@@ -1,5 +1,5 @@
 -- 加载 OrionLib
-local orionLibUrl = "https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/gui_modified_with_toggle.txt"
+local orionLibUrl = "loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/gui_modified_with_toggle.txt"))()"
 local loadOrionSuccess, OrionLib = pcall(function()
     return loadstring(game:HttpGet(orionLibUrl))()
 end)
