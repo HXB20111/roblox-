@@ -1,4 +1,13 @@
-local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/gui_modified_with_toggle.txt"))()
+-- 加载 OrionLib
+local orionLibUrl = "https://raw.githubusercontent.com/HXB20111/roblox-/refs/heads/main/gui_modified_with_toggle.txt"
+local loadOrionSuccess, OrionLib = pcall(function()
+    return loadstring(game:HttpGet(orionLibUrl))()
+end)
+if not loadOrionSuccess then
+    warn("加载 OrionLib 失败: " .. tostring(OrionLib))
+    return
+end
+
 local Window = OrionLib:MakeWindow({
     Name = "黄脚本",
     SaveConfig = true,
@@ -21,32 +30,45 @@ end)
 local function loadRemoteScript(url, successMsg, failMsg)
     local success, httpResult = pcall(game.HttpGet, game, url)
     if not success then
+        local errMsg = "网络请求失败: " .. tostring(httpResult)
         OrionLib:MakeNotification({
             Name = "加载失败",
-            Content = "网络请求失败: ".. tostring(httpResult),
+            Content = errMsg,
             Time = 3
         })
-        warn("脚本网络请求失败: ".. tostring(httpResult))
+        warn(errMsg)
         return
     end
     local loadSuccess, loadFunc = pcall(loadstring, httpResult)
     if not loadSuccess then
+        local errMsg = "脚本加载失败: " .. tostring(loadFunc)
         OrionLib:MakeNotification({
             Name = "加载失败",
-            Content = "脚本加载失败: ".. tostring(loadFunc),
+            Content = errMsg,
             Time = 3
         })
-        warn("脚本加载失败: ".. tostring(loadFunc))
+        warn(errMsg)
+        return
+    end
+    if type(loadFunc) ~= "function" then
+        local errMsg = "加载的内容不是有效的可执行函数，URL: " .. url
+        OrionLib:MakeNotification({
+            Name = "加载失败",
+            Content = errMsg,
+            Time = 3
+        })
+        warn(errMsg)
         return
     end
     local executeSuccess, executeResult = pcall(loadFunc)
     if not executeSuccess then
+        local errMsg = "脚本执行失败: " .. tostring(executeResult)
         OrionLib:MakeNotification({
             Name = "加载失败",
-            Content = "脚本执行失败: ".. tostring(executeResult),
+            Content = errMsg,
             Time = 3
         })
-        warn("脚本执行失败: ".. tostring(executeResult))
+        warn(errMsg)
         return
     end
     OrionLib:MakeNotification({
@@ -71,7 +93,18 @@ Tab:AddTextbox({
     Callback = function(Value)
         local num = tonumber(Value)
         if num then
-            game.Players.LocalPlayer.Character.Humanoid.JumpPower = num
+            local localPlayer = game.Players.LocalPlayer
+            local character = localPlayer.Character
+            if character then
+                local humanoid = character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.JumpPower = num
+                else
+                    warn("角色中未找到 Humanoid，无法设置跳跃高度")
+                end
+            else
+                warn("角色尚未加载，无法设置跳跃高度")
+            end
         end
     end
 })
@@ -83,7 +116,18 @@ Tab:AddTextbox({
     Callback = function(Value)
         local num = tonumber(Value)
         if num then
-            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = num
+            local localPlayer = game.Players.LocalPlayer
+            local character = localPlayer.Character
+            if character then
+                local humanoid = character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.WalkSpeed = num
+                else
+                    warn("角色中未找到 Humanoid，无法设置移动速度")
+                end
+            else
+                warn("角色尚未加载，无法设置移动速度")
+            end
         end
     end
 })
@@ -130,7 +174,8 @@ Tab:AddToggle({
     Default = false,
     Callback = function(enabled)
         isClipping = enabled
-        local char = game.Players.LocalPlayer.Character
+        local localPlayer = game.Players.LocalPlayer
+        local char = localPlayer.Character
         
         if enabled then
             stepConnection = game:GetService("RunService").Stepped:Connect(function()
@@ -174,7 +219,8 @@ Tab:AddTextbox({
             })
         end
 
-        local char = game.Players.LocalPlayer.Character
+        local localPlayer = game.Players.LocalPlayer
+        local char = localPlayer.Character
         if not char then return end
 
         local humRoot = char:WaitForChild("HumanoidRootPart")
@@ -204,7 +250,8 @@ Tab:AddTextbox({
 Tab:AddButton({
     Name = "停止旋转",
     Callback = function()
-        local char = game.Players.LocalPlayer.Character
+        local localPlayer = game.Players.LocalPlayer
+        local char = localPlayer.Character
         if not char then return end
 
         local humRoot = char:WaitForChild("HumanoidRootPart")
